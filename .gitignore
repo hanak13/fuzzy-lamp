@@ -1,0 +1,9 @@
+# Batch scripts
+*.bat
+*.cmd
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
