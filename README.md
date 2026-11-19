@@ -60,7 +60,9 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
   - **Multi-Select**: Select multiple objects with `Shift + Click` or drag-selection marquee.
   - **Right-Click Context Menu**:
     - Right-clicking on multiple selected objects reveals the **"Merge Objects"** option.
-    - Right-clicking on a merged diagram/shape reveals the **"Save to My Shapes"** option (as well as Duplicate, Bring to Front, Send to Back, and Delete).
+    - Right-clicking on any shape or diagram reveals **"Save to My Shapes"**, **"Export as SVG"**, and **"Export as JPG"** (as well as Duplicate, Bring to Front, Send to Back, and Delete).
+    - **Export as SVG**: Exports the selected shape as a standalone vector SVG file with viewBox and transparency intact.
+    - **Export as JPG**: Renders the selected shape at 2x crisp resolution with a clean white background.
   - **Merge Objects (`Ctrl + G`)**: Unifies individual shapes, diagrams, and connectors into a single compound group.
   - **Save to My Shapes**: Prompts for a name, generates a thumbnail preview, serializes the exact geometry, and persists it in `localStorage`.
   - **"⭐ My Shapes" Category**: Accessible in the left Shapes drawer panel. Displays all user-saved diagrams with crisp thumbnails and a red delete (`×`) button so users can remove any custom shape whenever they want.

@@ -2255,10 +2255,112 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctxMerge = document.getElementById('ctx-merge');
     const ctxSaveShape = document.getElementById('ctx-save-shape');
     const ctxUngroup = document.getElementById('ctx-ungroup');
+    const ctxExportSvg = document.getElementById('ctx-export-svg');
+    const ctxExportJpg = document.getElementById('ctx-export-jpg');
     const ctxDuplicate = document.getElementById('ctx-duplicate');
     const ctxBringFront = document.getElementById('ctx-bring-front');
     const ctxSendBack = document.getElementById('ctx-send-back');
     const ctxDelete = document.getElementById('ctx-delete');
+
+    function getActiveShapeExportName(activeObj) {
+        if (!activeObj) return 'shape';
+        if (activeObj.isMergedShape) return 'merged_diagram';
+        if (activeObj.shapeId) return activeObj.shapeId.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        if (activeObj.type === 'i-text' || activeObj.type === 'textbox') return 'text_snippet';
+        if (activeObj.isStickyNote) return 'sticky_note';
+        if (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line') return 'line_arrow';
+        return 'whiteboard_shape';
+    }
+
+    function exportActiveObjectAs(format = 'svg') {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) {
+            showToast('Select a shape to export');
+            return;
+        }
+
+        const baseName = getActiveShapeExportName(activeObj);
+
+        if (format === 'svg') {
+            activeObj.clone((cloned) => {
+                const b = cloned.getBoundingRect(true, true);
+                const padding = 20;
+                const w = Math.max(20, Math.ceil(b.width + padding * 2));
+                const h = Math.max(20, Math.ceil(b.height + padding * 2));
+
+                const tempCanvasEl = document.createElement('canvas');
+                tempCanvasEl.width = w;
+                tempCanvasEl.height = h;
+
+                const tempCanvas = new fabric.StaticCanvas(tempCanvasEl, {
+                    width: w,
+                    height: h,
+                    backgroundColor: 'transparent'
+                });
+
+                cloned.set({
+                    left: w / 2,
+                    top: h / 2,
+                    originX: 'center',
+                    originY: 'center'
+                });
+                cloned.setCoords();
+
+                tempCanvas.add(cloned);
+                tempCanvas.renderAll();
+
+                const svgContent = tempCanvas.toSVG({
+                    viewBox: {
+                        x: 0,
+                        y: 0,
+                        width: w,
+                        height: h
+                    }
+                });
+
+                tempCanvas.dispose();
+
+                const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${baseName}.svg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+                showToast(`Exported "${baseName}.svg"`);
+            }, EXTRA_PROPS);
+        } else if (format === 'jpg') {
+            const padding = 24;
+            const dataUrl = activeObj.toDataURL({
+                format: 'png',
+                multiplier: 2,
+                enableRetinaScaling: true
+            });
+
+            const img = new Image();
+            img.onload = () => {
+                const offCanvas = document.createElement('canvas');
+                offCanvas.width = img.width + padding * 2;
+                offCanvas.height = img.height + padding * 2;
+                const ctx = offCanvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+                ctx.drawImage(img, padding, padding);
+
+                const jpgUrl = offCanvas.toDataURL('image/jpeg', 0.95);
+                const a = document.createElement('a');
+                a.href = jpgUrl;
+                a.download = `${baseName}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showToast(`Exported "${baseName}.jpg"`);
+            };
+            img.src = dataUrl;
+        }
+    }
 
     function hideContextMenu() {
         if (contextMenu && !contextMenu.classList.contains('hidden')) {
@@ -2324,6 +2426,20 @@ document.addEventListener('DOMContentLoaded', () => {
         ctxUngroup.addEventListener('click', () => {
             hideContextMenu();
             ungroupSelectedObjects();
+        });
+    }
+
+    if (ctxExportSvg) {
+        ctxExportSvg.addEventListener('click', () => {
+            hideContextMenu();
+            exportActiveObjectAs('svg');
+        });
+    }
+
+    if (ctxExportJpg) {
+        ctxExportJpg.addEventListener('click', () => {
+            hideContextMenu();
+            exportActiveObjectAs('jpg');
         });
     }
 
