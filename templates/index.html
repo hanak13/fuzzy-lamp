@@ -295,6 +295,7 @@
             <!-- Category Filter Chips -->
             <div class="shapes-categories" id="shapes-categories">
                 <button type="button" class="category-chip active" data-category="all">All</button>
+                <button type="button" class="category-chip" data-category="My Shapes">⭐ My Shapes</button>
                 <button type="button" class="category-chip" data-category="Flowchart">Flowchart</button>
                 <button type="button" class="category-chip" data-category="Basic">Basic</button>
                 <button type="button" class="category-chip" data-category="Arrows">Arrows</button>
@@ -483,7 +484,154 @@
                 <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
         </button>
-        <button id="btn-reset-view" class="zoom-btn text-btn" title="Reset View & Zoom">Reset</button>
+        <button id="btn-reset-view" class="zoom-btn text-btn" title="Reset View & Zoom (Ctrl+0)">Reset</button>
+        <button id="btn-shortcuts-toggle" class="zoom-btn" title="Keyboard Shortcuts (? or Ctrl+/)">
+            <span style="font-weight: 700; font-size: 13px;">?</span>
+        </button>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal Dialog -->
+    <div id="shortcuts-modal" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">⌨️</span>
+                    <h3>Keyboard Shortcuts</h3>
+                </div>
+                <button type="button" id="btn-close-shortcuts" class="modal-close-btn" title="Close (Escape)">&times;</button>
+            </div>
+            <div class="modal-body shortcuts-grid-layout">
+                <!-- Category 1: Basic Editing -->
+                <div class="shortcuts-section">
+                    <h4>1. Basic Editing</h4>
+                    <div class="shortcut-row"><span class="shortcut-desc">Undo</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Z</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Redo</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Y</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Copy</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>C</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Paste</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>V</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Cut</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>X</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Select All</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>A</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Duplicate</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>D</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Save Board</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>S</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Save As / Export</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Delete Object</span><span class="shortcut-keys"><kbd>Delete</kbd> / <kbd>Backspace</kbd></span></div>
+                </div>
+
+                <!-- Category 2: Canvas Navigation -->
+                <div class="shortcuts-section">
+                    <h4>2. Canvas Navigation</h4>
+                    <div class="shortcut-row"><span class="shortcut-desc">Pan Canvas</span><span class="shortcut-keys"><kbd>Space</kbd> + Drag / Hand</span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Scroll Canvas</span><span class="shortcut-keys">Mouse Wheel</span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Zoom In / Out</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + Wheel / <kbd>+</kbd> / <kbd>-</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Reset Zoom</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>0</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Zoom to 100%</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>1</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Fit Entire Canvas</span><span class="shortcut-keys"><kbd>Shift</kbd> + <kbd>1</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Zoom to Selection</span><span class="shortcut-keys"><kbd>Shift</kbd> + <kbd>2</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Go to Canvas Origin</span><span class="shortcut-keys"><kbd>Home</kbd></span></div>
+                </div>
+
+                <!-- Category 3: Drawing Tools -->
+                <div class="shortcuts-section">
+                    <h4>3. Drawing Tools</h4>
+                    <div class="shortcut-row"><span class="shortcut-desc">Select Tool</span><span class="shortcut-keys"><kbd>V</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Hand / Pan Tool</span><span class="shortcut-keys"><kbd>H</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Pen Tool</span><span class="shortcut-keys"><kbd>P</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Text Tool</span><span class="shortcut-keys"><kbd>T</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Rectangle Tool</span><span class="shortcut-keys"><kbd>R</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Circle / Ellipse Tool</span><span class="shortcut-keys"><kbd>O</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Line Connector</span><span class="shortcut-keys"><kbd>L</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Arrow Connector</span><span class="shortcut-keys"><kbd>A</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Sticky Note</span><span class="shortcut-keys"><kbd>N</kbd> / <kbd>S</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Eraser Tool</span><span class="shortcut-keys"><kbd>E</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Exit Current Tool</span><span class="shortcut-keys"><kbd>Escape</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Edit Selected Text</span><span class="shortcut-keys"><kbd>Enter</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Maintain Proportions</span><span class="shortcut-keys"><kbd>Shift</kbd> + Drag</span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Duplicate Dragging</span><span class="shortcut-keys"><kbd>Alt</kbd> + Drag</span></div>
+                </div>
+
+                <!-- Category 4: Text Formatting -->
+                <div class="shortcuts-section">
+                    <h4>4. Text Formatting</h4>
+                    <div class="shortcut-row"><span class="shortcut-desc">Bold</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>B</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Italic</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>I</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Underline</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>U</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Strikethrough</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>X</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Align Left</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>L</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Align Center</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Align Right</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd></span></div>
+                </div>
+
+                <!-- Category 5: Object Arrangement -->
+                <div class="shortcuts-section">
+                    <h4>5. Object Arrangement</h4>
+                    <div class="shortcut-row"><span class="shortcut-desc">Group Objects</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>G</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Ungroup Objects</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Bring Forward</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>]</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Send Backward</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>[</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Bring to Front</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>]</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Send to Back</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>[</kbd></span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Move Object</span><span class="shortcut-keys">Arrow Keys</span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Move Object Faster</span><span class="shortcut-keys"><kbd>Shift</kbd> + Arrow</span></div>
+                    <div class="shortcut-row"><span class="shortcut-desc">Multi-Select Objects</span><span class="shortcut-keys"><kbd>Shift</kbd> + Click</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-notification hidden"></div>
+
+    <!-- Right-click Context Menu (Merge, Save to My Shapes, Ungroup, etc.) -->
+    <div id="context-menu" class="context-menu hidden">
+        <div class="context-menu-item" id="ctx-merge" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Merge Objects</span>
+        </div>
+        <div class="context-menu-item" id="ctx-save-shape" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            <span>Save to My Shapes</span>
+        </div>
+        <div class="context-menu-item" id="ctx-ungroup" style="display: none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            <span>Ungroup</span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" id="ctx-duplicate">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span>Duplicate <span class="ctx-shortcut">Ctrl+D</span></span>
+        </div>
+        <div class="context-menu-item" id="ctx-bring-front">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            </svg>
+            <span>Bring to Front <span class="ctx-shortcut">Ctrl+Shift+]</span></span>
+        </div>
+        <div class="context-menu-item" id="ctx-send-back">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 12 2 17 12 22 22 17 12 12"/>
+            </svg>
+            <span>Send to Back <span class="ctx-shortcut">Ctrl+Shift+[</span></span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item danger" id="ctx-delete">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            </svg>
+            <span>Delete <span class="ctx-shortcut">Del</span></span>
+        </div>
     </div>
 
     <!-- Scripts (Offline Fabric.js vendor script and custom whiteboard script) -->

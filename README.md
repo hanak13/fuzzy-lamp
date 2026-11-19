@@ -53,8 +53,77 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
   - **Eraser (`E`)**: Erasing with `fabric.PencilBrush` (`destination-out` pixel masking + object click-to-delete).
 - **Text Tool (`T`)**: Click anywhere to type using `fabric.IText`, with font size, color, bold, and italic.
 - **Select Tool (`V`)**: Move, resize, and delete any object, shape, or sticky note (`Delete` / `Backspace`).
+- **Multi-Select, Merge & Custom "My Shapes" Library**:
+  - **Multi-Select**: Select multiple objects with `Shift + Click` or drag-selection marquee.
+  - **Right-Click Context Menu**:
+    - Right-clicking on multiple selected objects reveals the **"Merge Objects"** option.
+    - Right-clicking on a merged diagram/shape reveals the **"Save to My Shapes"** option (as well as Duplicate, Bring to Front, Send to Back, and Delete).
+  - **Merge Objects (`Ctrl + G`)**: Unifies individual shapes, diagrams, and connectors into a single compound group.
+  - **Save to My Shapes**: Prompts for a name, generates a thumbnail preview, serializes the exact geometry, and persists it in `localStorage`.
+  - **"⭐ My Shapes" Category**: Accessible in the left Shapes drawer panel. Displays all user-saved diagrams with crisp thumbnails and a red delete (`×`) button so users can remove any custom shape whenever they want.
+  - **Instant Placement**: Clicking any saved custom shape card immediately instantiates a fresh copy onto the canvas.
+- **Comprehensive Keyboard Shortcuts & Modal**:
+  - Full support for 40+ shortcuts spanning **Basic Editing**, **Canvas Navigation**, **Drawing Tools**, **Text Formatting**, and **Object Arrangement**.
+  - Built-in shortcuts cheat sheet modal accessible via `?` button or `?` / `Ctrl+/` shortcut.
+  - Floating toast feedback for actions like copy, duplicate, save, and alignment.
 - **Undo / Redo (`Ctrl+Z` / `Ctrl+Y`)**: 50-step history tracking covering shapes, paths, text, sticky notes, and deletions.
 - **Pan & Zoom**: Spacebar / Hand drag, mouse-wheel zoom centered at cursor, bottom-right zoom widget.
+
+---
+
+## Complete Keyboard Shortcuts Reference
+
+| Category | Shortcut | Action |
+| :--- | :--- | :--- |
+| **Basic Editing** | `Ctrl + Z` | Undo |
+| | `Ctrl + Y` / `Ctrl + Shift + Z` | Redo |
+| | `Ctrl + C` | Copy Selected |
+| | `Ctrl + V` | Paste Clipboard |
+| | `Ctrl + X` | Cut Selected |
+| | `Ctrl + A` | Select All Objects |
+| | `Ctrl + D` | Duplicate Selected |
+| | `Ctrl + S` | Save Board to Local Storage |
+| | `Ctrl + Shift + S` | Save As / Export JSON File |
+| | `Delete` / `Backspace` | Delete Selected Object(s) |
+| **Canvas Navigation** | `Space + Drag` / `H` | Pan Canvas |
+| | `Mouse Wheel` | Scroll Canvas |
+| | `Ctrl + Wheel` / `+` / `-` | Zoom In / Out |
+| | `Ctrl + 0` | Reset Zoom & Center |
+| | `Ctrl + 1` | Zoom to 100% |
+| | `Shift + 1` | Fit Entire Canvas to Screen |
+| | `Shift + 2` | Zoom to Active Selection |
+| | `Home` | Go to Canvas Origin `(0, 0)` |
+| **Drawing Tools** | `V` | Select Tool |
+| | `H` | Hand / Pan Tool |
+| | `P` | Freehand Pen Tool |
+| | `T` | Text Tool |
+| | `R` | Insert Rectangle at Center |
+| | `O` | Insert Circle / Ellipse at Center |
+| | `L` | Connector Line Tool |
+| | `A` | Connector Arrow Tool |
+| | `N` / `S` | Sticky Note Tool |
+| | `E` | Eraser Tool |
+| | `Escape` | Exit Tool / Close Drawer / Deselect |
+| | `Enter` | Edit Selected Text / Shape / Note |
+| | `Shift + Drag` | Maintain Aspect Ratio Proportions |
+| | `Alt + Drag` | Duplicate While Dragging |
+| **Text Formatting** | `Ctrl + B` | Toggle Bold |
+| | `Ctrl + I` | Toggle Italic |
+| | `Ctrl + U` | Toggle Underline |
+| | `Ctrl + Shift + X` | Toggle Strikethrough |
+| | `Ctrl + Shift + L` | Align Left |
+| | `Ctrl + Shift + E` | Align Center |
+| | `Ctrl + Shift + R` | Align Right |
+| **Object Arrangement** | `Ctrl + G` | Group Selected Objects |
+| | `Ctrl + Shift + G` | Ungroup Objects |
+| | `Ctrl + ]` | Bring Forward |
+| | `Ctrl + [` | Send Backward |
+| | `Ctrl + Shift + ]` | Bring to Front |
+| | `Ctrl + Shift + [` | Send to Back |
+| | `Arrow Keys` | Move Object (2px) |
+| | `Shift + Arrow` | Move Object Faster (20px) |
+| | `Shift + Click` | Multi-Select Objects |
+| **Help & Cheat Sheet** | `?` / `Ctrl + /` | Open / Close Shortcuts Modal |
 
 ---
 

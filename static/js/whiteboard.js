@@ -135,9 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         'fontFamily',
         'fontWeight',
         'fontStyle',
+        'underline',
+        'linethrough',
+        'textAlign',
         'isStickyNote',
         'stickyColor',
         'isShapeGroup',
+        'isMergedShape',
         'shapeId',
         'shapeUid',
         'isConnector',
@@ -291,45 +295,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    const USER_SHAPES_STORAGE_KEY = 'whiteboard_user_custom_shapes';
+    let staticJsonShapes = [];
     let allShapes = [...BUILTIN_SHAPES];
+
+    function getUserCustomShapes() {
+        try {
+            const raw = localStorage.getItem(USER_SHAPES_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            console.error('Failed to parse user custom shapes:', e);
+            return [];
+        }
+    }
+
+    function saveUserCustomShape(shapeItem) {
+        const list = getUserCustomShapes();
+        list.unshift(shapeItem);
+        localStorage.setItem(USER_SHAPES_STORAGE_KEY, JSON.stringify(list));
+        refreshAllShapes();
+    }
+
+    function deleteUserCustomShape(id) {
+        let list = getUserCustomShapes();
+        list = list.filter(item => item.id !== id);
+        localStorage.setItem(USER_SHAPES_STORAGE_KEY, JSON.stringify(list));
+        refreshAllShapes();
+    }
+
+    function refreshAllShapes() {
+        const userShapes = getUserCustomShapes();
+        allShapes = [...BUILTIN_SHAPES, ...staticJsonShapes, ...userShapes];
+        renderShapesList();
+    }
 
     async function loadShapes() {
         try {
             const res = await fetch('/static/shapes.json');
             if (res.ok) {
                 const customShapes = await res.json();
-                customShapes.forEach(shape => {
-                    allShapes.push({
-                        id: shape.id,
-                        name: shape.name,
-                        category: shape.category || 'Shapes',
-                        isBuiltin: false,
-                        viewBox: shape.viewBox || '0 0 100 100',
-                        svgIcon: `<path d="${shape.path}" fill="none" stroke="currentColor" stroke-width="6"/>`,
-                        path: shape.path,
-                        defaultWidth: shape.defaultWidth || 100,
-                        defaultHeight: shape.defaultHeight || 100,
-                        create: (fill, stroke, strokeWidth) => {
-                            const pathObj = new fabric.Path(shape.path, {
-                                fill: fill,
-                                stroke: stroke,
-                                strokeWidth: strokeWidth,
-                                originX: 'center',
-                                originY: 'center'
-                            });
-                            if (shape.defaultWidth && pathObj.width) {
-                                const targetScale = shape.defaultWidth / pathObj.width;
-                                pathObj.scale(targetScale);
-                            }
-                            return pathObj;
+                staticJsonShapes = customShapes.map(shape => ({
+                    id: shape.id,
+                    name: shape.name,
+                    category: shape.category || 'Shapes',
+                    isBuiltin: false,
+                    viewBox: shape.viewBox || '0 0 100 100',
+                    svgIcon: `<path d="${shape.path}" fill="none" stroke="currentColor" stroke-width="6"/>`,
+                    path: shape.path,
+                    defaultWidth: shape.defaultWidth || 100,
+                    defaultHeight: shape.defaultHeight || 100,
+                    create: (fill, stroke, strokeWidth) => {
+                        const pathObj = new fabric.Path(shape.path, {
+                            fill: fill,
+                            stroke: stroke,
+                            strokeWidth: strokeWidth,
+                            originX: 'center',
+                            originY: 'center'
+                        });
+                        if (shape.defaultWidth && pathObj.width) {
+                            const targetScale = shape.defaultWidth / pathObj.width;
+                            pathObj.scale(targetScale);
                         }
-                    });
-                });
+                        return pathObj;
+                    }
+                }));
             }
         } catch (err) {
             console.error('Failed to load /static/shapes.json:', err);
         }
-        renderShapesList();
+        refreshAllShapes();
     }
 
     function renderShapesList() {
@@ -337,8 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const query = (shapesSearch ? shapesSearch.value.trim().toLowerCase() : '');
 
         const filtered = allShapes.filter(s => {
-            const matchesQuery = s.name.toLowerCase().includes(query) || s.category.toLowerCase().includes(query);
-            const matchesCategory = (activeCategory === 'all') || (s.category.toLowerCase() === activeCategory.toLowerCase());
+            const matchesQuery = s.name.toLowerCase().includes(query) || (s.category && s.category.toLowerCase().includes(query));
+            const matchesCategory = (activeCategory === 'all') || (s.category && s.category.toLowerCase() === activeCategory.toLowerCase());
             return matchesQuery && matchesCategory;
         });
 
@@ -347,7 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filtered.length === 0) {
             const emptyEl = document.createElement('div');
             emptyEl.className = 'shapes-empty';
-            emptyEl.textContent = 'No matching shapes';
+            emptyEl.textContent = (activeCategory && activeCategory.toLowerCase() === 'my shapes')
+                ? 'No saved shapes yet. Multi-select objects, merge them, then right-click "Save to My Shapes".'
+                : 'No matching shapes';
             shapesList.appendChild(emptyEl);
             return;
         }
@@ -356,19 +392,76 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('button');
             card.type = 'button';
             card.className = 'shape-card';
-            card.title = `Add ${shapeDef.name} (${shapeDef.category})`;
-            card.innerHTML = `
-                <svg viewBox="${shapeDef.viewBox || '0 0 32 32'}">
-                    ${shapeDef.svgIcon}
-                </svg>
-                <span class="shape-card-name">${shapeDef.name}</span>
-            `;
+            card.title = `Add ${shapeDef.name} (${shapeDef.category || 'Shape'})`;
 
-            card.addEventListener('click', () => {
-                addShapeToCanvas(shapeDef);
-            });
+            if (shapeDef.isUserCustom) {
+                card.innerHTML = `
+                    <button type="button" class="btn-delete-custom-shape" data-id="${shapeDef.id}" title="Delete this shape">&times;</button>
+                    ${shapeDef.thumbnail 
+                        ? `<img class="custom-shape-img" src="${shapeDef.thumbnail}" alt="${shapeDef.name}">` 
+                        : `<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" width="24" height="24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`}
+                    <span class="shape-card-name">${shapeDef.name}</span>
+                `;
+
+                const btnDel = card.querySelector('.btn-delete-custom-shape');
+                if (btnDel) {
+                    btnDel.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm(`Delete "${shapeDef.name}" from My Shapes?`)) {
+                            deleteUserCustomShape(shapeDef.id);
+                            showToast(`Deleted "${shapeDef.name}" from My Shapes`);
+                        }
+                    });
+                }
+
+                card.addEventListener('click', () => {
+                    addUserCustomShapeToCanvas(shapeDef);
+                });
+            } else {
+                card.innerHTML = `
+                    <svg viewBox="${shapeDef.viewBox || '0 0 32 32'}">
+                        ${shapeDef.svgIcon}
+                    </svg>
+                    <span class="shape-card-name">${shapeDef.name}</span>
+                `;
+
+                card.addEventListener('click', () => {
+                    addShapeToCanvas(shapeDef);
+                });
+            }
 
             shapesList.appendChild(card);
+        });
+    }
+
+    function addUserCustomShapeToCanvas(shapeDef, x, y) {
+        if (!shapeDef || !shapeDef.json) return;
+        const vpt = canvas.viewportTransform;
+        const targetX = (x !== undefined) ? x : (-vpt[4] + canvas.getWidth() / 2) / canvas.getZoom();
+        const targetY = (y !== undefined) ? y : (-vpt[5] + canvas.getHeight() / 2) / canvas.getZoom();
+
+        fabric.util.enlivenObjects([shapeDef.json], (enlivenedObjects) => {
+            if (!enlivenedObjects || enlivenedObjects.length === 0) return;
+            const restoredObj = enlivenedObjects[0];
+
+            restoredObj.set({
+                left: targetX,
+                top: targetY,
+                originX: 'center',
+                originY: 'center',
+                shapeUid: generateUid(),
+                selectable: currentMode === 'select',
+                evented: true
+            });
+
+            restoredObj.setCoords();
+            canvas.add(restoredObj);
+            if (currentMode === 'select') {
+                canvas.setActiveObject(restoredObj);
+            }
+            canvas.renderAll();
+            saveState();
+            showToast(`Added "${shapeDef.name}" to canvas`);
         });
     }
 
@@ -979,6 +1072,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     canvas.on('mouse:down', (opt) => {
         const evt = opt.e;
+        const isRightClick = (opt.button === 3 || (evt && evt.button === 2));
+
+        // Right-Click Context Menu handling
+        if (isRightClick) {
+            if (evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+
+            // If user clicked on a target that isn't selected, select it
+            if (opt.target) {
+                const currentActive = canvas.getActiveObject();
+                if (!currentActive || !canvas.getActiveObjects().includes(opt.target)) {
+                    canvas.setActiveObject(opt.target);
+                    canvas.requestRenderAll();
+                }
+            }
+
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                showContextMenu(evt ? evt.clientX : 100, evt ? evt.clientY : 100);
+            } else {
+                hideContextMenu();
+            }
+            return;
+        }
+
+        // Hide context menu on normal clicks
+        hideContextMenu();
+
         const isMiddleClick = evt.button === 1;
         const shouldPan = currentMode === 'pan' || isSpacePressed || isMiddleClick;
 
@@ -997,6 +1120,19 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.renderAll();
             saveState();
             return;
+        }
+
+        // Alt + Drag: Duplicate while dragging (Select mode)
+        if (evt.altKey && opt.target && currentMode === 'select' && !opt.target.isConnector && !opt.target.isArrowHead) {
+            opt.target.clone((cloned) => {
+                if (cloned.shapeUid) cloned.shapeUid = generateUid();
+                cloned.connectedLines = [];
+                canvas.add(cloned);
+                canvas.setActiveObject(cloned);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Duplicated with Alt+Drag');
+            }, EXTRA_PROPS);
         }
 
         // Connector Line / Arrow: start connecting
@@ -1104,6 +1240,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveState();
                 });
             }
+        }
+    });
+
+    // Shift + Drag: Maintain proportions during resizing
+    canvas.on('before:transform', (opt) => {
+        if (opt.e && opt.e.shiftKey && opt.transform) {
+            opt.transform.uniform = true;
         }
     });
 
@@ -1435,8 +1578,504 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 16. Keyboard Shortcuts & Typing Detection
+    // 16. Keyboard Shortcuts, Actions & Modal Controller
     // -------------------------------------------------------------------------
+    const toastEl = document.getElementById('toast');
+    let toastTimeout = null;
+
+    function showToast(message) {
+        if (!toastEl) return;
+        toastEl.textContent = message;
+        toastEl.classList.remove('hidden');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toastEl.classList.add('hidden');
+        }, 2200);
+    }
+
+    const shortcutsModal = document.getElementById('shortcuts-modal');
+    const btnShortcutsToggle = document.getElementById('btn-shortcuts-toggle');
+    const btnCloseShortcuts = document.getElementById('btn-close-shortcuts');
+
+    function openShortcutsModal() {
+        if (!shortcutsModal) return;
+        shortcutsModal.classList.remove('hidden');
+    }
+
+    function closeShortcutsModal() {
+        if (!shortcutsModal) return;
+        shortcutsModal.classList.add('hidden');
+    }
+
+    function toggleShortcutsModal() {
+        if (!shortcutsModal) return;
+        if (shortcutsModal.classList.contains('hidden')) {
+            openShortcutsModal();
+        } else {
+            closeShortcutsModal();
+        }
+    }
+
+    if (btnShortcutsToggle) btnShortcutsToggle.addEventListener('click', toggleShortcutsModal);
+    if (btnCloseShortcuts) btnCloseShortcuts.addEventListener('click', closeShortcutsModal);
+    if (shortcutsModal) {
+        shortcutsModal.addEventListener('click', (e) => {
+            if (e.target === shortcutsModal) closeShortcutsModal();
+        });
+    }
+
+    let _clipboard = null;
+
+    function copySelected() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) return;
+        activeObj.clone((cloned) => {
+            _clipboard = cloned;
+            showToast('Copied to clipboard (Ctrl + C)');
+        }, EXTRA_PROPS);
+    }
+
+    function pasteClipboard() {
+        if (!_clipboard) return;
+        _clipboard.clone((clonedObj) => {
+            canvas.discardActiveObject();
+            clonedObj.set({
+                left: clonedObj.left + 24,
+                top: clonedObj.top + 24,
+                evented: true,
+            });
+
+            if (clonedObj.type === 'activeSelection') {
+                clonedObj.canvas = canvas;
+                clonedObj.forEachObject((obj) => {
+                    if (obj.shapeUid) obj.shapeUid = generateUid();
+                    obj.connectedLines = [];
+                    canvas.add(obj);
+                });
+                clonedObj.setCoords();
+            } else {
+                if (clonedObj.shapeUid) clonedObj.shapeUid = generateUid();
+                clonedObj.connectedLines = [];
+                canvas.add(clonedObj);
+            }
+
+            _clipboard.top += 24;
+            _clipboard.left += 24;
+            canvas.setActiveObject(clonedObj);
+            canvas.requestRenderAll();
+            saveState();
+            showToast('Pasted object (Ctrl + V)');
+        }, EXTRA_PROPS);
+    }
+
+    function cutSelected() {
+        copySelected();
+        deleteSelectedObjects();
+        showToast('Cut selected object (Ctrl + X)');
+    }
+
+    function duplicateSelected() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) return;
+        activeObj.clone((clonedObj) => {
+            canvas.discardActiveObject();
+            clonedObj.set({
+                left: clonedObj.left + 24,
+                top: clonedObj.top + 24,
+                evented: true,
+            });
+
+            if (clonedObj.type === 'activeSelection') {
+                clonedObj.canvas = canvas;
+                clonedObj.forEachObject((obj) => {
+                    if (obj.shapeUid) obj.shapeUid = generateUid();
+                    obj.connectedLines = [];
+                    canvas.add(obj);
+                });
+                clonedObj.setCoords();
+            } else {
+                if (clonedObj.shapeUid) clonedObj.shapeUid = generateUid();
+                clonedObj.connectedLines = [];
+                canvas.add(clonedObj);
+            }
+
+            canvas.setActiveObject(clonedObj);
+            canvas.requestRenderAll();
+            saveState();
+            showToast('Duplicated object (Ctrl + D)');
+        }, EXTRA_PROPS);
+    }
+
+    function selectAllObjects() {
+        canvas.discardActiveObject();
+        const selectableObjs = canvas.getObjects().filter(o => 
+            o.selectable !== false && 
+            o.globalCompositeOperation !== 'destination-out' && 
+            !o.isArrowHead
+        );
+        if (selectableObjs.length === 0) return;
+        const sel = new fabric.ActiveSelection(selectableObjs, { canvas: canvas });
+        canvas.setActiveObject(sel);
+        canvas.requestRenderAll();
+        showToast(`Selected all (${selectableObjs.length} objects)`);
+    }
+
+    function saveBoard() {
+        const json = JSON.stringify(canvas.toJSON(EXTRA_PROPS));
+        localStorage.setItem('whiteboard_saved_board', json);
+        showToast('Board saved (Ctrl + S)');
+    }
+
+    function saveBoardAs() {
+        const json = JSON.stringify(canvas.toJSON(EXTRA_PROPS), null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `whiteboard-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Board exported as JSON (Ctrl + Shift + S)');
+    }
+
+    function fitEntireCanvas() {
+        const objs = canvas.getObjects().filter(o => !o.isArrowHead && o.globalCompositeOperation !== 'destination-out');
+        if (objs.length === 0) {
+            resetView();
+            return;
+        }
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        objs.forEach(o => {
+            const b = o.getBoundingRect(true);
+            minX = Math.min(minX, b.left);
+            minY = Math.min(minY, b.top);
+            maxX = Math.max(maxX, b.left + b.width);
+            maxY = Math.max(maxY, b.top + b.height);
+        });
+        const width = Math.max(20, maxX - minX);
+        const height = Math.max(20, maxY - minY);
+        const padding = 80;
+        const zoomX = (canvas.getWidth() - padding * 2) / width;
+        const zoomY = (canvas.getHeight() - padding * 2) / height;
+        const newZoom = Math.max(0.1, Math.min(3.0, Math.min(zoomX, zoomY)));
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+        canvas.setZoom(newZoom);
+        canvas.viewportTransform[4] = canvas.getWidth() / 2 - centerX * newZoom;
+        canvas.viewportTransform[5] = canvas.getHeight() / 2 - centerY * newZoom;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        showToast('Fit entire canvas (Shift + 1)');
+    }
+
+    function zoomToSelection() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) {
+            showToast('Select an object first (Shift + 2)');
+            return;
+        }
+        const b = activeObj.getBoundingRect(true);
+        const padding = 80;
+        const zoomX = (canvas.getWidth() - padding * 2) / Math.max(20, b.width);
+        const zoomY = (canvas.getHeight() - padding * 2) / Math.max(20, b.height);
+        const newZoom = Math.max(0.1, Math.min(4.0, Math.min(zoomX, zoomY)));
+        const center = activeObj.getCenterPoint();
+        canvas.setZoom(newZoom);
+        canvas.viewportTransform[4] = canvas.getWidth() / 2 - center.x * newZoom;
+        canvas.viewportTransform[5] = canvas.getHeight() / 2 - center.y * newZoom;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        showToast('Zoomed to selection (Shift + 2)');
+    }
+
+    function goToOrigin() {
+        canvas.viewportTransform[4] = 0;
+        canvas.viewportTransform[5] = 0;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        showToast('Canvas origin (Home)');
+    }
+
+    function addBuiltinShape(shapeId) {
+        const shapeDef = allShapes.find(s => s.id === shapeId);
+        if (shapeDef) {
+            addShapeToCanvas(shapeDef);
+            showToast(`Added ${shapeDef.name} (${shapeId === 'rectangle' ? 'R' : 'O'})`);
+        }
+    }
+
+    function getActiveTextTarget() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) return null;
+        if (activeObj.type === 'i-text' || activeObj.type === 'textbox') return activeObj;
+        if (activeObj.isShapeGroup || activeObj.isStickyNote) {
+            return activeObj.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text') || null;
+        }
+        return null;
+    }
+
+    function formatActiveText(action) {
+        const t = getActiveTextTarget();
+        if (!t) return;
+        if (action === 'bold') {
+            const newVal = (t.fontWeight === 'bold') ? 'normal' : 'bold';
+            t.set('fontWeight', newVal);
+            if (btnBold) btnBold.classList.toggle('active', newVal === 'bold');
+            showToast(newVal === 'bold' ? 'Bold enabled' : 'Bold disabled');
+        } else if (action === 'italic') {
+            const newVal = (t.fontStyle === 'italic') ? 'normal' : 'italic';
+            t.set('fontStyle', newVal);
+            if (btnItalic) btnItalic.classList.toggle('active', newVal === 'italic');
+            showToast(newVal === 'italic' ? 'Italic enabled' : 'Italic disabled');
+        } else if (action === 'underline') {
+            t.set('underline', !t.underline);
+            showToast(t.underline ? 'Underline enabled' : 'Underline disabled');
+        } else if (action === 'linethrough') {
+            t.set('linethrough', !t.linethrough);
+            showToast(t.linethrough ? 'Strikethrough enabled' : 'Strikethrough disabled');
+        } else if (action === 'alignLeft') {
+            t.set('textAlign', 'left');
+            showToast('Aligned Left');
+        } else if (action === 'alignCenter') {
+            t.set('textAlign', 'center');
+            showToast('Aligned Center');
+        } else if (action === 'alignRight') {
+            t.set('textAlign', 'right');
+            showToast('Aligned Right');
+        }
+        canvas.requestRenderAll();
+        saveState();
+    }
+
+    function groupSelectedObjects() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj || activeObj.type !== 'activeSelection') {
+            showToast('Select multiple objects to merge (Ctrl + G)');
+            return;
+        }
+        const group = activeObj.toGroup();
+        group.set({
+            isMergedShape: true,
+            shapeUid: generateUid(),
+            selectable: true,
+            evented: true
+        });
+        group.setCoords();
+        canvas.setActiveObject(group);
+        canvas.requestRenderAll();
+        saveState();
+        showToast('Objects merged! Right-click to Save to My Shapes');
+    }
+
+    function mergeSelectedObjects() {
+        groupSelectedObjects();
+    }
+
+    function ungroupSelectedObjects() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj || activeObj.type !== 'group' || activeObj.isShapeGroup || activeObj.isStickyNote) {
+            showToast('Select a grouped object to ungroup');
+            return;
+        }
+        activeObj.toActiveSelection();
+        canvas.requestRenderAll();
+        saveState();
+        showToast('Objects Ungrouped (Ctrl + Shift + G)');
+    }
+
+    function saveActiveObjectAsCustomShape() {
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) {
+            showToast('Select a merged shape or diagram to save');
+            return;
+        }
+
+        if (activeObj.type === 'activeSelection') {
+            showToast('Please merge objects first, then right-click Save');
+            return;
+        }
+
+        const defaultName = activeObj.isMergedShape ? 'Merged Diagram' : (activeObj.shapeId || 'Custom Shape');
+        const shapeName = prompt('Enter a name for your custom shape:', defaultName);
+        if (!shapeName || !shapeName.trim()) return;
+
+        let thumbnail = '';
+        try {
+            thumbnail = activeObj.toDataURL({
+                format: 'png',
+                multiplier: 0.5,
+                enableRetinaScaling: false
+            });
+        } catch (err) {
+            console.warn('Could not generate thumbnail for custom shape:', err);
+        }
+
+        const serializedJson = activeObj.toJSON(EXTRA_PROPS);
+
+        const newCustomShape = {
+            id: 'custom_shape_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            name: shapeName.trim(),
+            category: 'My Shapes',
+            isUserCustom: true,
+            thumbnail: thumbnail,
+            json: serializedJson,
+            createdAt: Date.now()
+        };
+
+        saveUserCustomShape(newCustomShape);
+
+        // Switch to 'My Shapes' in shapes drawer
+        activeCategory = 'My Shapes';
+        categoryChips.forEach(chip => {
+            if (chip.dataset.category === 'My Shapes') {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
+
+        openDrawerPanel('shapes');
+        renderShapesList();
+        showToast(`Saved "${shapeName.trim()}" to My Shapes!`);
+    }
+
+    // -------------------------------------------------------------------------
+    // Context Menu Elements & Actions
+    // -------------------------------------------------------------------------
+    const contextMenu = document.getElementById('context-menu');
+    const ctxMerge = document.getElementById('ctx-merge');
+    const ctxSaveShape = document.getElementById('ctx-save-shape');
+    const ctxUngroup = document.getElementById('ctx-ungroup');
+    const ctxDuplicate = document.getElementById('ctx-duplicate');
+    const ctxBringFront = document.getElementById('ctx-bring-front');
+    const ctxSendBack = document.getElementById('ctx-send-back');
+    const ctxDelete = document.getElementById('ctx-delete');
+
+    function hideContextMenu() {
+        if (contextMenu && !contextMenu.classList.contains('hidden')) {
+            contextMenu.classList.add('hidden');
+        }
+    }
+
+    function showContextMenu(clientX, clientY) {
+        if (!contextMenu) return;
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) {
+            hideContextMenu();
+            return;
+        }
+
+        const isMultiSelect = (activeObj.type === 'activeSelection');
+        const isGroup = (activeObj.type === 'group' && !activeObj.isStickyNote);
+
+        if (isMultiSelect) {
+            if (ctxMerge) ctxMerge.style.display = 'flex';
+            if (ctxSaveShape) ctxSaveShape.style.display = 'none';
+            if (ctxUngroup) ctxUngroup.style.display = 'none';
+        } else {
+            if (ctxMerge) ctxMerge.style.display = 'none';
+            if (ctxSaveShape) ctxSaveShape.style.display = 'flex';
+            if (ctxUngroup) ctxUngroup.style.display = isGroup ? 'flex' : 'none';
+        }
+
+        contextMenu.classList.remove('hidden');
+
+        // Bounding box calculations
+        const menuWidth = contextMenu.offsetWidth || 210;
+        const menuHeight = contextMenu.offsetHeight || 220;
+        let posX = clientX;
+        let posY = clientY;
+
+        if (posX + menuWidth > window.innerWidth) {
+            posX = window.innerWidth - menuWidth - 12;
+        }
+        if (posY + menuHeight > window.innerHeight) {
+            posY = window.innerHeight - menuHeight - 12;
+        }
+
+        contextMenu.style.left = `${Math.max(10, posX)}px`;
+        contextMenu.style.top = `${Math.max(10, posY)}px`;
+    }
+
+    if (ctxMerge) {
+        ctxMerge.addEventListener('click', () => {
+            hideContextMenu();
+            mergeSelectedObjects();
+        });
+    }
+
+    if (ctxSaveShape) {
+        ctxSaveShape.addEventListener('click', () => {
+            hideContextMenu();
+            saveActiveObjectAsCustomShape();
+        });
+    }
+
+    if (ctxUngroup) {
+        ctxUngroup.addEventListener('click', () => {
+            hideContextMenu();
+            ungroupSelectedObjects();
+        });
+    }
+
+    if (ctxDuplicate) {
+        ctxDuplicate.addEventListener('click', () => {
+            hideContextMenu();
+            duplicateSelected();
+        });
+    }
+
+    if (ctxBringFront) {
+        ctxBringFront.addEventListener('click', () => {
+            hideContextMenu();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                canvas.bringToFront(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Brought to Front');
+            }
+        });
+    }
+
+    if (ctxSendBack) {
+        ctxSendBack.addEventListener('click', () => {
+            hideContextMenu();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                canvas.sendToBack(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Sent to Back');
+            }
+        });
+    }
+
+    if (ctxDelete) {
+        ctxDelete.addEventListener('click', () => {
+            hideContextMenu();
+            deleteSelectedObjects();
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#context-menu')) {
+            hideContextMenu();
+        }
+    });
+
+    const canvasContainerEl = document.getElementById('canvas-container');
+    if (canvasContainerEl) {
+        canvasContainerEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    }
+
     function isUserTyping() {
         const activeObj = canvas.getActiveObject();
         if (activeObj && activeObj.isEditing) return true;
@@ -1445,6 +2084,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('keydown', (e) => {
+        const isCtrl = e.ctrlKey || e.metaKey;
+        const isShift = e.shiftKey;
+        const key = e.key;
+
+        // Spacebar panning
         if (e.code === 'Space' && !isSpacePressed && !isUserTyping()) {
             isSpacePressed = true;
             wasDrawingMode = canvas.isDrawingMode;
@@ -1455,45 +2099,325 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Typing in text inputs or editing text
         if (isUserTyping()) {
-            if (e.key === 'Escape') {
+            if (key === 'Escape') {
                 const activeObj = canvas.getActiveObject();
                 if (activeObj && activeObj.isEditing) {
                     activeObj.exitEditing();
-                    canvas.renderAll();
+                    canvas.requestRenderAll();
+                }
+                return;
+            }
+            if (isCtrl && !isShift && (key === 'b' || key === 'B')) {
+                e.preventDefault();
+                formatActiveText('bold');
+            } else if (isCtrl && !isShift && (key === 'i' || key === 'I')) {
+                e.preventDefault();
+                formatActiveText('italic');
+            } else if (isCtrl && !isShift && (key === 'u' || key === 'U')) {
+                e.preventDefault();
+                formatActiveText('underline');
+            } else if (isCtrl && isShift && (key === 'x' || key === 'X')) {
+                e.preventDefault();
+                formatActiveText('linethrough');
+            } else if (isCtrl && isShift && (key === 'l' || key === 'L')) {
+                e.preventDefault();
+                formatActiveText('alignLeft');
+            } else if (isCtrl && isShift && (key === 'e' || key === 'E')) {
+                e.preventDefault();
+                formatActiveText('alignCenter');
+            } else if (isCtrl && isShift && (key === 'r' || key === 'R')) {
+                e.preventDefault();
+                formatActiveText('alignRight');
+            }
+            return;
+        }
+
+        // ---------------------------------------------------------------------
+        // 1. BASIC EDITING
+        // ---------------------------------------------------------------------
+        if (isCtrl && !isShift && (key === 'z' || key === 'Z')) {
+            e.preventDefault();
+            undo();
+            return;
+        }
+        if ((isCtrl && !isShift && (key === 'y' || key === 'Y')) ||
+            (isCtrl && isShift && (key === 'z' || key === 'Z'))) {
+            e.preventDefault();
+            redo();
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'c' || key === 'C')) {
+            e.preventDefault();
+            copySelected();
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'v' || key === 'V')) {
+            e.preventDefault();
+            pasteClipboard();
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'x' || key === 'X')) {
+            e.preventDefault();
+            cutSelected();
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'a' || key === 'A')) {
+            e.preventDefault();
+            selectAllObjects();
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'd' || key === 'D')) {
+            e.preventDefault();
+            duplicateSelected();
+            return;
+        }
+        if (isCtrl && !isShift && (key === 's' || key === 'S')) {
+            e.preventDefault();
+            saveBoard();
+            return;
+        }
+        if (isCtrl && isShift && (key === 's' || key === 'S')) {
+            e.preventDefault();
+            saveBoardAs();
+            return;
+        }
+        if (key === 'Delete' || key === 'Backspace') {
+            e.preventDefault();
+            deleteSelectedObjects();
+            return;
+        }
+
+        // ---------------------------------------------------------------------
+        // 2. CANVAS NAVIGATION
+        // ---------------------------------------------------------------------
+        if (!isCtrl && (key === '+' || key === '=')) {
+            e.preventDefault();
+            setZoom(canvas.getZoom() * 1.15);
+            return;
+        }
+        if (!isCtrl && (key === '-' || key === '_')) {
+            e.preventDefault();
+            setZoom(canvas.getZoom() / 1.15);
+            return;
+        }
+        if (isCtrl && key === '0') {
+            e.preventDefault();
+            resetView();
+            return;
+        }
+        if (isCtrl && !isShift && key === '1') {
+            e.preventDefault();
+            setZoom(1.0);
+            showToast('Zoom: 100%');
+            return;
+        }
+        if (isShift && !isCtrl && (key === '!' || key === '1')) {
+            e.preventDefault();
+            fitEntireCanvas();
+            return;
+        }
+        if (isShift && !isCtrl && (key === '@' || key === '2')) {
+            e.preventDefault();
+            zoomToSelection();
+            return;
+        }
+        if (key === 'Home') {
+            e.preventDefault();
+            goToOrigin();
+            return;
+        }
+
+        // ---------------------------------------------------------------------
+        // 3. DRAWING TOOLS
+        // ---------------------------------------------------------------------
+        if (!isCtrl && (key === 'v' || key === 'V')) {
+            setMode('select');
+            return;
+        }
+        if (!isCtrl && (key === 'h' || key === 'H')) {
+            setMode('pan');
+            return;
+        }
+        if (!isCtrl && (key === 'p' || key === 'P')) {
+            setMode('pen');
+            return;
+        }
+        if (!isCtrl && (key === 't' || key === 'T')) {
+            setMode('text');
+            return;
+        }
+        if (!isCtrl && (key === 'r' || key === 'R')) {
+            addBuiltinShape('rectangle');
+            return;
+        }
+        if (!isCtrl && (key === 'o' || key === 'O')) {
+            addBuiltinShape('circle');
+            return;
+        }
+        if (!isCtrl && (key === 'l' || key === 'L')) {
+            setMode('line');
+            return;
+        }
+        if (!isCtrl && (key === 'a' || key === 'A')) {
+            setMode('arrow');
+            return;
+        }
+        if (!isCtrl && (key === 'n' || key === 'N' || key === 's' || key === 'S')) {
+            setMode('sticky');
+            return;
+        }
+        if (!isCtrl && (key === 'e' || key === 'E')) {
+            setMode('eraser');
+            return;
+        }
+        if (key === 'Escape') {
+            closeShortcutsModal();
+            closeDrawer();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj && activeObj.isEditing) activeObj.exitEditing();
+            setMode('select');
+            return;
+        }
+        if (key === 'Enter') {
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                if (activeObj.type === 'i-text') {
+                    activeObj.enterEditing();
+                    e.preventDefault();
+                } else if (activeObj.isShapeGroup || activeObj.isStickyNote) {
+                    const textObj = activeObj.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text');
+                    if (textObj) {
+                        canvas.setActiveObject(textObj);
+                        textObj.enterEditing();
+                        textObj.selectAll();
+                        canvas.requestRenderAll();
+                        e.preventDefault();
+                    }
                 }
             }
             return;
         }
 
-        if (e.key === 'Delete' || e.key === 'Backspace') {
-            deleteSelectedObjects();
+        // ---------------------------------------------------------------------
+        // 4. TEXT FORMATTING
+        // ---------------------------------------------------------------------
+        if (isCtrl && !isShift && (key === 'b' || key === 'B')) {
             e.preventDefault();
+            formatActiveText('bold');
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'i' || key === 'I')) {
+            e.preventDefault();
+            formatActiveText('italic');
+            return;
+        }
+        if (isCtrl && !isShift && (key === 'u' || key === 'U')) {
+            e.preventDefault();
+            formatActiveText('underline');
+            return;
+        }
+        if (isCtrl && isShift && (key === 'x' || key === 'X')) {
+            e.preventDefault();
+            formatActiveText('linethrough');
+            return;
+        }
+        if (isCtrl && isShift && (key === 'l' || key === 'L')) {
+            e.preventDefault();
+            formatActiveText('alignLeft');
+            return;
+        }
+        if (isCtrl && isShift && (key === 'e' || key === 'E')) {
+            e.preventDefault();
+            formatActiveText('alignCenter');
+            return;
+        }
+        if (isCtrl && isShift && (key === 'r' || key === 'R')) {
+            e.preventDefault();
+            formatActiveText('alignRight');
             return;
         }
 
-        // Tool Shortcuts
-        if (e.key === 'v' || e.key === 'V') setMode('select');
-        if (e.key === 'h' || e.key === 'H') setMode('pan');
-        if (e.key === 'p' || e.key === 'P') setMode('pen');
-        if (e.key === 'k' || e.key === 'K') setMode('highlighter');
-        if (e.key === 'e' || e.key === 'E') setMode('eraser');
-        if (e.key === 't' || e.key === 'T') setMode('text');
-        if (e.key === 's' || e.key === 'S' || e.key === 'n' || e.key === 'N') setMode('sticky');
-        if (e.key === 'l' || e.key === 'L') setMode('line');
-        if (e.key === 'a' || e.key === 'A') setMode('arrow');
-
-        // Undo: Ctrl+Z or Cmd+Z
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+        // ---------------------------------------------------------------------
+        // 5. OBJECT ARRANGEMENT
+        // ---------------------------------------------------------------------
+        if (isCtrl && !isShift && (key === 'g' || key === 'G')) {
             e.preventDefault();
-            undo();
+            groupSelectedObjects();
+            return;
+        }
+        if (isCtrl && isShift && (key === 'g' || key === 'G')) {
+            e.preventDefault();
+            ungroupSelectedObjects();
+            return;
+        }
+        if (isCtrl && !isShift && key === ']') {
+            e.preventDefault();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                canvas.bringForward(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Brought Forward (Ctrl + ])');
+            }
+            return;
+        }
+        if (isCtrl && !isShift && key === '[') {
+            e.preventDefault();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                canvas.sendBackwards(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Sent Backward (Ctrl + [)');
+            }
+            return;
+        }
+        if (isCtrl && isShift && (key === '}' || key === ']')) {
+            e.preventDefault();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                canvas.bringToFront(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Brought to Front (Ctrl + Shift + ])');
+            }
+            return;
+        }
+        if (isCtrl && isShift && (key === '{' || key === '[')) {
+            e.preventDefault();
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                canvas.sendToBack(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                showToast('Sent to Back (Ctrl + Shift + [)');
+            }
+            return;
+        }
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) {
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                const step = isShift ? 20 : 2;
+                if (key === 'ArrowLeft') activeObj.left -= step;
+                if (key === 'ArrowRight') activeObj.left += step;
+                if (key === 'ArrowUp') activeObj.top -= step;
+                if (key === 'ArrowDown') activeObj.top += step;
+                activeObj.setCoords();
+                updateConnectedLinesFor(activeObj);
+                canvas.requestRenderAll();
+                saveState();
+                e.preventDefault();
+            }
+            return;
         }
 
-        // Redo: Ctrl+Y or Ctrl+Shift+Z or Cmd+Shift+Z
-        if (((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) ||
-            ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'z' || e.key === 'Z'))) {
+        // Toggle Shortcuts Modal: ? or Ctrl + /
+        if ((key === '?' || (isShift && key === '/')) || (isCtrl && key === '/')) {
             e.preventDefault();
-            redo();
+            toggleShortcutsModal();
+            return;
         }
     });
 
