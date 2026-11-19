@@ -1,5 +1,5 @@
 /**
- * Whiteboard Web App - Client-side Logic (Phase 2)
+ * Whiteboard Web App - Client-side Logic (Phase 3)
  *
  * Implements:
  * - Full-screen Fabric.js canvas with responsive grid background
@@ -7,7 +7,8 @@
  * - Translucent highlighter using Fabric.js PencilBrush
  * - Eraser using Fabric.js PencilBrush (destination-out & object removal)
  * - Text tool: Click anywhere and type with font size, color, bold, and italic using Fabric.js IText
- * - Select tool: Move, resize, rotate, and delete objects
+ * - Sticky Note tool: Fabric.js Group of a rectangle and editable text with 4 pastel colors (yellow, pink, green, blue)
+ * - Select tool: Move, resize, rotate, and delete objects & sticky notes
  * - Pan (drag) & Zoom (wheel & controls) with zoom percentage indicator
  * - Undo / Redo history management
  */
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnHighlighter = document.getElementById('btn-highlighter');
     const btnEraser = document.getElementById('btn-eraser');
     const btnText = document.getElementById('btn-text');
+    const btnSticky = document.getElementById('btn-sticky');
 
     // Tool Properties
     const colorPicker = document.getElementById('color-picker');
@@ -35,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnBold = document.getElementById('btn-bold');
     const btnItalic = document.getElementById('btn-italic');
     const btnDelete = document.getElementById('btn-delete');
+    const stickyColorBtns = document.querySelectorAll('.sticky-color-btn');
 
     // History & Canvas Actions
     const btnUndo = document.getElementById('btn-undo');
@@ -49,15 +52,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoomPercentageEl = document.getElementById('zoom-percentage');
 
     // -------------------------------------------------------------------------
-    // 2. State Variables
+    // 2. State Variables & Palette
     // -------------------------------------------------------------------------
-    // Modes: 'select', 'pan', 'pen', 'highlighter', 'eraser', 'text'
+    // Modes: 'select', 'pan', 'pen', 'highlighter', 'eraser', 'text', 'sticky'
     let currentMode = 'select';
 
     // Tool settings
     let currentColor = colorPicker.value || '#1e293b';
     let isBold = false;
     let isItalic = false;
+
+    // Sticky Note pastel colors palette
+    const STICKY_COLORS = {
+        yellow: { bg: '#fef08a', border: '#fde047', text: '#1e293b' },
+        pink: { bg: '#fbcfe8', border: '#f9a8d4', text: '#1e293b' },
+        green: { bg: '#bbf7d0', border: '#86efac', text: '#1e293b' },
+        blue: { bg: '#bfdbfe', border: '#93c5fd', text: '#1e293b' }
+    };
+    let currentStickyColor = 'yellow';
 
     // Pan state tracking
     let isPanning = false;
@@ -89,7 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'fontSize',
         'fontFamily',
         'fontWeight',
-        'fontStyle'
+        'fontStyle',
+        'isStickyNote',
+        'stickyColor',
+        'subTargetCheck'
     ];
 
     // -------------------------------------------------------------------------
@@ -148,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.freeDrawingBrush.strokeLineJoin = 'round';
         } else if (currentMode === 'highlighter') {
             canvas.isDrawingMode = true;
-            // Highlighting uses translucent color and wider stroke
             const highlighterWidth = Math.max(16, baseSize * 3);
             canvas.freeDrawingBrush.color = hexToRgba(currentColor, 0.35);
             canvas.freeDrawingBrush.width = highlighterWidth;
@@ -156,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.freeDrawingBrush.strokeLineJoin = 'round';
         } else if (currentMode === 'eraser') {
             canvas.isDrawingMode = true;
-            // Eraser uses PencilBrush with feedback stroke while drawing
             const eraserWidth = Math.max(16, baseSize * 3.5);
             canvas.freeDrawingBrush.color = 'rgba(235, 238, 242, 0.85)';
             canvas.freeDrawingBrush.width = eraserWidth;
@@ -168,7 +181,99 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------------------------------------------------------------
-    // 5. Grid Background Synchronization
+    // 5. Sticky Note Factory Function
+    // -------------------------------------------------------------------------
+    /**
+     * Builds a sticky note as a Fabric.js group of a rectangle and a textbox.
+     */
+    function createStickyNote(x, y, colorKey = currentStickyColor, initialText = 'Type a note...') {
+        const colors = STICKY_COLORS[colorKey] || STICKY_COLORS.yellow;
+        const noteWidth = 180;
+        const noteHeight = 180;
+
+        // Sticky note background rectangle
+        const rect = new fabric.Rect({
+            width: noteWidth,
+            height: noteHeight,
+            fill: colors.bg,
+            stroke: colors.border,
+            strokeWidth: 1.5,
+            rx: 6,
+            ry: 6,
+            originX: 'center',
+            originY: 'center',
+            shadow: new fabric.Shadow({
+                color: 'rgba(0, 0, 0, 0.12)',
+                blur: 10,
+                offsetX: 2,
+                offsetY: 4
+            })
+        });
+
+        // Sticky note text
+        const text = new fabric.Textbox(initialText, {
+            width: noteWidth - 28,
+            fontSize: 16,
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fill: colors.text,
+            textAlign: 'left',
+            originX: 'center',
+            originY: 'center',
+            splitByGrapheme: true,
+            cursorColor: colors.text
+        });
+
+        // Group rectangle and text together
+        const group = new fabric.Group([rect, text], {
+            left: x,
+            top: y,
+            originX: 'center',
+            originY: 'center',
+            isStickyNote: true,
+            stickyColor: colorKey,
+            subTargetCheck: false // Group moves, resizes, and deletes as one object
+        });
+
+        return { group, rect, text };
+    }
+
+    /**
+     * Sets active sticky note color and updates selected note if applicable.
+     */
+    function setStickyColor(colorKey, shouldUpdateSelection = true) {
+        currentStickyColor = colorKey;
+
+        // Update active class on toolbar color swatches
+        stickyColorBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.color === colorKey);
+        });
+
+        if (shouldUpdateSelection) {
+            const activeObj = canvas.getActiveObject();
+            if (activeObj && activeObj.isStickyNote) {
+                activeObj.stickyColor = colorKey;
+                const rect = activeObj.getObjects().find(o => o.type === 'rect');
+                if (rect) {
+                    const colors = STICKY_COLORS[colorKey] || STICKY_COLORS.yellow;
+                    rect.set({
+                        fill: colors.bg,
+                        stroke: colors.border
+                    });
+                    canvas.renderAll();
+                    saveState();
+                }
+            }
+        }
+    }
+
+    stickyColorBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            setStickyColor(btn.dataset.color, true);
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    // 6. Grid Background Synchronization
     // -------------------------------------------------------------------------
     function updateGrid() {
         const zoom = canvas.getZoom();
@@ -183,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------------------------------------------------------------
-    // 6. Zoom Controls & Indicator
+    // 7. Zoom Controls & Indicator
     // -------------------------------------------------------------------------
     function updateZoomDisplay() {
         const zoom = canvas.getZoom();
@@ -200,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateGrid();
     }
 
-    // Mouse wheel zoom relative to cursor
     canvas.on('mouse:wheel', (opt) => {
         const delta = opt.e.deltaY;
         let zoom = canvas.getZoom();
@@ -223,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     zoomPercentageEl.addEventListener('click', resetView);
 
     // -------------------------------------------------------------------------
-    // 7. Mode Management
+    // 8. Mode Management
     // -------------------------------------------------------------------------
     const toolButtons = {
         select: btnSelect,
@@ -231,7 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pen: btnPen,
         highlighter: btnHighlighter,
         eraser: btnEraser,
-        text: btnText
+        text: btnText,
+        sticky: btnSticky
     };
 
     /**
@@ -250,7 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.isDrawingMode = false;
             canvas.selection = true;
             canvas.defaultCursor = 'default';
-            // Enable selection for all objects except eraser masks
             canvas.forEachObject(obj => {
                 if (obj.globalCompositeOperation !== 'destination-out') {
                     obj.selectable = true;
@@ -290,9 +394,15 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.discardActiveObject();
             canvas.defaultCursor = 'text';
             canvas.forEachObject(obj => {
-                // Keep IText objects selectable in text mode for easy editing
                 obj.selectable = (obj.type === 'i-text');
             });
+            canvas.renderAll();
+        } else if (mode === 'sticky') {
+            canvas.isDrawingMode = false;
+            canvas.selection = false;
+            canvas.discardActiveObject();
+            canvas.defaultCursor = 'copy';
+            canvas.forEachObject(obj => obj.selectable = false);
             canvas.renderAll();
         }
     }
@@ -304,9 +414,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnHighlighter.addEventListener('click', () => setMode('highlighter'));
     btnEraser.addEventListener('click', () => setMode('eraser'));
     btnText.addEventListener('click', () => setMode('text'));
+    btnSticky.addEventListener('click', () => setMode('sticky'));
 
     // -------------------------------------------------------------------------
-    // 8. Freehand Brush & Eraser Finalization (path:created)
+    // 9. Freehand Brush & Eraser Finalization (path:created)
     // -------------------------------------------------------------------------
     canvas.on('path:created', (opt) => {
         const path = opt.path;
@@ -337,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 9. Text Tool & Mouse Down Interaction
+    // 10. Mouse Down: Pan, Sticky Notes, Text, Eraser Clicks
     // -------------------------------------------------------------------------
     canvas.on('mouse:down', (opt) => {
         const evt = opt.e;
@@ -362,16 +473,38 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 3. Text Tool: Click anywhere to type using Fabric.js IText
+        // 3. Sticky Note Tool: Click places a sticky note with editable text
+        if (currentMode === 'sticky') {
+            const pointer = canvas.getPointer(opt.e);
+            const { group, text } = createStickyNote(pointer.x, pointer.y, currentStickyColor, 'Type note...');
+
+            canvas.add(group);
+            canvas.renderAll();
+            saveState();
+
+            // Switch to select mode and immediately enter editing on the note's text
+            setMode('select');
+            canvas.setActiveObject(text);
+            text.enterEditing();
+            text.selectAll();
+            canvas.renderAll();
+
+            text.on('editing:exited', () => {
+                canvas.setActiveObject(group);
+                canvas.renderAll();
+                saveState();
+            });
+            return;
+        }
+
+        // 4. Text Tool: Click anywhere to type using Fabric.js IText
         if (currentMode === 'text') {
-            // If user clicked on an existing IText, enter editing mode on it
             if (opt.target && opt.target.type === 'i-text') {
                 canvas.setActiveObject(opt.target);
                 opt.target.enterEditing();
                 return;
             }
 
-            // Clicked on blank canvas: create new IText
             const pointer = canvas.getPointer(opt.e);
             const fontSize = parseInt(selectFontSize.value, 10) || 24;
 
@@ -393,7 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
             textObj.selectAll();
             canvas.renderAll();
 
-            // Auto-clean empty text on exit
             textObj.on('editing:exited', () => {
                 if (textObj.text.trim() === '') {
                     canvas.remove(textObj);
@@ -402,6 +534,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveState();
                 }
             });
+        }
+    });
+
+    // Double-click on sticky note enters text editing mode
+    canvas.on('mouse:dblclick', (opt) => {
+        if (opt.target && opt.target.isStickyNote) {
+            const group = opt.target;
+            const textObj = group.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text');
+            if (textObj) {
+                canvas.setActiveObject(textObj);
+                textObj.enterEditing();
+                textObj.selectAll();
+                canvas.renderAll();
+
+                textObj.on('editing:exited', () => {
+                    canvas.setActiveObject(group);
+                    canvas.renderAll();
+                    saveState();
+                });
+            }
         }
     });
 
@@ -430,6 +582,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.defaultCursor = 'crosshair';
             } else if (currentMode === 'text') {
                 canvas.defaultCursor = 'text';
+            } else if (currentMode === 'sticky') {
+                canvas.defaultCursor = 'copy';
             } else {
                 canvas.defaultCursor = 'default';
             }
@@ -440,25 +594,32 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', stopPanning);
 
     // -------------------------------------------------------------------------
-    // 10. Selection, Move, Resize & Delete Controls
+    // 11. Selection, Move, Resize & Delete Controls
     // -------------------------------------------------------------------------
     function updateSelectionUI() {
         const activeObjs = canvas.getActiveObjects();
         btnDelete.disabled = (!activeObjs || activeObjs.length === 0);
 
-        // If a single IText is selected, sync formatting controls to its values
         const activeObj = canvas.getActiveObject();
-        if (activeObj && activeObj.type === 'i-text') {
-            selectFontSize.value = String(activeObj.fontSize || 24);
-            if (activeObj.fill && activeObj.fill.startsWith('#')) {
-                currentColor = activeObj.fill;
-                colorPicker.value = currentColor;
-                colorPreview.style.backgroundColor = currentColor;
+        if (activeObj) {
+            // If sticky note selected, highlight its color swatch
+            if (activeObj.isStickyNote && activeObj.stickyColor) {
+                setStickyColor(activeObj.stickyColor, false);
             }
-            isBold = (activeObj.fontWeight === 'bold');
-            btnBold.classList.toggle('active', isBold);
-            isItalic = (activeObj.fontStyle === 'italic');
-            btnItalic.classList.toggle('active', isItalic);
+
+            // If a standalone IText is selected, sync font formatting controls
+            if (activeObj.type === 'i-text') {
+                selectFontSize.value = String(activeObj.fontSize || 24);
+                if (activeObj.fill && activeObj.fill.startsWith('#')) {
+                    currentColor = activeObj.fill;
+                    colorPicker.value = currentColor;
+                    colorPreview.style.backgroundColor = currentColor;
+                }
+                isBold = (activeObj.fontWeight === 'bold');
+                btnBold.classList.toggle('active', isBold);
+                isItalic = (activeObj.fontStyle === 'italic');
+                btnItalic.classList.toggle('active', isItalic);
+            }
         }
     }
 
@@ -469,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /**
-     * Deletes currently selected objects on canvas.
+     * Deletes currently selected objects or sticky notes.
      */
     function deleteSelectedObjects() {
         const activeObjs = canvas.getActiveObjects();
@@ -484,14 +645,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDelete.addEventListener('click', deleteSelectedObjects);
 
     // -------------------------------------------------------------------------
-    // 11. Property Handlers (Color, Stroke Size, Font Size, Bold, Italic)
+    // 12. Property Handlers (Color, Stroke Size, Font Size, Bold, Italic)
     // -------------------------------------------------------------------------
-    // Color change
     colorPicker.addEventListener('input', (e) => {
         currentColor = e.target.value;
         colorPreview.style.backgroundColor = currentColor;
 
-        // If an IText object is currently selected, update its fill color
         const activeObj = canvas.getActiveObject();
         if (activeObj && activeObj.type === 'i-text') {
             activeObj.set('fill', currentColor);
@@ -499,20 +658,17 @@ document.addEventListener('DOMContentLoaded', () => {
             saveState();
         }
 
-        // Update active brush
         if (canvas.isDrawingMode) {
             updateBrushSettings();
         }
     });
 
-    // Stroke size change (Pen, Highlighter, Eraser)
     selectStrokeSize.addEventListener('change', () => {
         if (canvas.isDrawingMode) {
             updateBrushSettings();
         }
     });
 
-    // Font size change
     selectFontSize.addEventListener('change', () => {
         const activeObj = canvas.getActiveObject();
         if (activeObj && activeObj.type === 'i-text') {
@@ -522,7 +678,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Bold toggle
     btnBold.addEventListener('click', () => {
         isBold = !isBold;
         btnBold.classList.toggle('active', isBold);
@@ -535,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Italic toggle
     btnItalic.addEventListener('click', () => {
         isItalic = !isItalic;
         btnItalic.classList.toggle('active', isItalic);
@@ -549,11 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 12. Keyboard Shortcuts & Typing Detection
+    // 13. Keyboard Shortcuts & Typing Detection
     // -------------------------------------------------------------------------
-    /**
-     * Checks if user is currently typing in an IText or HTML form input.
-     */
     function isUserTyping() {
         const activeObj = canvas.getActiveObject();
         if (activeObj && activeObj.isEditing) return true;
@@ -599,6 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'k' || e.key === 'K') setMode('highlighter');
         if (e.key === 'e' || e.key === 'E') setMode('eraser');
         if (e.key === 't' || e.key === 'T') setMode('text');
+        if (e.key === 's' || e.key === 'S' || e.key === 'n' || e.key === 'N') setMode('sticky');
 
         // Undo: Ctrl+Z or Cmd+Z
         if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
@@ -627,12 +779,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.defaultCursor = 'crosshair';
             } else if (currentMode === 'text') {
                 canvas.defaultCursor = 'text';
+            } else if (currentMode === 'sticky') {
+                canvas.defaultCursor = 'copy';
             }
         }
     });
 
     // -------------------------------------------------------------------------
-    // 13. Undo / Redo History Management
+    // 14. Undo / Redo History Management
     // -------------------------------------------------------------------------
     function updateHistoryButtons() {
         btnUndo.disabled = undoStack.length <= 1;
@@ -685,7 +839,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.setViewportTransform(currentVpt);
             }
 
-            // Restore selectable states according to currentMode
             canvas.forEachObject(obj => {
                 if (obj.globalCompositeOperation === 'destination-out') {
                     obj.selectable = false;
@@ -714,7 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.on('object:removed', () => saveState());
 
     // -------------------------------------------------------------------------
-    // 14. Sample Shapes & Clear
+    // 15. Sample Shapes & Clear
     // -------------------------------------------------------------------------
     const colors = ['#60a5fa', '#34d399', '#f87171', '#fbbf24', '#a78bfa', '#f472b6'];
     let colorIndex = 0;
@@ -754,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 15. Initial Boot
+    // 16. Initial Boot
     // -------------------------------------------------------------------------
     saveState();
     updateZoomDisplay();

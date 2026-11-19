@@ -239,6 +239,35 @@ html, body {
     box-shadow: 0 0 0 1.5px var(--primary-color), 0 3px 6px rgba(0, 0, 0, 0.18);
 }
 
+/* Sticky Note Color Swatches */
+.sticky-color-swatches {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    background-color: #f1f5f9;
+    border-radius: 20px;
+}
+
+.sticky-color-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sticky-color-btn:hover {
+    transform: scale(1.15);
+}
+
+.sticky-color-btn.active {
+    box-shadow: 0 0 0 2px var(--primary-color), 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: scale(1.15);
+}
+
 /* ==========================================================================
    Canvas Container & Grid Background
    ========================================================================== */

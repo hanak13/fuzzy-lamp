@@ -4,24 +4,31 @@ An offline-first, open-source collaborative whiteboard web app built with **Pyth
 
 ---
 
-## Current Status: Phase 2 Completed
+## Current Status: Phase 3 Completed
 
-Phase 1 & Phase 2 provide a full-featured offline whiteboard experience:
+Phases 1, 2, and 3 provide a full-featured offline whiteboard experience:
 - **FastAPI backend** running on `http://localhost:8000`.
 - **Offline Fabric.js** loaded locally from `static/vendor/fabric.min.js` (no CDN links).
 - **Full-screen interactive canvas** with automatic window resizing.
 - **Tools**:
-  - **Select Tool (`V`)**: Click and drag to move objects; use corner/side handles to resize and rotate; delete via toolbar button or `Delete`/`Backspace` key.
-  - **Pan Tool (`H`)**: Drag anywhere; or hold **Spacebar** in any mode; or drag with **Middle Mouse Button**.
+  - **Select Tool (`V`)**: Click and drag to move objects and sticky notes; use handles to resize/scale and rotate; delete via toolbar button or `Delete`/`Backspace` key.
+  - **Pan Tool (`H`)**: Drag anywhere; hold **Spacebar** in any mode; or drag with **Middle Mouse Button**.
   - **Freehand Pen (`P`)**: Smooth freehand drawing using `fabric.PencilBrush` with customizable color and stroke size.
   - **Highlighter (`K`)**: Translucent highlighting using `fabric.PencilBrush` with color and width options.
   - **Eraser (`E`)**: Erasing using `fabric.PencilBrush` with pixel masking (`destination-out`) and direct click-to-delete for objects.
   - **Text Tool (`T`)**: Click anywhere on the canvas to type using `fabric.IText`, with live font size, color, bold, and italic controls.
+  - **Sticky Note Tool (`S` or `N`)**: Click anywhere on the canvas to place a note with editable text.
+    - Built as a **Fabric.js Group** of a rounded rectangle (`fabric.Rect` with soft drop shadow) and editable text (`fabric.Textbox`).
+    - Supports 4 pastel colors: **Yellow** (`#fef08a`), **Pink** (`#fbcfe8`), **Green** (`#bbf7d0`), and **Blue** (`#bfdbfe`).
+    - Double-click to enter text editing mode anytime.
+    - Moves, scales/resizes, and deletes as a single cohesive unit.
+    - Color swatch controls in toolbar allow updating selected note color or choosing next note color.
 - **Top Toolbar & Formatting**:
   - Color picker with live circular swatch preview.
+  - Sticky Note color selector (Yellow, Pink, Green, Blue).
   - Stroke width selector (2px, 4px, 8px, 16px, 24px, 36px).
   - Font size selector (16px to 64px), Bold (`B`), and Italic (`I`) toggles.
-  - Dedicated Delete button for selected object(s).
+  - Dedicated Delete button for selected object(s) or sticky note.
   - Undo (`Ctrl+Z`) and Redo (`Ctrl+Y`) with automatic history state tracking.
   - Quick "+ Box" shape generator and Canvas Clear with undo support.
 - **Infinite Grid Background**: Stays synchronized with viewport translation and zoom.

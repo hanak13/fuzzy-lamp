@@ -64,6 +64,13 @@
                 </svg>
                 <span>Text (T)</span>
             </button>
+            <button id="btn-sticky" class="btn tool-btn" title="Sticky Note (S) - Click on canvas to place">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/>
+                    <path d="M15 3v6h6"/>
+                </svg>
+                <span>Note (S)</span>
+            </button>
         </div>
 
         <div class="toolbar-separator"></div>
@@ -78,7 +85,16 @@
                 </label>
             </div>
 
-            <!-- Stroke Size (Pen, Highlighter, Eraser) -->
+            <!-- Sticky Note Colors: Yellow, Pink, Green, Blue -->
+            <div id="prop-sticky-group" class="prop-item" title="Sticky Note Color">
+                <span class="prop-label">Note</span>
+                <div class="sticky-color-swatches">
+                    <button type="button" class="sticky-color-btn active" data-color="yellow" style="background-color: #fef08a;" title="Yellow Note"></button>
+                    <button type="button" class="sticky-color-btn" data-color="pink" style="background-color: #fbcfe8;" title="Pink Note"></button>
+                    <button type="button" class="sticky-color-btn" data-color="green" style="background-color: #bbf7d0;" title="Green Note"></button>
+                    <button type="button" class="sticky-color-btn" data-color="blue" style="background-color: #bfdbfe;" title="Blue Note"></button>
+                </div>
+            </div>
             <div id="prop-size-group" class="prop-item" title="Stroke / Eraser Width">
                 <span class="prop-label">Size</span>
                 <select id="select-stroke-size" class="prop-select">
