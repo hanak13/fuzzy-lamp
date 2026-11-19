@@ -71,6 +71,12 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
   - Full support for 40+ shortcuts spanning **Basic Editing**, **Canvas Navigation**, **Drawing Tools**, **Text Formatting**, and **Object Arrangement**.
   - Built-in shortcuts cheat sheet modal accessible via `?` button or `?` / `Ctrl+/` / `F1` shortcut.
   - Floating toast feedback for actions like copy, duplicate, save, and alignment.
+- **Multi-Board Management (Right Sidebar)**:
+  - **Symmetric Right Dock & Drawer**: Matches the left sidebar dock, providing a dedicated **"Boards"** tab and **"+ New"** quick-action button.
+  - **Compact Board Items (14-16px)**: Each board row is styled to an ultra-compact `16px` height with active indicator dot, board name, and rightmost action buttons.
+  - **Download Board**: Each board row features a dedicated download button at the rightmost position to instantly export that board as a `.json` backup file.
+  - **Instant Switching & Auto-Save**: Seamlessly switch between boards with separate canvas contents, undo/redo stacks, and auto-saving to `localStorage`.
+  - **Create, Rename & Delete**: Create new boards, double-click to rename, and delete boards with safety confirmations.
 - **Undo / Redo (`Ctrl+Z` / `Ctrl+Y`)**: 50-step history tracking covering shapes, paths, text, sticky notes, and deletions.
 - **Pan & Zoom**: Spacebar / Hand drag, mouse-wheel zoom centered at cursor, bottom-right zoom widget.
 

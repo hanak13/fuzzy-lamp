@@ -109,6 +109,15 @@
                 </div>
             </div>
 
+            <!-- Board Background Color Picker -->
+            <div id="prop-board-bg-group" class="prop-item" title="Board Background Color">
+                <span class="prop-label">Board Bg</span>
+                <label for="board-bg-picker" class="color-picker-label" title="Change Board Background Color">
+                    <input type="color" id="board-bg-picker" value="#f8fafc">
+                    <span id="board-bg-preview" class="color-swatch-circle" style="background-color: #f8fafc;"></span>
+                </label>
+            </div>
+
             <!-- Line & Arrow Properties (Solid, Dashed, Dotted & Arrowheads) -->
             <div id="prop-line-group" class="prop-item-group" style="display: none;">
                 <div class="prop-item" title="Line Pattern (Solid, Dashed, Dotted)">
@@ -493,6 +502,96 @@
                 <div class="placeholder-icon">📑</div>
                 <h4>Object Hierarchy</h4>
                 <p>Organize, re-order, group, and lock canvas elements.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Right Collapsible Boards Sidebar (Small width by default on right edge, expands on click) -->
+    <aside id="right-boards-sidebar" class="right-boards-sidebar collapsed">
+        <!-- Collapsed Strip (Always visible on right edge with small width) -->
+        <div id="boards-collapsed-strip" class="boards-collapsed-strip" title="Click to view Boards">
+            <button type="button" id="btn-expand-boards" class="btn-boards-toggle" title="Expand Boards">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+            <div class="boards-vertical-tab">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                    <line x1="8" y1="6" x2="16" y2="6"/>
+                    <line x1="8" y1="10" x2="16" y2="10"/>
+                </svg>
+                <span class="vertical-tab-text">Boards</span>
+                <span id="boards-strip-badge" class="boards-strip-badge">1</span>
+            </div>
+        </div>
+
+        <!-- Expanded Content (Widened to 320px for ample board room) -->
+        <div id="boards-expanded-content" class="boards-expanded-content">
+            <div class="boards-header">
+                <div class="boards-header-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                        <line x1="8" y1="6" x2="16" y2="6"/>
+                        <line x1="8" y1="10" x2="16" y2="10"/>
+                    </svg>
+                    <span>Boards</span>
+                    <span id="boards-count-badge" class="boards-badge">1</span>
+                </div>
+                <div class="boards-header-actions">
+                    <button type="button" id="btn-import-board" class="btn-panel-action btn-panel-secondary" title="Import Board from JSON file">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <span>Import</span>
+                    </button>
+                    <input type="file" id="board-file-input" accept=".json,application/json" style="display: none;">
+                    <button type="button" id="btn-add-board" class="btn-panel-action" title="Create New Board (+)">+ Board</button>
+                    <button type="button" id="btn-collapse-boards" class="btn-boards-toggle" title="Collapse Boards sidebar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="boards-search-box">
+                <svg class="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="boards-search" placeholder="Search boards..." autocomplete="off">
+            </div>
+
+            <!-- Boards List -->
+            <div class="boards-list-wrapper" id="boards-list">
+                <!-- Dynamically rendered board items -->
+            </div>
+
+            <!-- Board Background Color Settings -->
+            <div class="boards-footer-settings">
+                <div class="boards-setting-header">
+                    <span class="boards-setting-title">Board Background</span>
+                </div>
+                <div class="board-bg-swatches">
+                    <button type="button" class="board-bg-swatch active" data-color="#f8fafc" title="Default Gray (#f8fafc)" style="background: #f8fafc;"></button>
+                    <button type="button" class="board-bg-swatch" data-color="#ffffff" title="Pure White (#ffffff)" style="background: #ffffff;"></button>
+                    <button type="button" class="board-bg-swatch" data-color="#fef3c7" title="Warm Cream (#fef3c7)" style="background: #fef3c7;"></button>
+                    <button type="button" class="board-bg-swatch" data-color="#f0fdf4" title="Soft Mint (#f0fdf4)" style="background: #f0fdf4;"></button>
+                    <button type="button" class="board-bg-swatch" data-color="#eff6ff" title="Soft Blue (#eff6ff)" style="background: #eff6ff;"></button>
+                    <button type="button" class="board-bg-swatch" data-color="#1e293b" title="Dark Slate (#1e293b)" style="background: #1e293b;"></button>
+                    <button type="button" class="board-bg-swatch" data-color="#0f172a" title="Midnight (#0f172a)" style="background: #0f172a;"></button>
+                    <label for="board-bg-picker-sidebar" class="board-bg-custom-btn" title="Choose custom background color">
+                        <input type="color" id="board-bg-picker-sidebar" value="#f8fafc">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v8"/>
+                            <path d="M8 12h8"/>
+                        </svg>
+                    </label>
+                </div>
             </div>
         </div>
     </aside>

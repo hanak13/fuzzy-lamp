@@ -2025,8 +2025,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveBoard() {
-        const json = JSON.stringify(canvas.toJSON(EXTRA_PROPS));
-        localStorage.setItem('whiteboard_saved_board', json);
+        if (typeof saveCurrentBoardData === 'function') {
+            saveCurrentBoardData();
+        } else {
+            const json = JSON.stringify(canvas.toJSON(EXTRA_PROPS));
+            localStorage.setItem('whiteboard_saved_board', json);
+        }
         showToast('Board saved (Ctrl + S)');
     }
 
@@ -2496,6 +2500,679 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // -------------------------------------------------------------------------
+    // 17. Multi-Board System & Right Sidebar Controller
+    // -------------------------------------------------------------------------
+    const rightBoardsSidebar = document.getElementById('right-boards-sidebar');
+    const boardsCollapsedStrip = document.getElementById('boards-collapsed-strip');
+    const btnExpandBoards = document.getElementById('btn-expand-boards');
+    const btnCollapseBoards = document.getElementById('btn-collapse-boards');
+    const btnAddBoard = document.getElementById('btn-add-board');
+    const btnImportBoard = document.getElementById('btn-import-board');
+    const boardFileInput = document.getElementById('board-file-input');
+    const boardsListEl = document.getElementById('boards-list');
+    const boardsSearchEl = document.getElementById('boards-search');
+    const boardsCountBadge = document.getElementById('boards-count-badge');
+    const boardsStripBadge = document.getElementById('boards-strip-badge');
+
+    // Board Background Color Elements
+    const boardBgPicker = document.getElementById('board-bg-picker');
+    const boardBgPreview = document.getElementById('board-bg-preview');
+    const sidebarBoardBgPicker = document.getElementById('board-bg-picker-sidebar');
+    const boardBgSwatches = document.querySelectorAll('.board-bg-swatch');
+
+    let boards = [];
+    let activeBoardId = null;
+    let autoSaveTimer = null;
+
+    function hexToRgb(hex) {
+        if (!hex || typeof hex !== 'string') return null;
+        let cleanHex = hex.replace('#', '');
+        if (cleanHex.length === 3) {
+            cleanHex = cleanHex.split('').map(ch => ch + ch).join('');
+        }
+        if (cleanHex.length !== 6) return null;
+        const num = parseInt(cleanHex, 16);
+        return {
+            r: (num >> 16) & 255,
+            g: (num >> 8) & 255,
+            b: num & 255
+        };
+    }
+
+    function setBoardBackgroundColor(color, save = true) {
+        if (!color) return;
+        const activeBoard = boards.find(b => b.id === activeBoardId);
+        if (activeBoard) {
+            activeBoard.bgColor = color;
+            if (save) saveBoardsMeta();
+        }
+
+        // Apply background color to canvas container
+        if (canvasContainer) {
+            canvasContainer.style.setProperty('--board-bg-color', color);
+            canvasContainer.style.backgroundColor = color;
+
+            // Dynamically adjust grid line contrast based on background luminance
+            const rgb = hexToRgb(color);
+            if (rgb) {
+                const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+                if (brightness < 128) {
+                    // Dark background -> soft light grid lines
+                    canvasContainer.style.setProperty('--grid-line-color', 'rgba(255, 255, 255, 0.12)');
+                } else {
+                    // Light background -> soft gray grid lines
+                    canvasContainer.style.setProperty('--grid-line-color', '#e2e8f0');
+                }
+            }
+        }
+
+        // Sync pickers and swatches
+        if (boardBgPicker) boardBgPicker.value = color;
+        if (boardBgPreview) boardBgPreview.style.backgroundColor = color;
+        if (sidebarBoardBgPicker) sidebarBoardBgPicker.value = color;
+
+        if (boardBgSwatches && boardBgSwatches.length > 0) {
+            boardBgSwatches.forEach(swatch => {
+                if (swatch.dataset.color && swatch.dataset.color.toLowerCase() === color.toLowerCase()) {
+                    swatch.classList.add('active');
+                } else {
+                    swatch.classList.remove('active');
+                }
+            });
+        }
+    }
+
+    function saveBoardsMeta() {
+        try {
+            localStorage.setItem('whiteboard_boards_meta', JSON.stringify(boards));
+        } catch (e) {
+            console.error('Could not save boards meta to localStorage:', e);
+        }
+    }
+
+    function saveCurrentBoardData() {
+        if (!activeBoardId) return;
+        try {
+            const data = canvas.toJSON(EXTRA_PROPS);
+            const jsonStr = JSON.stringify(data);
+            localStorage.setItem('whiteboard_board_data_' + activeBoardId, jsonStr);
+            localStorage.setItem('whiteboard_saved_board', jsonStr);
+            const currentBoard = boards.find(b => b.id === activeBoardId);
+            if (currentBoard) {
+                currentBoard.updatedAt = Date.now();
+                saveBoardsMeta();
+            }
+        } catch (e) {
+            console.error('Could not save current board data:', e);
+        }
+    }
+
+    function saveActiveBoardDebounced() {
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            saveCurrentBoardData();
+        }, 300);
+    }
+
+    function expandBoardsSidebar() {
+        if (!rightBoardsSidebar) return;
+        rightBoardsSidebar.classList.remove('collapsed');
+        rightBoardsSidebar.classList.add('expanded');
+        if (boardsSearchEl) {
+            setTimeout(() => boardsSearchEl.focus(), 60);
+        }
+    }
+
+    function collapseBoardsSidebar() {
+        if (!rightBoardsSidebar) return;
+        rightBoardsSidebar.classList.remove('expanded');
+        rightBoardsSidebar.classList.add('collapsed');
+    }
+
+    function toggleBoardsSidebar() {
+        if (!rightBoardsSidebar) return;
+        if (rightBoardsSidebar.classList.contains('expanded')) {
+            collapseBoardsSidebar();
+        } else {
+            expandBoardsSidebar();
+        }
+    }
+
+    function downloadBoard(boardId) {
+        const board = boards.find(b => b.id === boardId);
+        if (!board) return;
+
+        let boardObj;
+        if (boardId === activeBoardId) {
+            boardObj = canvas.toJSON(EXTRA_PROPS);
+        } else {
+            const stored = localStorage.getItem('whiteboard_board_data_' + boardId);
+            if (stored) {
+                try {
+                    boardObj = JSON.parse(stored);
+                } catch (e) {
+                    boardObj = { version: '5.3.0', objects: [] };
+                }
+            } else {
+                boardObj = { version: '5.3.0', objects: [] };
+            }
+        }
+        boardObj.bgColor = board.bgColor || '#f8fafc';
+        const boardDataJson = JSON.stringify(boardObj, null, 2);
+
+        const safeName = board.name.toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'board';
+        const blob = new Blob([boardDataJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${safeName}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast(`Downloaded "${board.name}" (.json)`);
+    }
+
+    function switchBoard(targetBoardId) {
+        if (targetBoardId === activeBoardId) return;
+        const targetBoard = boards.find(b => b.id === targetBoardId);
+        if (!targetBoard) return;
+
+        // Save current board data first
+        saveCurrentBoardData();
+
+        activeBoardId = targetBoardId;
+        localStorage.setItem('whiteboard_active_board_id', activeBoardId);
+
+        // Restore target board's background color
+        const targetBg = targetBoard.bgColor || '#f8fafc';
+        setBoardBackgroundColor(targetBg, false);
+
+        // Reset history for new board
+        isProcessingHistory = true;
+        undoStack.length = 0;
+        redoStack.length = 0;
+        updateHistoryButtons();
+        if (typeof saveActiveBoardDebounced === 'function') {
+            saveActiveBoardDebounced();
+        }
+
+        // Load new board
+        const saved = localStorage.getItem('whiteboard_board_data_' + targetBoardId);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                canvas.loadFromJSON(data, () => {
+                    isProcessingHistory = false;
+                    canvas.renderAll();
+                    updateSelectionUI();
+                    saveState();
+                    showToast(`Switched to "${targetBoard.name}"`);
+                });
+            } catch (err) {
+                console.error('Error loading board data:', err);
+                canvas.clear();
+                isProcessingHistory = false;
+                canvas.renderAll();
+                saveState();
+            }
+        } else {
+            canvas.clear();
+            isProcessingHistory = false;
+            canvas.renderAll();
+            saveState();
+            showToast(`Switched to "${targetBoard.name}"`);
+        }
+
+        renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+    }
+
+    function addNewBoard() {
+        saveCurrentBoardData();
+
+        const newNum = boards.length + 1;
+        const boardName = prompt('Enter a name for the new board:', `Board ${newNum}`);
+        if (boardName === null) return;
+        const finalName = boardName.trim() || `Board ${newNum}`;
+
+        const newId = 'board_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        const newBoard = {
+            id: newId,
+            name: finalName,
+            bgColor: '#f8fafc',
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+
+        boards.push(newBoard);
+        saveBoardsMeta();
+
+        activeBoardId = newId;
+        localStorage.setItem('whiteboard_active_board_id', activeBoardId);
+        setBoardBackgroundColor('#f8fafc', false);
+
+        isProcessingHistory = true;
+        undoStack.length = 0;
+        redoStack.length = 0;
+        updateHistoryButtons();
+        if (typeof saveActiveBoardDebounced === 'function') {
+            saveActiveBoardDebounced();
+        }
+        canvas.clear();
+        isProcessingHistory = false;
+        canvas.renderAll();
+        saveState();
+        saveCurrentBoardData();
+
+        expandBoardsSidebar();
+        renderBoardsList();
+        showToast(`Created "${finalName}"`);
+    }
+
+    function deleteBoard(boardId) {
+        if (boards.length <= 1) {
+            showToast('Cannot delete the only board');
+            return;
+        }
+
+        const board = boards.find(b => b.id === boardId);
+        if (!board) return;
+
+        if (!confirm(`Are you sure you want to delete "${board.name}"?`)) return;
+
+        boards = boards.filter(b => b.id !== boardId);
+        localStorage.removeItem('whiteboard_board_data_' + boardId);
+        saveBoardsMeta();
+
+        if (activeBoardId === boardId) {
+            switchBoard(boards[0].id);
+        } else {
+            renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+        }
+
+        showToast(`Deleted "${board.name}"`);
+    }
+
+    function startRenameBoard(boardId, titleEl) {
+        const board = boards.find(b => b.id === boardId);
+        if (!board || !titleEl) return;
+
+        // Prevent multiple simultaneous rename inputs
+        if (titleEl.querySelector('.board-rename-input')) return;
+
+        const originalName = board.name;
+        titleEl.innerHTML = '';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'board-rename-input';
+        input.value = originalName;
+        titleEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        let finished = false;
+
+        function commitRename() {
+            if (finished) return;
+            finished = true;
+            const val = input.value.trim();
+            if (val && val !== originalName) {
+                board.name = val;
+                board.updatedAt = Date.now();
+                saveBoardsMeta();
+                showToast(`Renamed to "${board.name}"`);
+            }
+            renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+        }
+
+        function cancelRename() {
+            if (finished) return;
+            finished = true;
+            renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+        }
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                commitRename();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                cancelRename();
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            commitRename();
+        });
+
+        input.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    function renameBoard(boardId) {
+        const board = boards.find(b => b.id === boardId);
+        if (!board) return;
+
+        const newName = prompt('Enter new board name:', board.name);
+        if (newName === null) return;
+        const finalName = newName.trim();
+        if (!finalName) return;
+
+        board.name = finalName;
+        board.updatedAt = Date.now();
+        saveBoardsMeta();
+        renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+        showToast(`Renamed to "${board.name}"`);
+    }
+
+    function handleImportBoardFile(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const content = event.target.result;
+
+            // Check 1: Is it valid JSON?
+            let parsedData;
+            try {
+                parsedData = JSON.parse(content);
+            } catch (jsonErr) {
+                showToast('Import failed: File is not valid JSON!');
+                return;
+            }
+
+            // Check 2: Is it an importable Whiteboard board?
+            // Fabric canvas serialization contains an 'objects' array
+            const isImportable = parsedData &&
+                typeof parsedData === 'object' &&
+                !Array.isArray(parsedData) &&
+                Array.isArray(parsedData.objects);
+
+            if (!isImportable) {
+                showToast('Import failed: JSON file is not an importable whiteboard board!');
+                return;
+            }
+
+            // Save active board before loading imported one
+            saveCurrentBoardData();
+
+            // Derive board name from filename
+            let boardName = file.name.replace(/\.[^/.]+$/, '').trim();
+            if (!boardName) boardName = 'Imported Board';
+
+            const importedBg = (parsedData.bgColor && typeof parsedData.bgColor === 'string')
+                ? parsedData.bgColor
+                : '#f8fafc';
+
+            const newId = 'board_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            const newBoard = {
+                id: newId,
+                name: boardName,
+                bgColor: importedBg,
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+
+            boards.push(newBoard);
+            localStorage.setItem('whiteboard_board_data_' + newId, JSON.stringify(parsedData));
+            saveBoardsMeta();
+
+            switchBoard(newId);
+            expandBoardsSidebar();
+            showToast(`Board "${boardName}" imported successfully!`);
+        };
+
+        reader.onerror = function() {
+            showToast('Error reading the selected file');
+        };
+
+        reader.readAsText(file);
+    }
+
+    function renderBoardsList(filterText = '') {
+        if (!boardsListEl) return;
+        boardsListEl.innerHTML = '';
+
+        if (boardsCountBadge) {
+            boardsCountBadge.textContent = String(boards.length);
+        }
+        if (boardsStripBadge) {
+            boardsStripBadge.textContent = String(boards.length);
+        }
+
+        const query = filterText.trim().toLowerCase();
+        const filtered = query
+            ? boards.filter(b => b.name.toLowerCase().includes(query))
+            : boards;
+
+        if (filtered.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'boards-empty-state';
+            emptyEl.textContent = query ? 'No matching boards found.' : 'No boards yet.';
+            boardsListEl.appendChild(emptyEl);
+            return;
+        }
+
+        filtered.forEach(board => {
+            const item = document.createElement('div');
+            item.className = 'board-item' + (board.id === activeBoardId ? ' active' : '');
+            item.dataset.boardId = board.id;
+
+            // Left side: dot + title
+            const leftEl = document.createElement('div');
+            leftEl.className = 'board-item-left';
+            leftEl.title = `Switch to "${board.name}" (Double-click to rename)`;
+
+            const dotEl = document.createElement('span');
+            dotEl.className = 'board-item-dot';
+
+            const titleEl = document.createElement('span');
+            titleEl.className = 'board-item-title';
+            titleEl.textContent = board.name;
+
+            leftEl.appendChild(dotEl);
+            leftEl.appendChild(titleEl);
+
+            // Right side: actions (Rename, Delete, and Download at rightmost)
+            const actionsEl = document.createElement('div');
+            actionsEl.className = 'board-item-actions';
+
+            // 1. Rename Board button
+            const btnRename = document.createElement('button');
+            btnRename.className = 'btn-board-action btn-board-rename';
+            btnRename.title = `Rename "${board.name}"`;
+            btnRename.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+            `;
+            btnRename.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startRenameBoard(board.id, titleEl);
+            });
+
+            // 2. Delete Board button
+            const btnDelete = document.createElement('button');
+            btnDelete.className = 'btn-board-action btn-board-delete';
+            btnDelete.title = `Delete "${board.name}"`;
+            btnDelete.innerHTML = `
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            `;
+            btnDelete.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteBoard(board.id);
+            });
+
+            // 3. Download Board button (at rightmost of every board)
+            const btnDownload = document.createElement('button');
+            btnDownload.className = 'btn-board-action btn-board-download';
+            btnDownload.title = `Download "${board.name}" (.json)`;
+            btnDownload.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+            `;
+            btnDownload.addEventListener('click', (e) => {
+                e.stopPropagation();
+                downloadBoard(board.id);
+            });
+
+            actionsEl.appendChild(btnRename);
+            actionsEl.appendChild(btnDelete);
+            actionsEl.appendChild(btnDownload);
+
+            item.appendChild(leftEl);
+            item.appendChild(actionsEl);
+
+            // Switch on click
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.btn-board-action') || e.target.closest('.board-rename-input')) return;
+                switchBoard(board.id);
+            });
+
+            // Rename on double-click
+            item.addEventListener('dblclick', () => {
+                startRenameBoard(board.id, titleEl);
+            });
+
+            boardsListEl.appendChild(item);
+        });
+    }
+
+    function initBoards() {
+        try {
+            const meta = localStorage.getItem('whiteboard_boards_meta');
+            if (meta) {
+                boards = JSON.parse(meta);
+            }
+        } catch (e) {
+            console.warn('Could not parse boards meta:', e);
+        }
+
+        if (!boards || boards.length === 0) {
+            const legacyData = localStorage.getItem('whiteboard_saved_board');
+            const defaultBoard = {
+                id: 'board_main',
+                name: 'Board 1',
+                bgColor: '#f8fafc',
+                createdAt: Date.now(),
+                updatedAt: Date.now()
+            };
+            boards = [defaultBoard];
+            if (legacyData) {
+                localStorage.setItem('whiteboard_board_data_board_main', legacyData);
+            }
+            saveBoardsMeta();
+        } else {
+            let metaUpdated = false;
+            boards.forEach(b => {
+                if (!b.bgColor) {
+                    b.bgColor = '#f8fafc';
+                    metaUpdated = true;
+                }
+            });
+            if (metaUpdated) saveBoardsMeta();
+        }
+
+        const savedActiveId = localStorage.getItem('whiteboard_active_board_id');
+        if (savedActiveId && boards.some(b => b.id === savedActiveId)) {
+            activeBoardId = savedActiveId;
+        } else {
+            activeBoardId = boards[0].id;
+        }
+
+        // Apply active board's background color
+        const activeBoard = boards.find(b => b.id === activeBoardId);
+        const currentBg = (activeBoard && activeBoard.bgColor) ? activeBoard.bgColor : '#f8fafc';
+        setBoardBackgroundColor(currentBg, false);
+
+        const currentBoardData = localStorage.getItem('whiteboard_board_data_' + activeBoardId);
+        if (currentBoardData && canvas.getObjects().length === 0) {
+            try {
+                const data = JSON.parse(currentBoardData);
+                isProcessingHistory = true;
+                canvas.loadFromJSON(data, () => {
+                    isProcessingHistory = false;
+                    canvas.renderAll();
+                    updateSelectionUI();
+                    saveState();
+                });
+            } catch (e) {
+                isProcessingHistory = false;
+            }
+        }
+
+        renderBoardsList();
+    }
+
+    if (boardsCollapsedStrip) {
+        boardsCollapsedStrip.addEventListener('click', expandBoardsSidebar);
+    }
+    if (btnExpandBoards) {
+        btnExpandBoards.addEventListener('click', (e) => {
+            e.stopPropagation();
+            expandBoardsSidebar();
+        });
+    }
+    if (btnCollapseBoards) {
+        btnCollapseBoards.addEventListener('click', (e) => {
+            e.stopPropagation();
+            collapseBoardsSidebar();
+        });
+    }
+    if (btnAddBoard) {
+        btnAddBoard.addEventListener('click', addNewBoard);
+    }
+    if (btnImportBoard && boardFileInput) {
+        btnImportBoard.addEventListener('click', () => {
+            boardFileInput.value = '';
+            boardFileInput.click();
+        });
+        boardFileInput.addEventListener('change', handleImportBoardFile);
+    }
+    if (boardsSearchEl) {
+        boardsSearchEl.addEventListener('input', () => {
+            renderBoardsList(boardsSearchEl.value);
+        });
+    }
+
+    // Board Background Color Listeners
+    if (boardBgPicker) {
+        boardBgPicker.addEventListener('input', (e) => {
+            setBoardBackgroundColor(e.target.value, true);
+        });
+    }
+    if (sidebarBoardBgPicker) {
+        sidebarBoardBgPicker.addEventListener('input', (e) => {
+            setBoardBackgroundColor(e.target.value, true);
+        });
+    }
+    if (boardBgSwatches) {
+        boardBgSwatches.forEach(swatch => {
+            swatch.addEventListener('click', () => {
+                const color = swatch.dataset.color;
+                if (color) {
+                    setBoardBackgroundColor(color, true);
+                    showToast(`Background changed to ${color}`);
+                }
+            });
+        });
+    }
+
+    initBoards();
+
     function isUserTyping() {
         const activeObj = canvas.getActiveObject();
         if (activeObj && activeObj.isEditing) return true;
@@ -2892,6 +3569,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         redoStack.length = 0;
         updateHistoryButtons();
+        if (typeof saveActiveBoardDebounced === 'function') {
+            saveActiveBoardDebounced();
+        }
     }
 
     function undo() {
