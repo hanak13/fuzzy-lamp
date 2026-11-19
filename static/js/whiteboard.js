@@ -260,6 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Window Mouse Up: Ensure panning doesn't get stuck if released outside canvas
+    window.addEventListener('mouseup', () => {
+        if (isPanning) {
+            isPanning = false;
+            canvas.defaultCursor = (currentMode === 'pan' || isSpacePressed) ? 'grab' : 'default';
+        }
+    });
+
     // -------------------------------------------------------------------------
     // 6. Undo / Redo History Management
     // -------------------------------------------------------------------------
@@ -326,7 +334,13 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function loadCanvasState(jsonState) {
         isProcessingHistory = true;
+        // Preserve viewportTransform so undo/redo doesn't reset user's current pan or zoom position
+        const currentVpt = canvas.viewportTransform ? [...canvas.viewportTransform] : null;
+
         canvas.loadFromJSON(jsonState, () => {
+            if (currentVpt) {
+                canvas.setViewportTransform(currentVpt);
+            }
             // Restore selectable property based on active mode
             if (currentMode === 'pan') {
                 canvas.forEachObject(obj => obj.selectable = false);
