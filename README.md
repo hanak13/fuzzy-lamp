@@ -4,19 +4,28 @@ An offline-first, open-source collaborative whiteboard web app built with **Pyth
 
 ---
 
-## Current Status: Phase 1 Completed
+## Current Status: Phase 2 Completed
 
-Phase 1 establishes the initial project structure, local offline server, and responsive interactive canvas:
+Phase 1 & Phase 2 provide a full-featured offline whiteboard experience:
 - **FastAPI backend** running on `http://localhost:8000`.
 - **Offline Fabric.js** loaded locally from `static/vendor/fabric.min.js` (no CDN links).
 - **Full-screen interactive canvas** with automatic window resizing.
-- **Top toolbar** with Select mode, Pan mode, Undo/Redo controls, Add Box test button, and Clear.
-- **Infinite grid background** that stays synchronized during panning and zooming.
-- **Pan & Zoom**:
-  - Pan via Pan Tool (`H`), Spacebar + Left Mouse Drag, or Middle Mouse Button Drag.
-  - Zoom via Mouse Wheel towards cursor or bottom-right zoom widget (`+` / `-`).
-  - Zoom percentage pill indicator at bottom-right (click or press Reset to return to 100%).
-- **Undo / Redo** history system with toolbar buttons and keyboard shortcuts (`Ctrl+Z` / `Ctrl+Y`).
+- **Tools**:
+  - **Select Tool (`V`)**: Click and drag to move objects; use corner/side handles to resize and rotate; delete via toolbar button or `Delete`/`Backspace` key.
+  - **Pan Tool (`H`)**: Drag anywhere; or hold **Spacebar** in any mode; or drag with **Middle Mouse Button**.
+  - **Freehand Pen (`P`)**: Smooth freehand drawing using `fabric.PencilBrush` with customizable color and stroke size.
+  - **Highlighter (`K`)**: Translucent highlighting using `fabric.PencilBrush` with color and width options.
+  - **Eraser (`E`)**: Erasing using `fabric.PencilBrush` with pixel masking (`destination-out`) and direct click-to-delete for objects.
+  - **Text Tool (`T`)**: Click anywhere on the canvas to type using `fabric.IText`, with live font size, color, bold, and italic controls.
+- **Top Toolbar & Formatting**:
+  - Color picker with live circular swatch preview.
+  - Stroke width selector (2px, 4px, 8px, 16px, 24px, 36px).
+  - Font size selector (16px to 64px), Bold (`B`), and Italic (`I`) toggles.
+  - Dedicated Delete button for selected object(s).
+  - Undo (`Ctrl+Z`) and Redo (`Ctrl+Y`) with automatic history state tracking.
+  - Quick "+ Box" shape generator and Canvas Clear with undo support.
+- **Infinite Grid Background**: Stays synchronized with viewport translation and zoom.
+- **Zoom & Navigation**: Mouse wheel zooming relative to cursor, clamped from 10% to 500%, with bottom-right percentage pill and reset button.
 
 ---
 

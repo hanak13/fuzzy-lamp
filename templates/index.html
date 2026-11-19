@@ -17,9 +17,9 @@
 
         <div class="toolbar-separator"></div>
 
-        <!-- Mode Selection -->
-        <div class="toolbar-group">
-            <button id="btn-select" class="btn tool-btn active" title="Select / Move tool (V)">
+        <!-- Mode Selection: Select, Pan, Pen, Highlighter, Eraser, Text -->
+        <div class="toolbar-group" role="group" aria-label="Drawing Tools">
+            <button id="btn-select" class="btn tool-btn active" title="Select / Move / Resize / Delete (V)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 3l7 18 3-7 7-3L3 3z"/>
                 </svg>
@@ -33,6 +33,97 @@
                     <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
                 </svg>
                 <span>Pan (H)</span>
+            </button>
+            <button id="btn-pen" class="btn tool-btn" title="Freehand Pen (P)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                    <path d="m15 5 4 4"/>
+                </svg>
+                <span>Pen (P)</span>
+            </button>
+            <button id="btn-highlighter" class="btn tool-btn" title="Highlighter (K)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 11-6 6v3h3l6-6"/>
+                    <path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/>
+                </svg>
+                <span>Highlighter</span>
+            </button>
+            <button id="btn-eraser" class="btn tool-btn" title="Eraser (E)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
+                    <path d="M22 21H7"/>
+                    <path d="m5 11 9 9"/>
+                </svg>
+                <span>Eraser (E)</span>
+            </button>
+            <button id="btn-text" class="btn tool-btn" title="Text Tool (T) - Click anywhere to type">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 7 4 4 20 4 20 7"/>
+                    <line x1="9" y1="20" x2="15" y2="20"/>
+                    <line x1="12" y1="4" x2="12" y2="20"/>
+                </svg>
+                <span>Text (T)</span>
+            </button>
+        </div>
+
+        <div class="toolbar-separator"></div>
+
+        <!-- Tool Properties: Color, Size, Font Formatting -->
+        <div id="tool-properties" class="toolbar-group">
+            <!-- Color Picker -->
+            <div id="prop-color-group" class="prop-item" title="Color">
+                <label for="color-picker" class="color-picker-label" title="Choose color">
+                    <input type="color" id="color-picker" value="#1e293b">
+                    <span id="color-preview" class="color-swatch-circle" style="background-color: #1e293b;"></span>
+                </label>
+            </div>
+
+            <!-- Stroke Size (Pen, Highlighter, Eraser) -->
+            <div id="prop-size-group" class="prop-item" title="Stroke / Eraser Width">
+                <span class="prop-label">Size</span>
+                <select id="select-stroke-size" class="prop-select">
+                    <option value="2">2px</option>
+                    <option value="4" selected>4px</option>
+                    <option value="8">8px</option>
+                    <option value="16">16px</option>
+                    <option value="24">24px</option>
+                    <option value="36">36px</option>
+                </select>
+            </div>
+
+            <!-- Text Controls: Font Size, Bold, Italic -->
+            <div id="prop-text-group" class="prop-item-group">
+                <div class="prop-item" title="Font Size">
+                    <span class="prop-label">Font</span>
+                    <select id="select-font-size" class="prop-select">
+                        <option value="16">16px</option>
+                        <option value="20">20px</option>
+                        <option value="24" selected>24px</option>
+                        <option value="32">32px</option>
+                        <option value="40">40px</option>
+                        <option value="48">48px</option>
+                        <option value="64">64px</option>
+                    </select>
+                </div>
+                <button id="btn-bold" class="btn prop-btn" title="Toggle Bold">
+                    <b>B</b>
+                </button>
+                <button id="btn-italic" class="btn prop-btn" title="Toggle Italic">
+                    <i>I</i>
+                </button>
+            </div>
+        </div>
+
+        <div class="toolbar-separator"></div>
+
+        <!-- Delete Selected Object(s) -->
+        <div class="toolbar-group">
+            <button id="btn-delete" class="btn action-btn btn-danger" title="Delete selected object(s) (Delete / Backspace)" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                <span>Delete</span>
             </button>
         </div>
 

@@ -56,6 +56,13 @@ html, body {
     border: 1px solid var(--toolbar-border);
     border-radius: 12px;
     box-shadow: var(--toolbar-shadow);
+    max-width: 98vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+#toolbar::-webkit-scrollbar {
+    display: none;
 }
 
 .toolbar-brand {
@@ -119,6 +126,117 @@ html, body {
 .btn-danger:hover:not(:disabled) {
     background-color: #fee2e2;
     color: var(--danger-color);
+}
+
+/* ==========================================================================
+   Tool Properties (Color, Size, Font Formatting)
+   ========================================================================== */
+
+#tool-properties {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.prop-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.prop-item-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.prop-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.prop-select {
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--toolbar-border);
+    border-radius: var(--border-radius);
+    background-color: #ffffff;
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.prop-select:hover {
+    border-color: #cbd5e1;
+    background-color: var(--btn-hover);
+}
+
+.prop-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.prop-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--toolbar-border);
+    border-radius: var(--border-radius);
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-primary);
+    transition: all 0.15s ease-in-out;
+}
+
+.prop-btn:hover {
+    background-color: var(--btn-hover);
+}
+
+.prop-btn.active {
+    background-color: var(--active-bg);
+    border-color: #bfdbfe;
+    color: var(--primary-color);
+}
+
+.color-picker-label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.color-picker-label input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.color-swatch-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 1px var(--toolbar-border), 0 2px 4px rgba(0, 0, 0, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.color-picker-label:hover .color-swatch-circle {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 1.5px var(--primary-color), 0 3px 6px rgba(0, 0, 0, 0.18);
 }
 
 /* ==========================================================================
