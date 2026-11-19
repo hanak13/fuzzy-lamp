@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whiteboard App</title>
+    <!-- Local CSS stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Top Toolbar -->
+    <header id="toolbar">
+        <div class="toolbar-brand">
+            <span class="brand-icon">✏️</span>
+            <span class="brand-name">Whiteboard</span>
+        </div>
+
+        <div class="toolbar-separator"></div>
+
+        <!-- Mode Selection -->
+        <div class="toolbar-group">
+            <button id="btn-select" class="btn tool-btn active" title="Select / Move tool (V)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3l7 18 3-7 7-3L3 3z"/>
+                </svg>
+                <span>Select (V)</span>
+            </button>
+            <button id="btn-pan" class="btn tool-btn" title="Pan / Hand tool (H or hold Spacebar)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-4 0v4"/>
+                    <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+                    <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+                </svg>
+                <span>Pan (H)</span>
+            </button>
+        </div>
+
+        <div class="toolbar-separator"></div>
+
+        <!-- History: Undo / Redo -->
+        <div class="toolbar-group">
+            <button id="btn-undo" class="btn action-btn" title="Undo (Ctrl+Z)" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7v6h6"/>
+                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                </svg>
+                <span>Undo</span>
+            </button>
+            <button id="btn-redo" class="btn action-btn" title="Redo (Ctrl+Y)" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 7v6h-6"/>
+                    <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/>
+                </svg>
+                <span>Redo</span>
+            </button>
+        </div>
+
+        <div class="toolbar-separator"></div>
+
+        <!-- Testing helpers for Phase 1 -->
+        <div class="toolbar-group">
+            <button id="btn-add-box" class="btn action-btn" title="Add a sample shape to test canvas & undo/redo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                </svg>
+                <span>+ Add Box</span>
+            </button>
+            <button id="btn-clear" class="btn action-btn btn-danger" title="Clear Canvas">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                </svg>
+                <span>Clear</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Canvas Container -->
+    <main id="canvas-container">
+        <canvas id="whiteboard-canvas"></canvas>
+    </main>
+
+    <!-- Bottom-right Zoom Widget -->
+    <div id="zoom-widget">
+        <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out (-)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
+        <span id="zoom-percentage" title="Click to reset to 100%">100%</span>
+        <button id="btn-zoom-in" class="zoom-btn" title="Zoom In (+)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
+        <button id="btn-reset-view" class="zoom-btn text-btn" title="Reset View & Zoom">Reset</button>
+    </div>
+
+    <!-- Scripts (Offline Fabric.js vendor script and custom whiteboard script) -->
+    <script src="/static/vendor/fabric.min.js"></script>
+    <script src="/static/js/whiteboard.js"></script>
+</body>
+</html>
