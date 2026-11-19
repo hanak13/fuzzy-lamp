@@ -4,54 +4,69 @@ An offline-first, open-source collaborative whiteboard web app built with **Pyth
 
 ---
 
-## Current Status: Phase 3 Completed
+## Current Status: Phase 4 Completed
 
-Phases 1, 2, and 3 provide a full-featured offline whiteboard experience:
+Phases 1 through 4 provide a comprehensive offline whiteboard web application:
 - **FastAPI backend** running on `http://localhost:8000`.
 - **Offline Fabric.js** loaded locally from `static/vendor/fabric.min.js` (no CDN links).
-- **Full-screen interactive canvas** with automatic window resizing.
-- **Tools**:
-  - **Select Tool (`V`)**: Click and drag to move objects and sticky notes; use handles to resize/scale and rotate; delete via toolbar button or `Delete`/`Backspace` key.
-  - **Pan Tool (`H`)**: Drag anywhere; hold **Spacebar** in any mode; or drag with **Middle Mouse Button**.
-  - **Freehand Pen (`P`)**: Smooth freehand drawing using `fabric.PencilBrush` with customizable color and stroke size.
-  - **Highlighter (`K`)**: Translucent highlighting using `fabric.PencilBrush` with color and width options.
-  - **Eraser (`E`)**: Erasing using `fabric.PencilBrush` with pixel masking (`destination-out`) and direct click-to-delete for objects.
-  - **Text Tool (`T`)**: Click anywhere on the canvas to type using `fabric.IText`, with live font size, color, bold, and italic controls.
-  - **Sticky Note Tool (`S` or `N`)**: Click anywhere on the canvas to place a note with editable text.
-    - Built as a **Fabric.js Group** of a rounded rectangle (`fabric.Rect` with soft drop shadow) and editable text (`fabric.Textbox`).
-    - Supports 4 pastel colors: **Yellow** (`#fef08a`), **Pink** (`#fbcfe8`), **Green** (`#bbf7d0`), and **Blue** (`#bfdbfe`).
-    - Double-click to enter text editing mode anytime.
-    - Moves, scales/resizes, and deletes as a single cohesive unit.
-    - Color swatch controls in toolbar allow updating selected note color or choosing next note color.
-- **Top Toolbar & Formatting**:
-  - Color picker with live circular swatch preview.
-  - Sticky Note color selector (Yellow, Pink, Green, Blue).
-  - Stroke width selector (2px, 4px, 8px, 16px, 24px, 36px).
-  - Font size selector (16px to 64px), Bold (`B`), and Italic (`I`) toggles.
-  - Dedicated Delete button for selected object(s) or sticky note.
-  - Undo (`Ctrl+Z`) and Redo (`Ctrl+Y`) with automatic history state tracking.
-  - Quick "+ Box" shape generator and Canvas Clear with undo support.
-- **Infinite Grid Background**: Stays synchronized with viewport translation and zoom.
-- **Zoom & Navigation**: Mouse wheel zooming relative to cursor, clamped from 10% to 500%, with bottom-right percentage pill and reset button.
+- **Full-screen interactive canvas** with automatic window resizing and synced grid.
+- **Left Navigation Sidebar Dock & Hidden Flyout Drawer**:
+  - Docked primary left navigation dock with **6 quick-access buttons**:
+    1. **Shapes**: Opens the Shapes Library with search.
+    2. **Stickers**: Staged and ready for the upcoming stickers feature.
+    3. **Templates**: Flowcharts, mind maps, and whiteboard layouts.
+    4. **Media**: Image uploads and media assets.
+    5. **Icons**: UI symbols and diagram graphics.
+    6. **Layers**: Canvas object hierarchy and ordering.
+  - **Hidden by Default**: The drawer stays tucked away and slides out only when the user selects a sidebar button or the toolbar toggle. Clicking the active button again or the close button immediately dismisses the drawer to preserve maximum canvas workspace.
+  - **Search & Shape Library**: Real-time filtering by shape name or category.
+  - **Built-in Shapes** (using native Fabric.js classes):
+    - **Rectangle** (`fabric.Rect`)
+    - **Rounded Rectangle** (`fabric.Rect` with `rx`, `ry`)
+    - **Circle** (`fabric.Circle`)
+    - **Triangle** (`fabric.Triangle`)
+  - **Custom SVG Shapes** (loaded dynamically from `static/shapes.json`):
+    - **Diamond**, **Star**, **Pentagon**, **Hexagon**
+    - **Arrows**: Right, Left, Up, Down
+    - **Cloud**, **Cross**, **Cylinder**, **Speech Bubble**
+    - Extensible architecture: contributors can add new shapes simply by editing `static/shapes.json` with an SVG path!
+  - **Shape Formatting & Text Inside**:
+    - Supports customizable **Fill Color** and **Border Color** via toolbar pickers.
+    - Each shape is built as a Fabric.js group containing the shape geometry and a centered `fabric.Textbox`.
+    - **Double-click to edit** text inside any shape.
+    - Moves, resizes/scales, rotates, and deletes as a single cohesive unit.
+- **Sticky Note Tool (`S` or `N`)**:
+  - Fabric.js Group of a rounded rectangle (with soft drop shadow) and editable text.
+  - 4 pastel color presets: **Yellow**, **Pink**, **Green**, and **Blue**.
+  - Double-click to edit text, toolbar swatch to re-color active note.
+- **Freehand Drawing Tools**:
+  - **Pen (`P`)**: Smooth freehand drawing with `fabric.PencilBrush`, color, and size options.
+  - **Highlighter (`K`)**: Translucent highlighting with `fabric.PencilBrush`.
+  - **Eraser (`E`)**: Erasing with `fabric.PencilBrush` (`destination-out` pixel masking + object click-to-delete).
+- **Text Tool (`T`)**: Click anywhere to type using `fabric.IText`, with font size, color, bold, and italic.
+- **Select Tool (`V`)**: Move, resize, and delete any object, shape, or sticky note (`Delete` / `Backspace`).
+- **Undo / Redo (`Ctrl+Z` / `Ctrl+Y`)**: 50-step history tracking covering shapes, paths, text, sticky notes, and deletions.
+- **Pan & Zoom**: Spacebar / Hand drag, mouse-wheel zoom centered at cursor, bottom-right zoom widget.
 
 ---
 
 ## Project Structure
 
 ```text
-White_board/
+white-board/
 ├── app.py                      # FastAPI server application
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # Project documentation & run guide
 ├── templates/
-│   └── index.html              # Main whiteboard HTML page
+│   └── index.html              # Main whiteboard HTML page with toolbar & shapes panel
 └── static/
+    ├── shapes.json             # SVG path definitions for custom shapes
     ├── css/
-    │   └── style.css           # Styling for toolbar, canvas, and zoom widget
+    │   └── style.css           # Styling for toolbar, canvas, zoom widget, & shapes panel
     ├── js/
-    │   └── whiteboard.js       # Fabric.js initialization, pan, zoom, undo/redo
+    │   └── whiteboard.js       # Complete whiteboard interaction & Fabric.js logic
     └── vendor/
-        └── fabric.min.js       # Offline Fabric.js library (v5.3.1)
+        └── fabric.min.js       # Offline Fabric.js library (v5.3.0)
 ```
 
 ---

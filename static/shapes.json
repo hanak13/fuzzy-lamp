@@ -1,0 +1,110 @@
+[
+  {
+    "id": "diamond",
+    "name": "Diamond",
+    "category": "Basic",
+    "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "star",
+    "name": "Star",
+    "category": "Symbols",
+    "path": "M 50 0 L 63 35 L 100 35 L 71 57 L 82 91 L 50 70 L 18 91 L 29 57 L 0 35 L 37 35 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "pentagon",
+    "name": "Pentagon",
+    "category": "Polygons",
+    "path": "M 50 0 L 98 35 L 79 95 L 21 95 L 2 35 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "hexagon",
+    "name": "Hexagon",
+    "category": "Polygons",
+    "path": "M 25 0 L 75 0 L 100 50 L 75 100 L 25 100 L 0 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arrow-right",
+    "name": "Right Arrow",
+    "category": "Arrows",
+    "path": "M 0 30 L 65 30 L 65 10 L 100 50 L 65 90 L 65 70 L 0 70 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arrow-left",
+    "name": "Left Arrow",
+    "category": "Arrows",
+    "path": "M 100 30 L 35 30 L 35 10 L 0 50 L 35 90 L 35 70 L 100 70 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arrow-up",
+    "name": "Up Arrow",
+    "category": "Arrows",
+    "path": "M 30 100 L 30 35 L 10 35 L 50 0 L 90 35 L 70 35 L 70 100 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 130,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arrow-down",
+    "name": "Down Arrow",
+    "category": "Arrows",
+    "path": "M 30 0 L 30 65 L 10 65 L 50 100 L 90 65 L 70 65 L 70 0 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 130,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud",
+    "name": "Cloud",
+    "category": "Symbols",
+    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 L 25 75 A 10 10 0 0 1 25 65 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cross",
+    "name": "Cross",
+    "category": "Symbols",
+    "path": "M 35 0 L 65 0 L 65 35 L 100 35 L 100 65 L 65 65 L 65 100 L 35 100 L 35 65 L 0 65 L 0 35 L 35 35 Z",
+    "defaultWidth": 105,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cylinder",
+    "name": "Cylinder",
+    "category": "Flowchart",
+    "path": "M 5 20 C 5 5, 95 5, 95 20 L 95 80 C 95 95, 5 95, 5 80 Z M 5 20 C 5 35, 95 35, 95 20",
+    "defaultWidth": 100,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "speech-bubble",
+    "name": "Speech Bubble",
+    "category": "Symbols",
+    "path": "M 10 20 C 10 9, 22 0, 38 0 L 82 0 C 98 0, 110 9, 110 20 L 110 55 C 110 66, 98 75, 82 75 L 38 75 L 12 96 L 20 75 C 10 75, 10 66, 10 55 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 105,
+    "viewBox": "0 0 120 100"
+  }
+]
