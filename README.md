@@ -19,7 +19,7 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
   - Active object property inspector (Stroke Color, Fill Color with No-Fill toggle, Size, Font formatting, Delete, Undo/Redo).
 - **Left Navigation Sidebar Dock & Hidden Flyout Drawer**:
   - Docked primary left navigation dock with quick-access buttons:
-    1. **Shapes**: Opens the Shapes Library with search, category filtering chips (*All*, *Flowchart*, *Basic*, *Arrows*, *Symbols*), and 21 shapes.
+    1. **Shapes**: Opens the Shapes Library with search, category filtering chips, and over **280+ engineering, flowchart, architecture, and general shapes**.
     2. **Notes (Sticky Note)**: Opens the Sticky Notes panel with one-click pastel color cards (Yellow, Pink, Green, Blue) and instant canvas placement mode (`S` or `N`).
     3. **Stickers**: Staged for upcoming sticker packs, emojis, and badges.
     4. **Templates**: Flowcharts, mind maps, and whiteboard layouts.
@@ -27,17 +27,20 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
     6. **Icons**: UI symbols and diagram graphics.
     7. **Layers**: Canvas object hierarchy and ordering.
   - **Hidden by Default**: The drawer stays tucked away and slides out only when the user selects a sidebar button. Clicking the active button again or the close button immediately dismisses the drawer to preserve maximum canvas workspace.
-  - **Search & Shape Library**: Real-time filtering by shape name or category.
-  - **Built-in Shapes** (using native Fabric.js classes):
-    - **Rectangle** (`fabric.Rect`)
-    - **Rounded Rectangle** (`fabric.Rect` with `rx`, `ry`)
-    - **Circle** (`fabric.Circle`)
-    - **Triangle** (`fabric.Triangle`)
-  - **Custom SVG Shapes** (loaded dynamically from `static/shapes.json`):
-    - **Diamond**, **Star**, **Pentagon**, **Hexagon**
-    - **Arrows**: Right, Left, Up, Down
-    - **Cloud**, **Cross**, **Cylinder**, **Speech Bubble**
-    - Extensible architecture: contributors can add new shapes simply by editing `static/shapes.json` with an SVG path!
+  - **Search & Shape Library**: Real-time filtering by shape name or category across 280+ shapes.
+  - **Comprehensive Domain Categories**:
+    - **General Shapes** (20): Circle, Ellipse, Line, Arrow, Polygon, Star, Cloud, Speech Bubble, Image Stamp, Emoji Stamp, Heart, Diamond/Rhombus, Pentagon, Hexagon, Donut/Ring, Connector with Snap, Freeform Polyline, Text on Path, Frame, Flag/Pennant.
+    - **Flowchart & Process** (25): Process, Decision, Terminator, Data I/O, Predefined Process, Manual Operation, Document, Multiple Documents, Database Cylinder, Stored Data, Delay, Preparation, Connector Circle, Off-Page Connector, Merge, Extract, Sort, Loop Limit, Annotation, Flow Line, Summing Junction, Or Junction, Subprocess, Display, Internal Storage.
+    - **Digital Logic Gates** (10): AND, OR, NOT, NAND, NOR, XOR, XNOR, Buffer, Tri-State Buffer, Schmitt Trigger.
+    - **Digital Circuit Components** (16): Multiplexer (MUX), Demultiplexer (DEMUX), Encoder, Decoder, Half Adder, Full Adder, Half Subtractor, Full Subtractor, SR Flip-Flop, D Flip-Flop, JK Flip-Flop, T Flip-Flop, Counter, Register, Shift Register, Comparator.
+    - **Computer Architecture** (14): CPU, GPU, RAM, ROM, Cache Memory, ALU, Control Unit, Register File, Input/Output Unit, Bus, Memory Controller, Storage Device, Clock Generator, Interrupt Controller.
+    - **UML Shapes & Connectors** (27): Class, Interface, Object, Actor, Use Case, Component, Package, Node, Artifact, State, Activity, Initial State, Final State, Fork/Join, Lifeline, Activation Bar, Note, Association, Aggregation, Composition, Inheritance, Dependency, Realization, Synchronous Message, Asynchronous Message, Return Message, Self Message.
+    - **Software Architecture & Cloud** (28): Client, Server, API Gateway, Microservice, Load Balancer, Message Broker, Event Bus, Database, Cache, Queue, CDN, Firewall, External Service, Cloud Provider, Virtual Machine, Container, Kubernetes Cluster, Object Storage, Block Storage, File Storage, Database Service, Serverless Function, API Management, CDN Distribution, Cloud Load Balancer, Availability Zone, Region, VPC.
+    - **Networking** (24): Router, Switch, Hub, Firewall, Modem, Wi-Fi AP, Wireless Router, Ethernet Port, Network Cloud, LAN, WAN, VPN Gateway, Proxy Server, DNS Server, DHCP Server, Web Server, Mail Server, Client PC, Laptop, Desktop, Printer, Network Storage, Internet, Boundary.
+    - **DevOps, CI/CD & Kubernetes** (49): Source Code, Git Repo, Git Branch, Commit, Pull Request, Build, Test, Code Quality, Security Scan, Artifact Repo, Docker Build, Container Registry, Deployment, Release, Approval Gate, Pipeline Trigger, Pipeline Stage, Failure, Success, Rollback, Docker Container, Image, Registry, K8s Cluster, Node, Pod, Deployment, ReplicaSet, StatefulSet, DaemonSet, Service, Ingress, ConfigMap, Secret, Persistent Volume, PVC, Namespace, Job, CronJob, HPA, Terraform, Ansible, IaC Module, Config File, State File, Provisioning, Resource, Plan, Apply.
+    - **Database & Data Engineering** (30): Database Cylinder, Relational DB, NoSQL, Document DB, Key-Value Store, Graph DB, Time-Series DB, Data Warehouse, Data Lake, Data Lakehouse, Table, Schema, Entity, Attribute, Primary Key, Foreign Key, Relationship, 1:1, 1:N, M:N, ETL Process, Data Pipeline, Data Source, Data Sink, Stream Processor, Kafka Topic, Kafka Producer, Kafka Consumer, Transformation, Validation.
+    - **Industrial Automation & Industry 4.0** (40): PLC, SCADA, HMI Panel, DCS, Industrial Robot, Robotic Arm, Conveyor Belt, CNC Machine, Motor, Pump, Valve, Compressor, Industrial Sensor, Temperature Sensor, Pressure Sensor, Proximity Sensor, Actuator, Relay, Control Panel, Emergency Stop, Digital Twin, IoT Gateway, IoT Sensor, Edge Device, Edge Gateway, Smart Factory, AGV/AMR, Machine Vision, Predictive Maintenance, Industrial Cloud, OPC UA Gateway, MQTT Broker, MES, ERP, Manufacturing Execution, Production Line, Quality Inspection, Energy Monitoring, Asset Tracking, Industrial Network.
+  - **Extensible Architecture**: All custom shapes are defined in `static/shapes.json` with standard SVG vector paths.
   - **Shape Formatting & Text Inside**:
     - Supports customizable **Fill Color** and **Border Color** via toolbar pickers.
     - Each shape is built as a Fabric.js group containing the shape geometry and a centered `fabric.Textbox`.
@@ -64,7 +67,7 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
   - **Instant Placement**: Clicking any saved custom shape card immediately instantiates a fresh copy onto the canvas.
 - **Comprehensive Keyboard Shortcuts & Modal**:
   - Full support for 40+ shortcuts spanning **Basic Editing**, **Canvas Navigation**, **Drawing Tools**, **Text Formatting**, and **Object Arrangement**.
-  - Built-in shortcuts cheat sheet modal accessible via `?` button or `?` / `Ctrl+/` shortcut.
+  - Built-in shortcuts cheat sheet modal accessible via `?` button or `?` / `Ctrl+/` / `F1` shortcut.
   - Floating toast feedback for actions like copy, duplicate, save, and alignment.
 - **Undo / Redo (`Ctrl+Z` / `Ctrl+Y`)**: 50-step history tracking covering shapes, paths, text, sticky notes, and deletions.
 - **Pan & Zoom**: Spacebar / Hand drag, mouse-wheel zoom centered at cursor, bottom-right zoom widget.
@@ -123,7 +126,7 @@ Phases 1 through 5 provide a comprehensive offline whiteboard web application:
 | | `Arrow Keys` | Move Object (2px) |
 | | `Shift + Arrow` | Move Object Faster (20px) |
 | | `Shift + Click` | Multi-Select Objects |
-| **Help & Cheat Sheet** | `?` / `Ctrl + /` | Open / Close Shortcuts Modal |
+| **Help & Cheat Sheet** | `?` / `Ctrl + /` / `F1` | Open / Close All Shortcuts Modal |
 
 ---
 

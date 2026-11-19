@@ -109,6 +109,27 @@
                 </div>
             </div>
 
+            <!-- Line & Arrow Properties (Solid, Dashed, Dotted & Arrowheads) -->
+            <div id="prop-line-group" class="prop-item-group" style="display: none;">
+                <div class="prop-item" title="Line Pattern (Solid, Dashed, Dotted)">
+                    <span class="prop-label">Pattern</span>
+                    <select id="select-line-pattern" class="prop-select">
+                        <option value="solid" selected>Solid ───</option>
+                        <option value="dashed">Dashed ─ ─</option>
+                        <option value="dotted">Dotted ···</option>
+                    </select>
+                </div>
+                <div class="prop-item" title="Arrowhead Style">
+                    <span class="prop-label">End</span>
+                    <select id="select-arrow-head" class="prop-select">
+                        <option value="none">Line ───</option>
+                        <option value="end" selected>Arrow ──►</option>
+                        <option value="start">Arrow ◄──</option>
+                        <option value="both">Both ◄─►</option>
+                    </select>
+                </div>
+            </div>
+
             <div id="prop-size-group" class="prop-item" title="Stroke / Eraser Width">
                 <span class="prop-label">Size</span>
                 <select id="select-stroke-size" class="prop-select">
@@ -292,14 +313,25 @@
                 <button id="btn-clear-search" class="clear-search-btn" title="Clear search" style="display: none;">&times;</button>
             </div>
 
-            <!-- Category Filter Chips -->
-            <div class="shapes-categories" id="shapes-categories">
-                <button type="button" class="category-chip active" data-category="all">All</button>
-                <button type="button" class="category-chip" data-category="My Shapes">⭐ My Shapes</button>
-                <button type="button" class="category-chip" data-category="Flowchart">Flowchart</button>
-                <button type="button" class="category-chip" data-category="Basic">Basic</button>
-                <button type="button" class="category-chip" data-category="Arrows">Arrows</button>
-                <button type="button" class="category-chip" data-category="Symbols">Symbols</button>
+            <!-- Category Filter Chips with Scroll Navigation -->
+            <div class="shapes-categories-container">
+                <button type="button" id="btn-cat-prev" class="cat-nav-btn" title="Scroll categories left">&lsaquo;</button>
+                <div class="shapes-categories" id="shapes-categories">
+                    <button type="button" class="category-chip active" data-category="all">All</button>
+                    <button type="button" class="category-chip" data-category="My Shapes">⭐ My Shapes</button>
+                    <button type="button" class="category-chip" data-category="General">General</button>
+                    <button type="button" class="category-chip" data-category="Flowchart">Flowchart</button>
+                    <button type="button" class="category-chip" data-category="Logic Gates">Logic Gates</button>
+                    <button type="button" class="category-chip" data-category="Circuits">Circuits</button>
+                    <button type="button" class="category-chip" data-category="Architecture">Architecture</button>
+                    <button type="button" class="category-chip" data-category="UML">UML</button>
+                    <button type="button" class="category-chip" data-category="Software & Cloud">Software & Cloud</button>
+                    <button type="button" class="category-chip" data-category="Networking">Networking</button>
+                    <button type="button" class="category-chip" data-category="DevOps">DevOps</button>
+                    <button type="button" class="category-chip" data-category="Database & Data">Database & Data</button>
+                    <button type="button" class="category-chip" data-category="Industry 4.0">Industry 4.0</button>
+                </div>
+                <button type="button" id="btn-cat-next" class="cat-nav-btn" title="Scroll categories right">&rsaquo;</button>
             </div>
 
             <div id="shapes-list" class="shapes-list">
@@ -485,7 +517,7 @@
             </svg>
         </button>
         <button id="btn-reset-view" class="zoom-btn text-btn" title="Reset View & Zoom (Ctrl+0)">Reset</button>
-        <button id="btn-shortcuts-toggle" class="zoom-btn" title="Keyboard Shortcuts (? or Ctrl+/)">
+        <button id="btn-shortcuts-toggle" class="zoom-btn" title="All Keyboard Shortcuts (? or Ctrl+/ or F1)">
             <span style="font-weight: 700; font-size: 13px;">?</span>
         </button>
     </div>
@@ -496,7 +528,10 @@
             <div class="modal-header">
                 <div class="modal-title">
                     <span class="modal-title-icon">⌨️</span>
-                    <h3>Keyboard Shortcuts</h3>
+                    <div>
+                        <h3>Keyboard Shortcuts</h3>
+                        <div class="modal-hint">Press <kbd>?</kbd>, <kbd>Ctrl</kbd> + <kbd>/</kbd>, or <kbd>F1</kbd> to toggle</div>
+                    </div>
                 </div>
                 <button type="button" id="btn-close-shortcuts" class="modal-close-btn" title="Close (Escape)">&times;</button>
             </div>
@@ -504,6 +539,7 @@
                 <!-- Category 1: Basic Editing -->
                 <div class="shortcuts-section">
                     <h4>1. Basic Editing</h4>
+                    <div class="shortcut-row highlight"><span class="shortcut-desc"><strong>See All Shortcuts</strong></span><span class="shortcut-keys"><kbd>?</kbd> / <kbd>Ctrl</kbd> + <kbd>/</kbd> / <kbd>F1</kbd></span></div>
                     <div class="shortcut-row"><span class="shortcut-desc">Undo</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Z</kbd></span></div>
                     <div class="shortcut-row"><span class="shortcut-desc">Redo</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>Y</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></span></div>
                     <div class="shortcut-row"><span class="shortcut-desc">Copy</span><span class="shortcut-keys"><kbd>Ctrl</kbd> + <kbd>C</kbd></span></div>

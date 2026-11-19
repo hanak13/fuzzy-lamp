@@ -64,6 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnDelete = document.getElementById('btn-delete');
     const stickyColorBtns = document.querySelectorAll('.sticky-color-btn');
 
+    // Line & Arrow Specific Properties
+    const propLineGroup = document.getElementById('prop-line-group');
+    const propFillGroup = document.getElementById('prop-fill-group');
+    const propTextGroup = document.getElementById('prop-text-group');
+    const selectLinePattern = document.getElementById('select-line-pattern');
+    const selectArrowHead = document.getElementById('select-arrow-head');
+
+    // Category Navigation Elements
+    const btnCatPrev = document.getElementById('btn-cat-prev');
+    const btnCatNext = document.getElementById('btn-cat-next');
+    const shapesCategoriesEl = document.getElementById('shapes-categories');
+
     // History & Canvas Actions
     const btnUndo = document.getElementById('btn-undo');
     const btnRedo = document.getElementById('btn-redo');
@@ -81,6 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     let currentMode = 'select'; // 'select', 'pan', 'pen', 'highlighter', 'eraser', 'text', 'sticky', 'line', 'arrow'
     let activeCategory = 'all';
+    let currentLinePattern = 'solid'; // 'solid', 'dashed', 'dotted'
+    let currentArrowHeadStyle = 'end'; // 'none', 'end', 'start', 'both'
 
     // Tool settings
     let currentColor = colorPicker ? colorPicker.value : '#1e293b';
@@ -149,6 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'fromShapeUid',
         'toShapeUid',
         'isArrowHead',
+        'strokeDashArray',
+        'arrowHeadStyle',
+        'isFreeLine',
         'subTargetCheck'
     ];
 
@@ -465,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Category Filter Chips
+    // Category Filter Chips & Horizontal Scroll Navigation
     categoryChips.forEach(chip => {
         chip.addEventListener('click', () => {
             categoryChips.forEach(c => c.classList.remove('active'));
@@ -474,6 +491,25 @@ document.addEventListener('DOMContentLoaded', () => {
             renderShapesList();
         });
     });
+
+    if (btnCatPrev && shapesCategoriesEl) {
+        btnCatPrev.addEventListener('click', () => {
+            shapesCategoriesEl.scrollBy({ left: -140, behavior: 'smooth' });
+        });
+    }
+    if (btnCatNext && shapesCategoriesEl) {
+        btnCatNext.addEventListener('click', () => {
+            shapesCategoriesEl.scrollBy({ left: 140, behavior: 'smooth' });
+        });
+    }
+    if (shapesCategoriesEl) {
+        shapesCategoriesEl.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                shapesCategoriesEl.scrollLeft += e.deltaY;
+            }
+        });
+    }
 
     function generateUid() {
         return 'shape_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7);
@@ -489,6 +525,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const stroke = currentColor || '#334155';
 
         const shapeObj = shapeDef.create(fill, stroke, strokeWidth);
+        if (shapeDef.strokeDashArray) {
+            shapeObj.set('strokeDashArray', shapeDef.strokeDashArray);
+        }
+        const currentScale = shapeObj.scaleX || 1;
+        shapeObj.scale(currentScale * 0.85);
         const shapeBoundsWidth = shapeObj.getScaledWidth ? shapeObj.getScaledWidth() : (shapeObj.width || 100);
         const textWidth = Math.max(60, shapeBoundsWidth * 0.75);
 
@@ -576,6 +617,130 @@ document.addEventListener('DOMContentLoaded', () => {
         return target;
     }
 
+    function getDashArrayForPattern(pattern) {
+        if (pattern === 'dashed') return [8, 6];
+        if (pattern === 'dotted') return [3, 4];
+        return null;
+    }
+
+    function createArrowHeadTriangle(point, angleDeg, color, strokeWidth) {
+        return new fabric.Triangle({
+            left: point.x,
+            top: point.y,
+            originX: 'center',
+            originY: 'center',
+            width: Math.max(12, strokeWidth * 5),
+            height: Math.max(12, strokeWidth * 5),
+            fill: color,
+            angle: angleDeg,
+            selectable: false,
+            evented: false,
+            isArrowHead: true
+        });
+    }
+
+    function applyArrowheadStyleToLine(line, style) {
+        if (!line) return;
+        line.arrowHeadStyle = style;
+        line.hasArrow = (style !== 'none');
+
+        if (line.arrowHead) {
+            canvas.remove(line.arrowHead);
+            line.arrowHead = null;
+        }
+        if (line.startArrowHead) {
+            canvas.remove(line.startArrowHead);
+            line.startArrowHead = null;
+        }
+
+        if (style === 'none') return;
+
+        let p1, p2;
+        if (line.fromShape && line.toShape) {
+            const pair = getBestAnchorPair(line.fromShape, line.toShape);
+            p1 = pair.p1;
+            p2 = pair.p2;
+        } else {
+            const matrix = line.calcTransformMatrix();
+            p1 = fabric.util.transformPoint({ x: line.x1, y: line.y1 }, matrix);
+            p2 = fabric.util.transformPoint({ x: line.x2, y: line.y2 }, matrix);
+        }
+
+        const color = line.stroke || currentColor || '#1e293b';
+        const strokeWidth = line.strokeWidth || 2;
+
+        if (style === 'end' || style === 'both') {
+            const angle = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI) + 90;
+            const arrowHead = createArrowHeadTriangle(p2, angle, color, strokeWidth);
+            line.arrowHead = arrowHead;
+            arrowHead.connectorLine = line;
+            canvas.add(arrowHead);
+        }
+
+        if (style === 'start' || style === 'both') {
+            const angle = (Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180 / Math.PI) + 90;
+            const startArrowHead = createArrowHeadTriangle(p1, angle, color, strokeWidth);
+            line.startArrowHead = startArrowHead;
+            startArrowHead.connectorLine = line;
+            canvas.add(startArrowHead);
+        }
+    }
+
+    function updateFreeLineArrows(line) {
+        if (!line || !line.canvas) return;
+        const matrix = line.calcTransformMatrix();
+        const p1 = fabric.util.transformPoint({ x: line.x1, y: line.y1 }, matrix);
+        const p2 = fabric.util.transformPoint({ x: line.x2, y: line.y2 }, matrix);
+
+        if (line.arrowHead) {
+            const angle = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI) + 90;
+            line.arrowHead.set({
+                left: p2.x,
+                top: p2.y,
+                angle: angle
+            });
+            line.arrowHead.setCoords();
+        }
+        if (line.startArrowHead) {
+            const angle = (Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180 / Math.PI) + 90;
+            line.startArrowHead.set({
+                left: p1.x,
+                top: p1.y,
+                angle: angle
+            });
+            line.startArrowHead.setCoords();
+        }
+    }
+
+    function createFreeformLine(p1, p2, isArrow = false) {
+        const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
+        const strokeColor = currentColor || '#1e293b';
+        const dashArray = getDashArrayForPattern(currentLinePattern);
+        const arrowStyle = isArrow ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle) : (currentArrowHeadStyle === 'none' ? 'none' : 'none');
+
+        const line = new fabric.Line([p1.x, p1.y, p2.x, p2.y], {
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            strokeDashArray: dashArray,
+            selectable: true,
+            isConnector: false,
+            isFreeLine: true,
+            hasArrow: (arrowStyle !== 'none'),
+            arrowHeadStyle: arrowStyle,
+            objectCaching: false
+        });
+
+        canvas.add(line);
+
+        if (arrowStyle !== 'none') {
+            applyArrowheadStyleToLine(line, arrowStyle);
+        }
+
+        canvas.setActiveObject(line);
+        canvas.renderAll();
+        saveState();
+    }
+
     function createAttachedConnector(fromObj, toObj, hasArrow = true) {
         if (!fromObj || !toObj) return;
 
@@ -585,39 +750,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const pair = getBestAnchorPair(fromObj, toObj);
         const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
         const strokeColor = currentColor || '#1e293b';
+        const dashArray = getDashArrayForPattern(currentLinePattern);
+        const arrowStyle = hasArrow ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle) : 'none';
 
         const line = new fabric.Line([pair.p1.x, pair.p1.y, pair.p2.x, pair.p2.y], {
             stroke: strokeColor,
             strokeWidth: strokeWidth,
+            strokeDashArray: dashArray,
             selectable: true,
             isConnector: true,
-            hasArrow: hasArrow,
+            hasArrow: (arrowStyle !== 'none'),
+            arrowHeadStyle: arrowStyle,
             fromShapeUid: fromObj.shapeUid,
-            toShapeUid: toObj.shapeUid
+            toShapeUid: toObj.shapeUid,
+            objectCaching: false
         });
 
         line.fromShape = fromObj;
         line.toShape = toObj;
-
-        if (hasArrow) {
-            const angle = (Math.atan2(pair.p2.y - pair.p1.y, pair.p2.x - pair.p1.x) * 180 / Math.PI) + 90;
-            const arrowHead = new fabric.Triangle({
-                left: pair.p2.x,
-                top: pair.p2.y,
-                originX: 'center',
-                originY: 'center',
-                width: Math.max(12, strokeWidth * 5),
-                height: Math.max(12, strokeWidth * 5),
-                fill: strokeColor,
-                angle: angle,
-                selectable: false,
-                evented: false,
-                isArrowHead: true
-            });
-            line.arrowHead = arrowHead;
-            arrowHead.connectorLine = line;
-            canvas.add(arrowHead);
-        }
 
         fromObj.connectedLines = fromObj.connectedLines || [];
         fromObj.connectedLines.push(line);
@@ -626,6 +776,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         canvas.add(line);
         canvas.sendToBack(line); // Line sits behind connected shapes
+
+        if (arrowStyle !== 'none') {
+            applyArrowheadStyleToLine(line, arrowStyle);
+        }
+
         canvas.renderAll();
         saveState();
     }
@@ -652,6 +807,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 line.arrowHead.setCoords();
             }
+            if (line.startArrowHead) {
+                const angle = (Math.atan2(pair.p1.y - pair.p2.y, pair.p1.x - pair.p2.x) * 180 / Math.PI) + 90;
+                line.startArrowHead.set({
+                    left: pair.p1.x,
+                    top: pair.p1.y,
+                    angle: angle
+                });
+                line.startArrowHead.setCoords();
+            }
         }
     }
 
@@ -661,6 +825,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.type === 'activeSelection') {
             target.forEachObject(child => updateConnectedLinesFor(child));
             return;
+        }
+
+        if (target.isFreeLine) {
+            updateFreeLineArrows(target);
         }
 
         if (!target.connectedLines || target.connectedLines.length === 0) return;
@@ -972,35 +1140,59 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.forEachObject(obj => {
                 if (obj.globalCompositeOperation !== 'destination-out' && !obj.isArrowHead) {
                     obj.selectable = true;
+                    obj.evented = true;
                 }
             });
+            updateSelectionUI();
         } else if (mode === 'pan') {
             canvas.isDrawingMode = false;
             canvas.selection = false;
             canvas.discardActiveObject();
             canvas.defaultCursor = 'grab';
             canvas.forEachObject(obj => obj.selectable = false);
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
             canvas.renderAll();
         } else if (mode === 'pen') {
             canvas.discardActiveObject();
             canvas.selection = false;
             canvas.defaultCursor = 'crosshair';
-            canvas.forEachObject(obj => obj.selectable = false);
+            canvas.forEachObject(obj => {
+                obj.selectable = false;
+                obj.evented = false;
+            });
             updateBrushSettings();
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
             canvas.renderAll();
         } else if (mode === 'highlighter') {
             canvas.discardActiveObject();
             canvas.selection = false;
             canvas.defaultCursor = 'crosshair';
-            canvas.forEachObject(obj => obj.selectable = false);
+            canvas.forEachObject(obj => {
+                obj.selectable = false;
+                obj.evented = false;
+            });
             updateBrushSettings();
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
             canvas.renderAll();
         } else if (mode === 'eraser') {
             canvas.discardActiveObject();
             canvas.selection = false;
             canvas.defaultCursor = 'crosshair';
-            canvas.forEachObject(obj => obj.selectable = false);
+            canvas.forEachObject(obj => {
+                obj.selectable = false;
+                obj.evented = false;
+                obj.objectCaching = false;
+            });
             updateBrushSettings();
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
             canvas.renderAll();
         } else if (mode === 'text') {
             canvas.isDrawingMode = false;
@@ -1009,7 +1201,11 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.defaultCursor = 'text';
             canvas.forEachObject(obj => {
                 obj.selectable = (obj.type === 'i-text');
+                obj.evented = true;
             });
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'inline-flex';
             canvas.renderAll();
         } else if (mode === 'sticky') {
             canvas.isDrawingMode = false;
@@ -1017,13 +1213,31 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.discardActiveObject();
             canvas.defaultCursor = 'copy';
             canvas.forEachObject(obj => obj.selectable = false);
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
             canvas.renderAll();
         } else if (mode === 'line' || mode === 'arrow') {
             canvas.isDrawingMode = false;
             canvas.selection = false;
             canvas.discardActiveObject();
             canvas.defaultCursor = 'crosshair';
-            canvas.forEachObject(obj => obj.selectable = false);
+            canvas.forEachObject(obj => {
+                // Keep shapes evented so connector anchors can be targeted
+                if (obj.isShapeGroup) {
+                    obj.selectable = false;
+                    obj.evented = true;
+                } else {
+                    obj.selectable = false;
+                }
+            });
+            if (propLineGroup) propLineGroup.style.display = 'inline-flex';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
+            if (selectArrowHead) {
+                selectArrowHead.value = (mode === 'arrow' ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle) : 'none');
+                currentArrowHeadStyle = selectArrowHead.value;
+            }
             canvas.renderAll();
         }
     }
@@ -1054,16 +1268,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 objectCaching: false
             });
             canvas.renderAll();
+            saveState();
         } else if (currentMode === 'highlighter') {
             path.set({
                 stroke: hexToRgba(currentColor, 0.35),
                 selectable: currentMode === 'select'
             });
             canvas.renderAll();
+            saveState();
         } else if (currentMode === 'pen') {
             path.set({
                 selectable: currentMode === 'select'
             });
+            saveState();
         }
     });
 
@@ -1114,14 +1331,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Eraser click on existing object deletes it
-        if (currentMode === 'eraser' && opt.target) {
-            deleteSingleObject(opt.target);
-            canvas.renderAll();
-            saveState();
-            return;
-        }
-
         // Alt + Drag: Duplicate while dragging (Select mode)
         if (evt.altKey && opt.target && currentMode === 'select' && !opt.target.isConnector && !opt.target.isArrowHead) {
             opt.target.clone((cloned) => {
@@ -1152,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             connectorPreviewLine = new fabric.Line([connectorStartPoint.x, connectorStartPoint.y, pointer.x, pointer.y], {
                 stroke: currentColor || '#1e293b',
                 strokeWidth: parseInt(selectStrokeSize.value, 10) || 2,
-                strokeDashArray: [4, 4],
+                strokeDashArray: getDashArrayForPattern(currentLinePattern) || [4, 4],
                 selectable: false,
                 evented: false
             });
@@ -1292,8 +1501,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (connectorStartObj && endObj && connectorStartObj !== endObj) {
                 createAttachedConnector(connectorStartObj, endObj, connectorModeType === 'arrow');
+            } else if (connectorStartPoint) {
+                const dist = Math.hypot(pointer.x - connectorStartPoint.x, pointer.y - connectorStartPoint.y);
+                if (dist > 10) {
+                    createFreeformLine(connectorStartPoint, pointer, connectorModeType === 'arrow');
+                }
             }
 
+            connectorStartObj = null;
+            connectorStartPoint = null;
             setMode('select');
         }
     }
@@ -1337,11 +1553,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const activeObj = canvas.getActiveObject();
         if (activeObj) {
+            const isLineOrConnector = (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line');
+            if (isLineOrConnector) {
+                if (propLineGroup) propLineGroup.style.display = 'inline-flex';
+                if (propFillGroup) propFillGroup.style.display = 'none';
+                if (propTextGroup) propTextGroup.style.display = 'none';
+
+                if (activeObj.stroke && typeof activeObj.stroke === 'string' && activeObj.stroke.startsWith('#')) {
+                    currentColor = activeObj.stroke;
+                    if (colorPicker) colorPicker.value = currentColor;
+                    if (colorPreview) colorPreview.style.backgroundColor = currentColor;
+                }
+                if (activeObj.strokeWidth) {
+                    selectStrokeSize.value = String(activeObj.strokeWidth);
+                }
+                if (selectLinePattern) {
+                    const dash = activeObj.strokeDashArray;
+                    if (!dash || dash.length === 0) {
+                        selectLinePattern.value = 'solid';
+                    } else if (dash[0] <= 4) {
+                        selectLinePattern.value = 'dotted';
+                    } else {
+                        selectLinePattern.value = 'dashed';
+                    }
+                    currentLinePattern = selectLinePattern.value;
+                }
+                if (selectArrowHead) {
+                    selectArrowHead.value = activeObj.arrowHeadStyle || (activeObj.hasArrow ? 'end' : 'none');
+                    currentArrowHeadStyle = selectArrowHead.value;
+                }
+                return;
+            } else {
+                if (propLineGroup) propLineGroup.style.display = 'none';
+            }
+
             if (activeObj.isStickyNote && activeObj.stickyColor) {
                 setStickyColor(activeObj.stickyColor, false);
             }
 
             if (activeObj.isShapeGroup) {
+                if (propFillGroup) propFillGroup.style.display = 'inline-flex';
                 const shape = activeObj.getObjects().find(o => o.type !== 'textbox' && o.type !== 'i-text');
                 if (shape) {
                     updateFillUI(shape.fill);
@@ -1356,6 +1607,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const textObj = activeObj.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text');
                 if (textObj) {
+                    if (propTextGroup) propTextGroup.style.display = 'inline-flex';
                     selectFontSize.value = String(textObj.fontSize || 16);
                     isBold = (textObj.fontWeight === 'bold');
                     btnBold.classList.toggle('active', isBold);
@@ -1365,6 +1617,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (activeObj.type === 'i-text') {
+                if (propFillGroup) propFillGroup.style.display = 'none';
+                if (propTextGroup) propTextGroup.style.display = 'inline-flex';
                 selectFontSize.value = String(activeObj.fontSize || 24);
                 if (activeObj.fill && activeObj.fill.startsWith('#')) {
                     currentColor = activeObj.fill;
@@ -1383,6 +1637,10 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.on('selection:updated', updateSelectionUI);
     canvas.on('selection:cleared', () => {
         btnDelete.disabled = true;
+        if (currentMode !== 'line' && currentMode !== 'arrow') {
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'inline-flex';
+        }
     });
 
     function deleteSingleObject(obj) {
@@ -1390,12 +1648,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (obj.connectedLines) {
             obj.connectedLines.forEach(line => {
                 if (line.arrowHead) canvas.remove(line.arrowHead);
+                if (line.startArrowHead) canvas.remove(line.startArrowHead);
                 canvas.remove(line);
             });
             obj.connectedLines = [];
         }
-        if (obj.isConnector && obj.arrowHead) {
+        if (obj.arrowHead) {
             canvas.remove(obj.arrowHead);
+        }
+        if (obj.startArrowHead) {
+            canvas.remove(obj.startArrowHead);
         }
         canvas.remove(obj);
     }
@@ -1486,10 +1748,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeObj.set('fill', currentColor);
                 canvas.renderAll();
                 saveState();
-            } else if (activeObj && activeObj.isConnector) {
+            } else if (activeObj && (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line')) {
                 activeObj.set('stroke', currentColor);
                 if (activeObj.arrowHead) {
                     activeObj.arrowHead.set('fill', currentColor);
+                }
+                if (activeObj.startArrowHead) {
+                    activeObj.startArrowHead.set('fill', currentColor);
                 }
                 canvas.renderAll();
                 saveState();
@@ -1511,8 +1776,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.renderAll();
                 saveState();
             }
-        } else if (activeObj && activeObj.isConnector) {
+        } else if (activeObj && (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line')) {
             activeObj.set('strokeWidth', strokeWidth);
+            if (activeObj.arrowHead) {
+                activeObj.arrowHead.set({
+                    width: Math.max(12, strokeWidth * 5),
+                    height: Math.max(12, strokeWidth * 5)
+                });
+            }
+            if (activeObj.startArrowHead) {
+                activeObj.startArrowHead.set({
+                    width: Math.max(12, strokeWidth * 5),
+                    height: Math.max(12, strokeWidth * 5)
+                });
+            }
             canvas.renderAll();
             saveState();
         }
@@ -1521,6 +1798,31 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBrushSettings();
         }
     });
+
+    if (selectLinePattern) {
+        selectLinePattern.addEventListener('change', () => {
+            currentLinePattern = selectLinePattern.value;
+            const dashArray = getDashArrayForPattern(currentLinePattern);
+            const activeObj = canvas.getActiveObject();
+            if (activeObj && (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line')) {
+                activeObj.set('strokeDashArray', dashArray);
+                canvas.renderAll();
+                saveState();
+            }
+        });
+    }
+
+    if (selectArrowHead) {
+        selectArrowHead.addEventListener('change', () => {
+            currentArrowHeadStyle = selectArrowHead.value;
+            const activeObj = canvas.getActiveObject();
+            if (activeObj && (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line')) {
+                applyArrowheadStyleToLine(activeObj, currentArrowHeadStyle);
+                canvas.renderAll();
+                saveState();
+            }
+        });
+    }
 
     selectFontSize.addEventListener('change', () => {
         const fontSize = parseInt(selectFontSize.value, 10);
@@ -1600,11 +1902,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function openShortcutsModal() {
         if (!shortcutsModal) return;
         shortcutsModal.classList.remove('hidden');
+        shortcutsModal.setAttribute('aria-hidden', 'false');
     }
 
     function closeShortcutsModal() {
         if (!shortcutsModal) return;
         shortcutsModal.classList.add('hidden');
+        shortcutsModal.setAttribute('aria-hidden', 'true');
     }
 
     function toggleShortcutsModal() {
@@ -2087,6 +2391,32 @@ document.addEventListener('DOMContentLoaded', () => {
         const isCtrl = e.ctrlKey || e.metaKey;
         const isShift = e.shiftKey;
         const key = e.key;
+        const code = e.code;
+
+        // Dismiss Shortcuts Modal if open and user presses Escape
+        if (key === 'Escape' || code === 'Escape') {
+            if (shortcutsModal && !shortcutsModal.classList.contains('hidden')) {
+                e.preventDefault();
+                closeShortcutsModal();
+                return;
+            }
+        }
+
+        // Toggle Keyboard Shortcuts Reference: ? (Shift+/), Ctrl+/, or F1
+        const isHelpShortcut = (key === 'F1' || code === 'F1') ||
+                               (isCtrl && (key === '/' || code === 'Slash')) ||
+                               (!isCtrl && (key === '?' || (isShift && (key === '/' || code === 'Slash'))));
+
+        if (isHelpShortcut) {
+            // Allow typing literal '?' if user is editing text inside an input/textbox
+            if (isUserTyping() && !isCtrl && key !== 'F1') {
+                // allow character insertion
+            } else {
+                e.preventDefault();
+                toggleShortcutsModal();
+                return;
+            }
+        }
 
         // Spacebar panning
         if (e.code === 'Space' && !isSpacePressed && !isUserTyping()) {
@@ -2410,13 +2740,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveState();
                 e.preventDefault();
             }
-            return;
-        }
-
-        // Toggle Shortcuts Modal: ? or Ctrl + /
-        if ((key === '?' || (isShift && key === '/')) || (isCtrl && key === '/')) {
-            e.preventDefault();
-            toggleShortcutsModal();
             return;
         }
     });

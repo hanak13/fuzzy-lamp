@@ -1,7 +1,592 @@
 [
   {
-    "id": "process",
-    "name": "Process",
+    "id": "general-circle",
+    "name": "Circle",
+    "category": "General",
+    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-ellipse",
+    "name": "Ellipse",
+    "category": "General",
+    "path": "M 10 50 A 45 25 0 1 1 90 50 A 45 25 0 1 1 10 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-line",
+    "name": "Line",
+    "category": "General",
+    "path": "M 10 50 L 90 50",
+    "defaultWidth": 120,
+    "defaultHeight": 20,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-arrow",
+    "name": "Arrow",
+    "category": "General",
+    "path": "M 10 50 L 85 50 M 60 25 L 85 50 L 60 75",
+    "defaultWidth": 120,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-polygon",
+    "name": "Polygon",
+    "category": "General",
+    "path": "M 30 10 L 70 10 L 90 30 L 90 70 L 70 90 L 30 90 L 10 70 L 10 30 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-star",
+    "name": "Star",
+    "category": "General",
+    "path": "M 50 5 L 63 35 L 95 38 L 71 60 L 78 92 L 50 75 L 22 92 L 29 60 L 5 38 L 37 35 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-cloud",
+    "name": "Cloud",
+    "category": "General",
+    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 L 25 75 A 10 10 0 0 1 25 65 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-speech-bubble",
+    "name": "Speech Bubble",
+    "category": "General",
+    "path": "M 10 20 C 10 9, 22 0, 38 0 L 82 0 C 98 0, 110 9, 110 20 L 110 55 C 110 66, 98 75, 82 75 L 38 75 L 12 96 L 20 75 C 10 75, 10 66, 10 55 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 105,
+    "viewBox": "0 0 120 100"
+  },
+  {
+    "id": "general-image-stamp",
+    "name": "Image Stamp",
+    "category": "General",
+    "path": "M 10 10 L 90 10 L 90 90 L 10 90 Z M 25 35 A 8 8 0 1 1 24.9 35 Z M 15 80 L 40 45 L 65 75 L 75 60 L 85 80 Z",
+    "defaultWidth": 105,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-emoji-stamp",
+    "name": "Emoji Stamp",
+    "category": "General",
+    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z M 35 38 A 4 4 0 1 1 34.9 38 Z M 65 38 A 4 4 0 1 1 64.9 38 Z M 32 60 Q 50 78 68 60",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-heart",
+    "name": "Heart",
+    "category": "General",
+    "path": "M 50 85 C 20 60, 5 45, 5 25 C 5 10, 20 5, 35 5 C 43 5, 47 10, 50 15 C 53 10, 57 5, 65 5 C 80 5, 95 10, 95 25 C 95 45, 80 60, 50 85 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-diamond",
+    "name": "Diamond / Rhombus",
+    "category": "General",
+    "path": "M 50 10 L 90 50 L 50 90 L 10 50 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-pentagon",
+    "name": "Pentagon",
+    "category": "General",
+    "path": "M 50 10 L 90 40 L 75 88 L 25 88 L 10 40 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-hexagon",
+    "name": "Hexagon",
+    "category": "General",
+    "path": "M 25 10 L 75 10 L 95 50 L 75 90 L 25 90 L 5 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-donut-ring",
+    "name": "Donut / Ring",
+    "category": "General",
+    "path": "M 50 5 A 45 45 0 1 1 49.9 5 Z M 50 25 A 25 25 0 1 0 50.1 25 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-connector-snap",
+    "name": "Connector with Snap",
+    "category": "General",
+    "path": "M 10 25 L 45 25 L 45 75 L 80 75 M 80 70 L 90 75 L 80 80 Z M 10 20 L 10 30 M 45 20 L 45 30 M 45 70 L 45 80",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-polyline",
+    "name": "Freeform Polyline",
+    "category": "General",
+    "path": "M 10 80 L 35 80 L 35 45 L 65 45 L 65 20 L 90 20",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-ribbon-banner",
+    "name": "Text on Path",
+    "category": "General",
+    "path": "M 10 30 L 90 30 L 80 55 L 90 80 L 10 80 L 20 55 Z M 20 30 L 20 80 M 80 30 L 80 80",
+    "defaultWidth": 130,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-frame",
+    "name": "Frame",
+    "category": "General",
+    "path": "M 10 15 L 90 15 L 90 85 L 10 85 Z M 10 30 L 90 30 M 20 22.5 A 2.5 2.5 0 1 1 19.9 22.5 Z M 28 22.5 A 2.5 2.5 0 1 1 27.9 22.5 Z M 36 22.5 A 2.5 2.5 0 1 1 35.9 22.5 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-flag",
+    "name": "Flag / Pennant",
+    "category": "General",
+    "path": "M 20 10 L 85 35 L 20 60 Z M 20 10 L 20 90",
+    "defaultWidth": 95,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-dotted-line",
+    "name": "Dotted Line",
+    "category": "General",
+    "path": "M 10 50 L 90 50",
+    "defaultWidth": 120,
+    "defaultHeight": 20,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-dashed-line",
+    "name": "Dashed Line",
+    "category": "General",
+    "path": "M 10 50 L 90 50",
+    "defaultWidth": 120,
+    "defaultHeight": 20,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-dotted-arrow",
+    "name": "Dotted Arrow",
+    "category": "General",
+    "path": "M 10 50 L 85 50 M 60 25 L 85 50 L 60 75",
+    "defaultWidth": 120,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-dashed-arrow",
+    "name": "Dashed Arrow",
+    "category": "General",
+    "path": "M 10 50 L 85 50 M 60 25 L 85 50 L 60 75",
+    "defaultWidth": 120,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "general-bidirectional-arrow",
+    "name": "Bidirectional Arrow",
+    "category": "General",
+    "path": "M 15 50 L 85 50 M 35 25 L 15 50 L 35 75 M 65 25 L 85 50 L 65 75",
+    "defaultWidth": 130,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "gate-and",
+    "name": "AND Gate",
+    "category": "Logic Gates",
+    "path": "M 0 25 L 25 25 M 0 55 L 25 55 M 25 10 L 50 10 C 75 10, 80 25, 80 40 C 80 55, 75 70, 50 70 L 25 70 Z M 80 40 L 105 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-or",
+    "name": "OR Gate",
+    "category": "Logic Gates",
+    "path": "M 0 25 L 30 25 M 0 55 L 30 55 M 20 10 Q 38 40 20 70 Q 55 70 85 40 Q 55 10 20 10 Z M 85 40 L 105 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-not",
+    "name": "NOT Gate",
+    "category": "Logic Gates",
+    "path": "M 0 40 L 25 40 M 25 15 L 70 40 L 25 65 Z M 70 40 A 5 5 0 1 1 80 40 A 5 5 0 1 1 70 40 Z M 80 40 L 105 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-nand",
+    "name": "NAND Gate",
+    "category": "Logic Gates",
+    "path": "M 0 25 L 25 25 M 0 55 L 25 55 M 25 10 L 50 10 C 75 10, 80 25, 80 40 C 80 55, 75 70, 50 70 L 25 70 Z M 80 40 A 5 5 0 1 1 90 40 A 5 5 0 1 1 80 40 Z M 90 40 L 105 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-nor",
+    "name": "NOR Gate",
+    "category": "Logic Gates",
+    "path": "M 0 25 L 30 25 M 0 55 L 30 55 M 20 10 Q 38 40 20 70 Q 55 70 82 40 Q 55 10 20 10 Z M 82 40 A 5 5 0 1 1 92 40 A 5 5 0 1 1 82 40 Z M 92 40 L 105 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-xor",
+    "name": "XOR Gate",
+    "category": "Logic Gates",
+    "path": "M 0 25 L 22 25 M 0 55 L 22 55 M 12 10 Q 30 40 12 70 M 22 10 Q 40 40 22 70 Q 55 70 85 40 Q 55 10 22 10 Z M 85 40 L 105 40",
+    "defaultWidth": 125,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-xnor",
+    "name": "XNOR Gate",
+    "category": "Logic Gates",
+    "path": "M 0 25 L 22 25 M 0 55 L 22 55 M 12 10 Q 30 40 12 70 M 22 10 Q 40 40 22 70 Q 55 70 82 40 Q 55 10 22 10 Z M 82 40 A 5 5 0 1 1 92 40 A 5 5 0 1 1 82 40 Z M 92 40 L 105 40",
+    "defaultWidth": 125,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-buffer",
+    "name": "Buffer Gate",
+    "category": "Logic Gates",
+    "path": "M 0 40 L 25 40 M 25 15 L 75 40 L 25 65 Z M 75 40 L 105 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-tristate",
+    "name": "Tri-State Buffer",
+    "category": "Logic Gates",
+    "path": "M 0 40 L 25 40 M 25 15 L 75 40 L 25 65 Z M 75 40 L 105 40 M 50 0 L 50 27",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "gate-schmitt-trigger",
+    "name": "Schmitt Trigger",
+    "category": "Logic Gates",
+    "path": "M 0 40 L 25 40 M 25 15 L 75 40 L 25 65 Z M 75 40 A 5 5 0 1 1 85 40 A 5 5 0 1 1 75 40 Z M 85 40 L 105 40 M 42 46 L 52 46 L 52 34 L 62 34 M 46 40 L 58 40",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 105 80"
+  },
+  {
+    "id": "circuit-mux",
+    "name": "Multiplexer (MUX)",
+    "category": "Circuits",
+    "path": "M 25 15 L 75 28 L 75 72 L 25 85 Z M 0 30 L 25 30 M 0 45 L 25 45 M 0 60 L 25 60 M 0 75 L 25 75 M 75 50 L 100 50 M 50 78 L 50 95",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-demux",
+    "name": "Demultiplexer (DEMUX)",
+    "category": "Circuits",
+    "path": "M 25 28 L 75 15 L 75 85 L 25 72 Z M 0 50 L 25 50 M 75 30 L 100 30 M 75 45 L 100 45 M 75 60 L 100 60 M 75 75 L 100 75 M 50 78 L 50 95",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-encoder",
+    "name": "Encoder",
+    "category": "Circuits",
+    "path": "M 25 15 L 75 15 L 75 85 L 25 85 Z M 0 25 L 25 25 M 0 40 L 25 40 M 0 55 L 25 55 M 0 70 L 25 70 M 75 35 L 100 35 M 75 65 L 100 65 M 36 45 L 42 55 L 48 45 M 54 55 L 64 55",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-decoder",
+    "name": "Decoder",
+    "category": "Circuits",
+    "path": "M 25 15 L 75 15 L 75 85 L 25 85 Z M 0 35 L 25 35 M 0 65 L 25 65 M 75 25 L 100 25 M 75 40 L 100 40 M 75 55 L 100 55 M 75 70 L 100 70 M 36 55 L 36 45 L 46 45 C 51 45, 51 55, 46 55 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-half-adder",
+    "name": "Half Adder",
+    "category": "Circuits",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 0 35 L 20 35 M 0 65 L 20 65 M 80 35 L 100 35 M 80 65 L 100 65 M 35 42 L 35 58 M 47 42 L 47 58 M 35 50 L 47 50 M 55 58 L 62 42 L 69 58 M 58 53 L 66 53",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-full-adder",
+    "name": "Full Adder",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 30 L 20 30 M 0 50 L 20 50 M 0 70 L 20 70 M 80 35 L 100 35 M 80 65 L 100 65 M 38 42 L 38 58 M 38 42 L 50 42 M 38 49 L 47 49 M 55 58 L 62 42 L 69 58 M 58 53 L 66 53",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-half-subtractor",
+    "name": "Half Subtractor",
+    "category": "Circuits",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 0 35 L 20 35 M 0 65 L 20 65 M 80 35 L 100 35 M 80 65 L 100 65 M 35 42 L 35 58 M 47 42 L 47 58 M 35 50 L 47 50 M 67 44 C 67 42, 57 42, 57 47 C 57 52, 67 50, 67 55 C 67 60, 57 60, 57 57",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-full-subtractor",
+    "name": "Full Subtractor",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 30 L 20 30 M 0 50 L 20 50 M 0 70 L 20 70 M 80 35 L 100 35 M 80 65 L 100 65 M 38 42 L 38 58 M 38 42 L 50 42 M 38 49 L 47 49 M 67 44 C 67 42, 57 42, 57 47 C 57 52, 67 50, 67 55 C 67 60, 57 60, 57 57",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-sr-flipflop",
+    "name": "SR Flip-Flop",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 30 L 20 30 M 0 70 L 20 70 M 0 50 L 20 50 M 20 45 L 28 50 L 20 55 M 80 30 L 100 30 M 80 70 L 100 70 M 42 45 L 42 55 M 58 45 L 58 55",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-d-flipflop",
+    "name": "D Flip-Flop",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 30 L 20 30 M 0 65 L 20 65 M 20 60 L 28 65 L 20 70 M 80 30 L 100 30 M 80 70 L 100 70 M 45 42 L 45 58 L 52 58 C 58 58, 58 42, 52 42 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-jk-flipflop",
+    "name": "JK Flip-Flop",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 30 L 20 30 M 0 50 L 20 50 M 20 45 L 28 50 L 20 55 M 0 70 L 20 70 M 80 30 L 100 30 M 80 70 L 100 70 M 42 42 L 42 54 C 42 58, 36 58, 36 56 M 55 42 L 55 58 M 65 42 L 55 50 L 65 58",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-t-flipflop",
+    "name": "T Flip-Flop",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 30 L 20 30 M 0 65 L 20 65 M 20 60 L 28 65 L 20 70 M 80 30 L 100 30 M 80 70 L 100 70 M 42 43 L 58 43 M 50 43 L 50 58",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-counter",
+    "name": "Counter",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 35 L 20 35 M 0 65 L 20 65 M 20 60 L 28 65 L 20 70 M 80 25 L 100 25 M 80 40 L 100 40 M 80 60 L 100 60 M 80 75 L 100 75 M 38 48 C 38 44, 48 44, 48 48 M 53 44 L 62 44 L 62 56 L 53 56 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-register",
+    "name": "Register",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 35 L 20 35 M 0 65 L 20 65 M 20 60 L 28 65 L 20 70 M 80 35 L 100 35 M 80 65 L 100 65 M 38 43 L 38 57 M 38 43 L 48 43 C 53 43, 53 50, 48 50 L 38 50 M 46 50 L 53 57 M 57 43 L 64 43 M 57 50 L 63 50 M 57 57 L 64 57",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-shift-register",
+    "name": "Shift Register",
+    "category": "Circuits",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 32.5 20 L 32.5 80 M 50 20 L 50 80 M 67.5 20 L 67.5 80 M 0 50 L 15 50 M 85 50 L 100 50 M 20 68 L 24 72 L 20 76 M 38 68 L 42 72 L 38 76 M 55 68 L 59 72 L 55 76 M 72 68 L 76 72 L 72 76",
+    "defaultWidth": 130,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "circuit-comparator",
+    "name": "Comparator",
+    "category": "Circuits",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 0 35 L 20 35 M 0 65 L 20 65 M 80 30 L 100 30 M 80 50 L 100 50 M 80 70 L 100 70 M 42 46 L 50 50 L 42 54 M 58 48 L 66 48 M 58 52 L 66 52",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-cpu",
+    "name": "CPU",
+    "category": "Architecture",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 35 L 65 35 L 65 65 L 35 65 Z M 30 10 L 30 20 M 42 10 L 42 20 M 58 10 L 58 20 M 70 10 L 70 20 M 30 80 L 30 90 M 42 80 L 42 90 M 58 80 L 58 90 M 70 80 L 70 90 M 10 30 L 20 30 M 10 42 L 20 42 M 10 58 L 20 58 M 10 70 L 20 70 M 80 30 L 90 30 M 80 42 L 90 42 M 80 58 L 90 58 M 80 70 L 90 70",
+    "defaultWidth": 120,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-gpu",
+    "name": "GPU",
+    "category": "Architecture",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 30 L 40 30 L 40 45 L 25 45 Z M 45 30 L 60 30 L 60 45 L 45 45 Z M 65 30 L 75 30 L 75 45 L 65 45 Z M 25 55 L 40 55 L 40 70 L 25 70 Z M 45 55 L 60 55 L 60 70 L 45 70 Z M 65 55 L 75 55 L 75 70 L 65 70 Z M 30 80 L 30 90 M 50 80 L 50 90 M 70 80 L 70 90",
+    "defaultWidth": 130,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-ram",
+    "name": "RAM",
+    "category": "Architecture",
+    "path": "M 10 25 L 90 25 L 90 65 L 10 65 Z M 18 35 L 30 35 L 30 55 L 18 55 Z M 36 35 L 48 35 L 48 55 L 36 55 Z M 54 35 L 66 35 L 66 55 L 54 55 Z M 72 35 L 84 35 L 84 55 L 72 55 Z M 15 65 L 15 75 M 25 65 L 25 75 M 35 65 L 35 75 M 45 65 L 45 75 M 55 65 L 55 75 M 65 65 L 65 75 M 75 65 L 75 75 M 85 65 L 85 75",
+    "defaultWidth": 140,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-rom",
+    "name": "ROM",
+    "category": "Architecture",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 45 20 A 5 5 0 0 1 55 20 M 10 32 L 20 32 M 10 44 L 20 44 M 10 56 L 20 56 M 10 68 L 20 68 M 80 32 L 90 32 M 80 44 L 90 44 M 80 56 L 90 56 M 80 68 L 90 68 M 38 45 L 48 45 C 52 45, 52 55, 48 55 L 38 55 Z M 56 45 C 64 45, 64 55, 56 55 C 48 55, 48 45, 56 45 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-cache",
+    "name": "Cache Memory",
+    "category": "Architecture",
+    "path": "M 15 15 L 85 15 L 85 85 L 15 85 Z M 15 35 L 85 35 M 15 55 L 85 55 M 40 15 L 40 85 M 20 25 L 35 25 M 50 25 L 80 25 M 20 45 L 35 45 M 50 45 L 80 45 M 20 65 L 35 65 M 50 65 L 80 65",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-alu",
+    "name": "ALU",
+    "category": "Architecture",
+    "path": "M 15 20 L 42 20 L 50 40 L 58 20 L 85 20 L 72 80 L 28 80 Z M 28 5 L 28 20 M 72 5 L 72 20 M 50 80 L 50 95 M 80 50 L 95 50",
+    "defaultWidth": 130,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-control-unit",
+    "name": "Control Unit",
+    "category": "Architecture",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 20 35 L 80 35 M 0 25 L 20 25 M 0 60 L 20 60 M 80 30 L 100 30 M 80 50 L 100 50 M 80 70 L 100 70 M 35 50 L 45 65 L 65 45",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-register-file",
+    "name": "Register File",
+    "category": "Architecture",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 20 32 L 80 32 M 20 50 L 80 50 M 20 67 L 80 67 M 0 30 L 20 30 M 0 70 L 20 70 M 80 30 L 100 30 M 80 50 L 100 50 M 80 70 L 100 70",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-io-unit",
+    "name": "Input / Output Unit",
+    "category": "Architecture",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 0 40 L 20 40 M 12 35 L 20 40 L 12 45 M 20 60 L 0 60 M 8 55 L 0 60 L 8 65 M 80 40 L 100 40 M 92 35 L 100 40 L 92 45 M 100 60 L 80 60 M 88 55 L 80 60 L 88 65 M 38 42 L 38 58 M 52 50 L 62 50 M 47 50 A 10 10 0 1 1 47 50.1",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-bus",
+    "name": "Bus",
+    "category": "Architecture",
+    "path": "M 0 35 L 85 35 L 85 20 L 105 45 L 85 70 L 85 55 L 20 55 L 20 70 L 0 45 L 20 20 L 20 35 Z M 25 45 L 80 45",
+    "defaultWidth": 130,
+    "defaultHeight": 75,
+    "viewBox": "0 0 105 90"
+  },
+  {
+    "id": "arch-memory-controller",
+    "name": "Memory Controller",
+    "category": "Architecture",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 35 L 65 35 L 65 65 L 35 65 Z M 0 50 L 20 50 M 80 50 L 100 50 M 50 0 L 50 20 M 50 80 L 50 100 M 42 55 L 42 45 L 47 52 L 52 45 L 52 55",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-storage-device",
+    "name": "Storage Device",
+    "category": "Architecture",
+    "path": "M 10 25 C 10 12, 90 12, 90 25 C 90 38, 10 38, 10 25 Z M 10 25 L 10 75 C 10 88, 90 88, 90 75 L 90 25 M 10 50 C 10 63, 90 63, 90 50 M 80 75 A 3 3 0 1 1 79.9 75 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-clock-gen",
+    "name": "Clock Generator",
+    "category": "Architecture",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 58 L 40 58 L 40 38 L 60 38 L 60 58 L 75 58 M 85 50 L 105 50",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 105 100"
+  },
+  {
+    "id": "arch-interrupt-controller",
+    "name": "Interrupt Controller",
+    "category": "Architecture",
+    "path": "M 25 15 L 75 15 L 75 85 L 25 85 Z M 0 25 L 25 25 M 0 40 L 25 40 M 0 55 L 25 55 M 0 70 L 25 70 M 75 35 L 100 35 M 75 65 L 100 65 M 40 38 L 47 50 L 42 50 L 48 62 L 44 62 L 52 68",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "flowchart-process",
+    "name": "Process Rectangle",
     "category": "Flowchart",
     "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z",
     "defaultWidth": 120,
@@ -9,8 +594,8 @@
     "viewBox": "0 0 100 65"
   },
   {
-    "id": "decision",
-    "name": "Decision",
+    "id": "flowchart-decision",
+    "name": "Decision Diamond",
     "category": "Flowchart",
     "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z",
     "defaultWidth": 110,
@@ -18,8 +603,8 @@
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "terminator",
-    "name": "Terminator",
+    "id": "flowchart-terminator",
+    "name": "Start / End Terminator",
     "category": "Flowchart",
     "path": "M 25 0 L 75 0 C 90 0, 100 12, 100 25 C 100 38, 90 50, 75 50 L 25 50 C 10 50, 0 38, 0 25 C 0 12, 10 0, 25 0 Z",
     "defaultWidth": 130,
@@ -27,8 +612,8 @@
     "viewBox": "0 0 100 50"
   },
   {
-    "id": "data",
-    "name": "Data (I/O)",
+    "id": "flowchart-io",
+    "name": "Input / Output Parallelogram",
     "category": "Flowchart",
     "path": "M 20 0 L 100 0 L 80 65 L 0 65 Z",
     "defaultWidth": 120,
@@ -36,52 +621,7 @@
     "viewBox": "0 0 100 65"
   },
   {
-    "id": "document",
-    "name": "Document",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 70 C 80 60, 60 85, 40 70 C 20 60, 10 75, 0 70 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 85,
-    "viewBox": "0 0 100 75"
-  },
-  {
-    "id": "database",
-    "name": "Database",
-    "category": "Flowchart",
-    "path": "M 5 20 C 5 5, 95 5, 95 20 L 95 80 C 95 95, 5 95, 5 80 Z M 5 20 C 5 35, 95 35, 95 20",
-    "defaultWidth": 100,
-    "defaultHeight": 115,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "connector-circle",
-    "name": "Connector Circle",
-    "category": "Flowchart",
-    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z",
-    "defaultWidth": 70,
-    "defaultHeight": 70,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "delay",
-    "name": "Delay",
-    "category": "Flowchart",
-    "path": "M 0 0 L 60 0 C 85 0, 100 15, 100 35 C 100 55, 85 70, 60 70 L 0 70 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 70"
-  },
-  {
-    "id": "manual-input",
-    "name": "Manual Input",
-    "category": "Flowchart",
-    "path": "M 0 25 L 100 0 L 100 70 L 0 70 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 70"
-  },
-  {
-    "id": "predefined-process",
+    "id": "flowchart-predefined-process",
     "name": "Predefined Process",
     "category": "Flowchart",
     "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 15 0 L 15 65 M 85 0 L 85 65",
@@ -90,102 +630,1965 @@
     "viewBox": "0 0 100 65"
   },
   {
-    "id": "diamond",
-    "name": "Diamond",
-    "category": "Basic",
-    "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z",
+    "id": "flowchart-manual-operation",
+    "name": "Manual Operation",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 80 65 L 20 65 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
+    "id": "flowchart-document",
+    "name": "Document",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 70 C 80 60, 60 85, 40 70 C 20 60, 10 75, 0 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 75"
+  },
+  {
+    "id": "flowchart-multi-document",
+    "name": "Multiple Documents",
+    "category": "Flowchart",
+    "path": "M 10 10 L 95 10 L 95 65 C 80 55, 60 75, 45 65 L 10 65 Z M 0 20 L 85 20 L 85 75 C 70 65, 50 85, 35 75 C 20 65, 10 80, 0 75 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 85"
+  },
+  {
+    "id": "flowchart-database",
+    "name": "Database / Cylinder",
+    "category": "Flowchart",
+    "path": "M 5 20 C 5 5, 95 5, 95 20 L 95 80 C 95 95, 5 95, 5 80 Z M 5 20 C 5 35, 95 35, 95 20",
+    "defaultWidth": 100,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "flowchart-stored-data",
+    "name": "Stored Data",
+    "category": "Flowchart",
+    "path": "M 15 0 L 90 0 C 75 32.5, 75 32.5, 90 65 L 15 65 C 0 32.5, 0 32.5, 15 0 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
+    "id": "flowchart-delay",
+    "name": "Delay",
+    "category": "Flowchart",
+    "path": "M 0 0 L 60 0 C 85 0, 100 15, 100 35 C 100 55, 85 70, 60 70 L 0 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 70"
+  },
+  {
+    "id": "flowchart-preparation",
+    "name": "Preparation / Initialization",
+    "category": "Flowchart",
+    "path": "M 20 0 L 80 0 L 100 35 L 80 70 L 20 70 L 0 35 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 70"
+  },
+  {
+    "id": "flowchart-connector-circle",
+    "name": "Connector Circle",
+    "category": "Flowchart",
+    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z",
+    "defaultWidth": 70,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "flowchart-offpage-connector",
+    "name": "Off-Page Connector",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 50 L 50 85 L 0 50 Z",
+    "defaultWidth": 90,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 90"
+  },
+  {
+    "id": "flowchart-merge",
+    "name": "Merge",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 50 85 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 90"
+  },
+  {
+    "id": "flowchart-extract",
+    "name": "Extract",
+    "category": "Flowchart",
+    "path": "M 50 5 L 100 90 L 0 90 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 90"
+  },
+  {
+    "id": "flowchart-sort",
+    "name": "Sort",
+    "category": "Flowchart",
+    "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z M 0 50 L 100 50",
     "defaultWidth": 110,
     "defaultHeight": 110,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "star",
-    "name": "Star",
-    "category": "Symbols",
-    "path": "M 50 0 L 63 35 L 100 35 L 71 57 L 82 91 L 50 70 L 18 91 L 29 57 L 0 35 L 37 35 Z",
-    "defaultWidth": 110,
+    "id": "flowchart-loop-limit",
+    "name": "Loop Limit",
+    "category": "Flowchart",
+    "path": "M 0 25 L 25 0 L 75 0 L 100 25 L 100 70 L 0 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 75"
+  },
+  {
+    "id": "flowchart-annotation",
+    "name": "Annotation",
+    "category": "Flowchart",
+    "path": "M 40 0 L 0 0 L 0 80 L 40 80 M 0 40 L -25 40",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "-30 0 100 80"
+  },
+  {
+    "id": "flowchart-flow-line",
+    "name": "Flow Line",
+    "category": "Flowchart",
+    "path": "M 10 50 L 80 50 M 65 35 L 80 50 L 65 65",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "flowchart-summing-junction",
+    "name": "Summing Junction",
+    "category": "Flowchart",
+    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z M 22 22 L 78 78 M 78 22 L 22 78",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "flowchart-or-junction",
+    "name": "Or Junction",
+    "category": "Flowchart",
+    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z M 50 10 L 50 90 M 10 50 L 90 50",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "flowchart-subprocess",
+    "name": "Subprocess",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 50 50 L 50 60 M 45 55 L 55 55",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
+    "id": "flowchart-display",
+    "name": "Display",
+    "category": "Flowchart",
+    "path": "M 20 0 L 75 0 C 100 20, 100 50, 75 70 L 20 70 L 0 35 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 70"
+  },
+  {
+    "id": "flowchart-internal-storage",
+    "name": "Internal Storage",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 15 0 L 15 65 M 0 15 L 100 15",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
+    "id": "uml-class",
+    "name": "UML Class",
+    "category": "UML",
+    "path": "M 10 10 L 90 10 L 90 90 L 10 90 Z M 10 32 L 90 32 M 10 58 L 90 58",
+    "defaultWidth": 120,
     "defaultHeight": 110,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "pentagon",
-    "name": "Pentagon",
-    "category": "Polygons",
-    "path": "M 50 0 L 98 35 L 79 95 L 21 95 L 2 35 Z",
-    "defaultWidth": 110,
+    "id": "uml-interface",
+    "name": "UML Interface",
+    "category": "UML",
+    "path": "M 50 20 A 20 20 0 1 1 49.9 20 Z M 50 40 L 50 85 M 30 85 L 70 85",
+    "defaultWidth": 100,
     "defaultHeight": 110,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "hexagon",
-    "name": "Hexagon",
-    "category": "Polygons",
-    "path": "M 25 0 L 75 0 L 100 50 L 75 100 L 25 100 L 0 50 Z",
+    "id": "uml-object",
+    "name": "UML Object",
+    "category": "UML",
+    "path": "M 10 20 L 90 20 L 90 80 L 10 80 Z M 20 45 L 80 45",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-actor",
+    "name": "UML Actor",
+    "category": "UML",
+    "path": "M 50 15 A 10 10 0 1 1 49.9 15 Z M 50 25 L 50 55 M 20 35 L 80 35 M 50 55 L 25 85 M 50 55 L 75 85",
+    "defaultWidth": 80,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-usecase",
+    "name": "UML Use Case",
+    "category": "UML",
+    "path": "M 10 50 A 40 25 0 1 1 90 50 A 40 25 0 1 1 10 50 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-component",
+    "name": "UML Component",
+    "category": "UML",
+    "path": "M 20 15 L 90 15 L 90 85 L 20 85 Z M 10 30 L 30 30 L 30 45 L 10 45 Z M 10 55 L 30 55 L 30 70 L 10 70 Z",
     "defaultWidth": 120,
     "defaultHeight": 100,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "arrow-right",
-    "name": "Right Arrow",
-    "category": "Arrows",
-    "path": "M 0 30 L 65 30 L 65 10 L 100 50 L 65 90 L 65 70 L 0 70 Z",
+    "id": "uml-package",
+    "name": "UML Package",
+    "category": "UML",
+    "path": "M 10 25 L 45 25 L 45 35 L 90 35 L 90 85 L 10 85 Z M 10 35 L 45 35",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-node",
+    "name": "UML Node",
+    "category": "UML",
+    "path": "M 10 30 L 70 30 L 70 90 L 10 90 Z M 70 30 L 90 15 L 90 75 L 70 90 M 10 30 L 30 15 L 90 15",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-artifact",
+    "name": "UML Artifact",
+    "category": "UML",
+    "path": "M 20 15 L 70 15 L 85 30 L 85 85 L 20 85 Z M 70 15 L 70 30 L 85 30",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-state",
+    "name": "UML State",
+    "category": "UML",
+    "path": "M 25 20 L 75 20 C 90 20, 90 80, 75 80 L 25 80 C 10 80, 10 20, 25 20 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-activity",
+    "name": "UML Activity",
+    "category": "UML",
+    "path": "M 20 20 L 80 20 C 92 20, 92 80, 80 80 L 20 80 C 8 80, 8 20, 20 20 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-initial-state",
+    "name": "UML Initial State",
+    "category": "UML",
+    "path": "M 50 30 A 20 20 0 1 1 49.9 30 Z",
+    "defaultWidth": 60,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-final-state",
+    "name": "UML Final State",
+    "category": "UML",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 32 A 18 18 0 1 1 49.9 32 Z",
+    "defaultWidth": 70,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-fork-join",
+    "name": "UML Fork / Join",
+    "category": "UML",
+    "path": "M 10 40 L 90 40 L 90 60 L 10 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-lifeline",
+    "name": "UML Lifeline",
+    "category": "UML",
+    "path": "M 20 10 L 80 10 L 80 35 L 20 35 Z M 50 35 L 50 45 M 50 55 L 50 65 M 50 75 L 50 85 M 50 95 L 50 105",
+    "defaultWidth": 100,
+    "defaultHeight": 130,
+    "viewBox": "0 0 100 110"
+  },
+  {
+    "id": "uml-activation-bar",
+    "name": "UML Activation Bar",
+    "category": "UML",
+    "path": "M 40 10 L 60 10 L 60 90 L 40 90 Z",
+    "defaultWidth": 50,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-note",
+    "name": "UML Note",
+    "category": "UML",
+    "path": "M 15 15 L 65 15 L 85 35 L 85 85 L 15 85 Z M 65 15 L 65 35 L 85 35 M 25 45 L 70 45 M 25 60 L 65 60",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-association",
+    "name": "Association",
+    "category": "UML",
+    "path": "M 10 50 L 90 50",
+    "defaultWidth": 120,
+    "defaultHeight": 30,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-aggregation",
+    "name": "Aggregation",
+    "category": "UML",
+    "path": "M 10 50 L 70 50 M 70 50 L 80 40 L 90 50 L 80 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-composition",
+    "name": "Composition",
+    "category": "UML",
+    "path": "M 10 50 L 70 50 M 70 50 L 80 40 L 90 50 L 80 60 Z M 80 40 L 80 60",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-inheritance",
+    "name": "Inheritance",
+    "category": "UML",
+    "path": "M 10 50 L 75 50 M 75 40 L 90 50 L 75 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-dependency",
+    "name": "Dependency",
+    "category": "UML",
+    "path": "M 10 50 L 25 50 M 35 50 L 50 50 M 60 50 L 75 50 M 65 40 L 85 50 L 65 60",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-realization",
+    "name": "Realization",
+    "category": "UML",
+    "path": "M 10 50 L 25 50 M 35 50 L 50 50 M 60 50 L 75 50 M 75 40 L 90 50 L 75 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-sync-msg",
+    "name": "Synchronous Message",
+    "category": "UML",
+    "path": "M 10 50 L 85 50 M 70 40 L 85 50 L 70 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-async-msg",
+    "name": "Asynchronous Message",
+    "category": "UML",
+    "path": "M 10 50 L 85 50 M 65 40 L 85 50",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-return-msg",
+    "name": "Return Message",
+    "category": "UML",
+    "path": "M 10 50 L 25 50 M 35 50 L 50 50 M 60 50 L 85 50 M 70 40 L 85 50 L 70 60",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "uml-conn-self-msg",
+    "name": "Self Message",
+    "category": "UML",
+    "path": "M 20 30 L 70 30 L 70 70 L 30 70 M 45 60 L 30 70 L 45 80",
+    "defaultWidth": 100,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-client",
+    "name": "Client",
+    "category": "Software & Cloud",
+    "path": "M 20 20 L 80 20 L 80 65 L 20 65 Z M 15 65 L 85 65 L 85 75 L 15 75 Z M 40 75 L 35 85 L 65 85 L 60 75",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-server",
+    "name": "Server",
+    "category": "Software & Cloud",
+    "path": "M 15 20 L 85 20 L 85 40 L 15 40 Z M 15 45 L 85 45 L 85 65 L 15 65 Z M 15 70 L 85 70 L 85 90 L 15 90 Z M 25 30 A 2 2 0 1 1 24.9 30 Z M 25 55 A 2 2 0 1 1 24.9 55 Z M 25 80 A 2 2 0 1 1 24.9 80 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-api-gateway",
+    "name": "API Gateway",
+    "category": "Software & Cloud",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 30 40 L 45 50 L 30 60 M 70 40 L 55 50 L 70 60 M 50 35 L 50 65",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-microservice",
+    "name": "Microservice",
+    "category": "Software & Cloud",
+    "path": "M 25 15 L 75 15 L 90 50 L 75 85 L 25 85 L 10 50 Z M 50 35 A 15 15 0 1 1 49.9 35 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-load-balancer",
+    "name": "Load Balancer",
+    "category": "Software & Cloud",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 25 40 L 50 65 L 75 40 M 35 60 L 50 75 L 65 60",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-message-broker",
+    "name": "Message Broker",
+    "category": "Software & Cloud",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 15 25 L 50 55 L 85 25 M 30 50 L 70 50",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-event-bus",
+    "name": "Event Bus",
+    "category": "Software & Cloud",
+    "path": "M 10 40 L 90 40 L 90 60 L 10 60 Z M 25 20 L 25 40 M 50 20 L 50 40 M 75 20 L 75 40 M 25 60 L 25 80 M 50 60 L 50 80 M 75 60 L 75 80",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-sw-database",
+    "name": "Database",
+    "category": "Software & Cloud",
+    "path": "M 15 25 C 15 12, 85 12, 85 25 L 85 75 C 85 88, 15 88, 15 75 Z M 15 25 C 15 38, 85 38, 85 25 M 15 50 C 15 63, 85 63, 85 50",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-sw-cache",
+    "name": "Cache",
+    "category": "Software & Cloud",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 50 30 L 35 55 L 48 55 L 45 75 L 65 48 L 52 48 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-sw-queue",
+    "name": "Queue",
+    "category": "Software & Cloud",
+    "path": "M 15 30 L 85 30 L 85 70 L 15 70 Z M 32 30 L 32 70 M 50 30 L 50 70 M 68 30 L 68 70 M 0 50 L 15 50 M 85 50 L 100 50",
     "defaultWidth": 130,
     "defaultHeight": 80,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "arrow-left",
-    "name": "Left Arrow",
-    "category": "Arrows",
-    "path": "M 100 30 L 35 30 L 35 10 L 0 50 L 35 90 L 35 70 L 100 70 Z",
-    "defaultWidth": 130,
+    "id": "arch-sw-cdn",
+    "name": "CDN",
+    "category": "Software & Cloud",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 15 50 L 85 50 M 50 15 C 35 30, 35 70, 50 85 C 65 70, 65 30, 50 15",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-sw-firewall",
+    "name": "Firewall",
+    "category": "Software & Cloud",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 40 L 85 40 M 15 60 L 85 60 M 45 20 L 45 40 M 65 40 L 65 60 M 35 60 L 35 80",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "arch-sw-external",
+    "name": "External Service",
+    "category": "Software & Cloud",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 55 40 L 75 40 L 75 60 M 75 40 L 45 70",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-router",
+    "name": "Router",
+    "category": "Networking",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 30 50 L 70 50 M 50 30 L 50 70 M 35 40 L 30 50 L 35 60 M 65 40 L 70 50 L 65 60",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-switch",
+    "name": "Switch",
+    "category": "Networking",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 25 40 L 75 40 M 65 35 L 75 40 L 65 45 M 75 60 L 25 60 M 35 55 L 25 60 L 35 65",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-hub",
+    "name": "Hub",
+    "category": "Networking",
+    "path": "M 15 30 L 85 30 L 85 70 L 15 70 Z M 30 50 L 70 50 M 50 35 L 50 65",
+    "defaultWidth": 120,
     "defaultHeight": 80,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "arrow-up",
-    "name": "Up Arrow",
-    "category": "Arrows",
-    "path": "M 30 100 L 30 35 L 10 35 L 50 0 L 90 35 L 70 35 L 70 100 Z",
-    "defaultWidth": 80,
-    "defaultHeight": 130,
+    "id": "net-firewall",
+    "name": "Firewall",
+    "category": "Networking",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 40 L 85 40 M 15 60 L 85 60 M 50 20 L 50 40 M 30 40 L 30 60 M 70 40 L 70 60 M 50 60 L 50 80",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "arrow-down",
-    "name": "Down Arrow",
-    "category": "Arrows",
-    "path": "M 30 0 L 30 65 L 10 65 L 50 100 L 90 65 L 70 65 L 70 0 Z",
-    "defaultWidth": 80,
-    "defaultHeight": 130,
+    "id": "net-modem",
+    "name": "Modem",
+    "category": "Networking",
+    "path": "M 15 35 L 85 35 L 85 75 L 15 75 Z M 25 20 L 25 35 M 35 15 L 35 35 M 30 55 A 3 3 0 1 1 29.9 55 Z M 45 55 A 3 3 0 1 1 44.9 55 Z M 60 55 A 3 3 0 1 1 59.9 55 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "cloud",
-    "name": "Cloud",
-    "category": "Symbols",
-    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 L 25 75 A 10 10 0 0 1 25 65 Z",
+    "id": "net-wifi-ap",
+    "name": "Wi-Fi Access Point",
+    "category": "Networking",
+    "path": "M 50 70 A 5 5 0 1 1 49.9 70 Z M 35 55 A 22 22 0 0 1 65 55 M 25 42 A 36 36 0 0 1 75 42 M 15 30 A 50 50 0 0 1 85 30",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-wireless-router",
+    "name": "Wireless Router",
+    "category": "Networking",
+    "path": "M 15 45 L 85 45 L 85 80 L 15 80 Z M 30 15 L 30 45 M 70 15 L 70 45 M 40 62 A 3 3 0 1 1 39.9 62 Z M 55 62 A 3 3 0 1 1 54.9 62 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-ethernet-port",
+    "name": "Ethernet Port",
+    "category": "Networking",
+    "path": "M 20 20 L 80 20 L 80 80 L 65 80 L 65 65 L 35 65 L 35 80 L 20 80 Z M 30 30 L 30 45 M 42 30 L 42 45 M 58 30 L 58 45 M 70 30 L 70 45",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-cloud",
+    "name": "Network Cloud",
+    "category": "Networking",
+    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 L 25 75 Z",
     "defaultWidth": 130,
     "defaultHeight": 90,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "cross",
-    "name": "Cross",
-    "category": "Symbols",
-    "path": "M 35 0 L 65 0 L 65 35 L 100 35 L 100 65 L 65 65 L 65 100 L 35 100 L 35 65 L 0 65 L 0 35 L 35 35 Z",
-    "defaultWidth": 105,
+    "id": "net-lan",
+    "name": "LAN",
+    "category": "Networking",
+    "path": "M 10 70 L 90 70 M 25 70 L 25 50 M 50 70 L 50 50 M 75 70 L 75 50 M 15 30 L 35 30 L 35 50 L 15 50 Z M 40 30 L 60 30 L 60 50 L 40 50 Z M 65 30 L 85 30 L 85 50 L 65 50 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-wan",
+    "name": "WAN",
+    "category": "Networking",
+    "path": "M 20 20 A 25 25 0 1 1 19.9 20 Z M 80 20 A 25 25 0 1 1 79.9 20 Z M 50 80 A 25 25 0 1 1 49.9 80 Z M 35 35 L 65 35 M 30 55 L 45 70 M 70 55 L 55 70",
+    "defaultWidth": 120,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-vpn-gateway",
+    "name": "VPN Gateway",
+    "category": "Networking",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 40 45 L 40 38 C 40 30, 60 30, 60 38 L 60 45 Z M 35 45 L 65 45 L 65 65 L 35 65 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-proxy-server",
+    "name": "Proxy Server",
+    "category": "Networking",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 30 40 L 50 40 M 45 35 L 50 40 L 45 45 M 70 60 L 50 60 M 55 55 L 50 60 L 55 65",
+    "defaultWidth": 110,
     "defaultHeight": 105,
     "viewBox": "0 0 100 100"
   },
   {
-    "id": "speech-bubble",
-    "name": "Speech Bubble",
-    "category": "Symbols",
-    "path": "M 10 20 C 10 9, 22 0, 38 0 L 82 0 C 98 0, 110 9, 110 20 L 110 55 C 110 66, 98 75, 82 75 L 38 75 L 12 96 L 20 75 C 10 75, 10 66, 10 55 Z",
-    "defaultWidth": 130,
+    "id": "net-dns-server",
+    "name": "DNS Server",
+    "category": "Networking",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 45 L 35 45 C 42 45, 42 55, 35 55 L 25 55 Z M 45 45 L 45 65 L 55 45 L 55 65 M 65 60 C 65 65, 75 65, 75 60 C 75 55, 65 55, 65 50 C 65 45, 75 45, 75 50",
+    "defaultWidth": 110,
     "defaultHeight": 105,
-    "viewBox": "0 0 120 100"
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-dhcp-server",
+    "name": "DHCP Server",
+    "category": "Networking",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 30 50 L 70 50 M 50 35 L 50 65 M 25 35 A 4 4 0 1 1 24.9 35 Z M 75 35 A 4 4 0 1 1 74.9 35 Z M 25 65 A 4 4 0 1 1 24.9 65 Z M 75 65 A 4 4 0 1 1 74.9 65 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-web-server",
+    "name": "Web Server",
+    "category": "Networking",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 50 35 A 18 18 0 1 1 49.9 35 Z M 32 53 L 68 53 M 50 35 C 42 45, 42 60, 50 71 C 58 60, 58 45, 50 35",
+    "defaultWidth": 110,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-mail-server",
+    "name": "Mail Server",
+    "category": "Networking",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 35 L 75 35 L 75 65 L 25 65 Z M 25 35 L 50 52 L 75 35",
+    "defaultWidth": 110,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-client-pc",
+    "name": "Client Computer",
+    "category": "Networking",
+    "path": "M 20 20 L 80 20 L 80 65 L 20 65 Z M 40 65 L 35 80 L 65 80 L 60 65 M 25 80 L 75 80",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-laptop",
+    "name": "Laptop",
+    "category": "Networking",
+    "path": "M 25 25 L 75 25 L 75 65 L 25 65 Z M 10 65 L 90 65 L 85 75 L 15 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-desktop",
+    "name": "Desktop Computer",
+    "category": "Networking",
+    "path": "M 15 20 L 65 20 L 65 65 L 15 65 Z M 30 65 L 25 78 L 55 78 L 50 65 M 72 25 L 88 25 L 88 78 L 72 78 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-printer",
+    "name": "Network Printer",
+    "category": "Networking",
+    "path": "M 25 20 L 75 20 L 75 40 L 25 40 Z M 15 40 L 85 40 L 85 75 L 15 75 Z M 25 60 L 75 60 L 75 85 L 25 85 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-nas",
+    "name": "Network Storage",
+    "category": "Networking",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 20 40 L 80 40 M 20 60 L 80 60 M 30 30 A 2 2 0 1 1 29.9 30 Z M 30 50 A 2 2 0 1 1 29.9 50 Z M 30 70 A 2 2 0 1 1 29.9 70 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-internet",
+    "name": "Internet",
+    "category": "Networking",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 15 50 L 85 50 M 50 15 C 32 30, 32 70, 50 85 C 68 70, 68 30, 50 15",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "net-boundary",
+    "name": "Network Boundary",
+    "category": "Networking",
+    "path": "M 10 10 L 90 10 L 90 90 L 10 90 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-provider",
+    "name": "Cloud Provider",
+    "category": "Software & Cloud",
+    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 Z M 45 45 L 55 45 M 50 40 L 50 50",
+    "defaultWidth": 130,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-vm",
+    "name": "Virtual Machine",
+    "category": "Software & Cloud",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 15 15 L 75 15 M 15 15 L 15 75",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-container",
+    "name": "Container",
+    "category": "Software & Cloud",
+    "path": "M 20 35 L 50 15 L 80 35 L 80 75 L 50 95 L 20 75 Z M 50 15 L 50 95 M 20 35 L 50 55 L 80 35",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-k8s-cluster",
+    "name": "Kubernetes Cluster",
+    "category": "Software & Cloud",
+    "path": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z M 50 35 A 15 15 0 1 1 49.9 35 Z M 50 15 L 50 35 M 85 75 L 63 60 M 15 75 L 37 60",
+    "defaultWidth": 115,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-object-storage",
+    "name": "Object Storage",
+    "category": "Software & Cloud",
+    "path": "M 20 25 L 80 25 L 85 80 L 15 80 Z M 20 25 C 20 35, 80 35, 80 25 M 35 45 L 65 45 M 40 60 L 60 60",
+    "defaultWidth": 110,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-block-storage",
+    "name": "Block Storage",
+    "category": "Software & Cloud",
+    "path": "M 20 25 L 80 25 L 80 75 L 20 75 Z M 35 25 L 35 75 M 50 25 L 50 75 M 65 25 L 65 75",
+    "defaultWidth": 110,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-file-storage",
+    "name": "File Storage",
+    "category": "Software & Cloud",
+    "path": "M 15 25 L 45 25 L 55 35 L 85 35 L 85 80 L 15 80 Z M 30 50 L 70 50 M 30 65 L 55 65",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-db-service",
+    "name": "Database Service",
+    "category": "Software & Cloud",
+    "path": "M 20 20 C 20 10, 80 10, 80 20 L 80 70 C 80 80, 20 80, 20 70 Z M 20 20 C 20 30, 80 30, 80 20 M 20 45 C 20 55, 80 55, 80 45",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-serverless",
+    "name": "Serverless Function",
+    "category": "Software & Cloud",
+    "path": "M 35 15 L 75 15 L 50 50 L 70 50 L 30 90 L 45 55 L 25 55 Z",
+    "defaultWidth": 90,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-api-mgmt",
+    "name": "API Management",
+    "category": "Software & Cloud",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 30 50 A 6 6 0 1 1 29.9 50 Z M 50 50 A 6 6 0 1 1 49.9 50 Z M 70 50 A 6 6 0 1 1 69.9 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-cdn-dist",
+    "name": "CDN Distribution",
+    "category": "Software & Cloud",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 20 50 L 80 50 M 50 20 L 50 80 M 30 30 L 70 70 M 30 70 L 70 30",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-load-balancer",
+    "name": "Cloud Load Balancer",
+    "category": "Software & Cloud",
+    "path": "M 15 30 L 85 30 L 85 70 L 15 70 Z M 50 30 L 25 50 L 50 70 M 50 30 L 75 50 L 50 70",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-az",
+    "name": "Availability Zone",
+    "category": "Software & Cloud",
+    "path": "M 10 15 L 90 15 L 90 85 L 10 85 Z M 25 35 L 75 35 M 25 50 L 75 50 M 25 65 L 75 65",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-region",
+    "name": "Region",
+    "category": "Software & Cloud",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 50 28 A 22 22 0 1 1 49.9 28 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cloud-vpc",
+    "name": "Virtual Private Cloud (VPC)",
+    "category": "Software & Cloud",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 35 50 L 45 40 C 45 32, 60 32, 60 40 L 65 50 Z M 35 50 L 65 50 L 65 70 L 35 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-source-code",
+    "name": "Source Code",
+    "category": "DevOps",
+    "path": "M 35 35 L 20 50 L 35 65 M 65 35 L 80 50 L 65 65 M 55 30 L 45 70",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-git-repo",
+    "name": "Git Repository",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 35 50 A 5 5 0 1 1 34.9 50 Z M 65 50 A 5 5 0 1 1 64.9 50 Z M 35 50 L 65 50",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-git-branch",
+    "name": "Git Branch",
+    "category": "DevOps",
+    "path": "M 30 25 A 6 6 0 1 1 29.9 25 Z M 30 75 A 6 6 0 1 1 29.9 75 Z M 70 35 A 6 6 0 1 1 69.9 35 Z M 30 31 L 30 69 M 30 55 C 30 40, 70 50, 70 41",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-commit",
+    "name": "Commit",
+    "category": "DevOps",
+    "path": "M 10 50 L 35 50 M 50 35 A 15 15 0 1 1 49.9 35 Z M 65 50 L 90 50",
+    "defaultWidth": 110,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-pull-request",
+    "name": "Pull Request",
+    "category": "DevOps",
+    "path": "M 30 25 A 6 6 0 1 1 29.9 25 Z M 30 75 A 6 6 0 1 1 29.9 75 Z M 70 75 A 6 6 0 1 1 69.9 75 Z M 30 31 L 30 69 M 70 69 L 70 50 C 70 40, 30 45, 30 31",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-build",
+    "name": "Build",
+    "category": "DevOps",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 35 L 65 35 L 65 65 L 35 65 Z M 50 20 L 50 35 M 50 65 L 50 80 M 20 50 L 35 50 M 65 50 L 80 50",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-test",
+    "name": "Test",
+    "category": "DevOps",
+    "path": "M 25 15 L 75 15 L 75 85 L 25 85 Z M 35 35 L 65 35 M 35 50 L 65 50 M 35 65 L 50 65 M 30 48 L 38 56 L 55 38",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-code-quality",
+    "name": "Code Quality Check",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 35 50 L 45 60 L 65 40",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-security-scan",
+    "name": "Security Scan",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 28 C 85 65, 50 85, 50 85 C 50 85, 15 65, 15 28 Z M 40 50 L 48 58 L 62 42",
+    "defaultWidth": 110,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-artifact-repo",
+    "name": "Artifact Repository",
+    "category": "DevOps",
+    "path": "M 20 30 L 50 15 L 80 30 L 80 75 L 50 90 L 20 75 Z M 20 30 L 50 45 L 80 30 M 50 45 L 50 90",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-docker-build",
+    "name": "Docker Build",
+    "category": "DevOps",
+    "path": "M 15 45 L 85 45 L 80 75 L 20 75 Z M 25 35 L 40 35 L 40 45 L 25 45 Z M 45 35 L 60 35 L 60 45 L 45 45 Z M 65 35 L 80 35 L 80 45 L 65 45 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-container-reg",
+    "name": "Container Registry",
+    "category": "DevOps",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 30 40 L 45 40 L 45 60 L 30 60 Z M 55 40 L 70 40 L 70 60 L 55 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-deployment",
+    "name": "Deployment",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 50 30 L 50 70 M 35 45 L 50 30 L 65 45",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-release",
+    "name": "Release",
+    "category": "DevOps",
+    "path": "M 25 15 L 75 15 L 85 35 L 85 85 L 25 85 Z M 45 50 A 10 10 0 1 1 44.9 50 Z M 45 55 L 65 75",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-approval-gate",
+    "name": "Approval Gate",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 40 50 L 48 58 L 62 42 M 50 32 L 50 35",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-pipeline-trigger",
+    "name": "Pipeline Trigger",
+    "category": "DevOps",
+    "path": "M 20 50 L 70 50 M 55 35 L 70 50 L 55 65 M 75 35 L 85 50 L 75 65",
+    "defaultWidth": 110,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-pipeline-stage",
+    "name": "Pipeline Stage",
+    "category": "DevOps",
+    "path": "M 15 25 L 75 25 L 90 50 L 75 75 L 15 75 L 30 50 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-pipeline-failure",
+    "name": "Pipeline Failure",
+    "category": "DevOps",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 35 35 L 65 65 M 65 35 L 35 65",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-pipeline-success",
+    "name": "Pipeline Success",
+    "category": "DevOps",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 35 50 L 45 60 L 65 40",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "cicd-rollback",
+    "name": "Rollback",
+    "category": "DevOps",
+    "path": "M 50 20 A 30 30 0 1 1 25 35 M 25 20 L 25 35 L 40 35",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-docker-container",
+    "name": "Docker Container",
+    "category": "DevOps",
+    "path": "M 15 45 L 85 45 L 78 78 L 22 78 Z M 28 32 L 40 32 L 40 45 L 28 45 Z M 44 32 L 56 32 L 56 45 L 44 45 Z M 60 32 L 72 32 L 72 45 L 60 45 Z M 44 19 L 56 19 L 56 32 L 44 32 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-docker-image",
+    "name": "Docker Image",
+    "category": "DevOps",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 35 45 L 65 45 M 35 55 L 65 55 M 45 35 L 45 65 M 55 35 L 55 65",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-docker-registry",
+    "name": "Docker Registry",
+    "category": "DevOps",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 20 40 L 80 40 M 35 30 L 65 30 M 35 60 L 65 60",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-cluster",
+    "name": "Kubernetes Cluster",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z M 50 35 A 15 15 0 1 1 49.9 35 Z M 50 15 L 50 35 M 85 75 L 63 60 M 15 75 L 37 60",
+    "defaultWidth": 115,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-node",
+    "name": "Kubernetes Node",
+    "category": "DevOps",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 35 L 85 35 M 25 55 L 45 55 M 55 55 L 75 55",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-pod",
+    "name": "Pod",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z M 40 45 L 60 45 L 60 65 L 40 65 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-deployment",
+    "name": "Deployment",
+    "category": "DevOps",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 35 L 65 35 L 65 65 L 35 65 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-replicaset",
+    "name": "ReplicaSet",
+    "category": "DevOps",
+    "path": "M 15 25 L 75 25 L 75 75 L 15 75 Z M 25 15 L 85 15 L 85 65 L 75 65 M 75 75 L 85 75",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-statefulset",
+    "name": "StatefulSet",
+    "category": "DevOps",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 20 40 L 80 40 M 20 60 L 80 60 M 35 30 L 65 30 M 35 50 L 65 50 M 35 70 L 65 70",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-daemonset",
+    "name": "DaemonSet",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 50 30 L 70 50 L 50 70 L 30 50 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-service",
+    "name": "Service",
+    "category": "DevOps",
+    "path": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z M 30 50 L 70 50 M 50 35 L 50 70",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-ingress",
+    "name": "Ingress",
+    "category": "DevOps",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 0 50 L 35 50 M 35 35 L 50 50 L 35 65 M 50 50 L 85 50 M 70 35 L 85 50 L 70 65",
+    "defaultWidth": 125,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-configmap",
+    "name": "ConfigMap",
+    "category": "DevOps",
+    "path": "M 20 15 L 70 15 L 85 30 L 85 85 L 20 85 Z M 70 15 L 70 30 L 85 30 M 30 45 L 70 45 M 30 60 L 60 60",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-secret",
+    "name": "Secret",
+    "category": "DevOps",
+    "path": "M 30 45 L 30 35 C 30 22, 70 22, 70 35 L 70 45 M 20 45 L 80 45 L 80 85 L 20 85 Z M 50 60 L 50 70",
+    "defaultWidth": 105,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-pv",
+    "name": "Persistent Volume",
+    "category": "DevOps",
+    "path": "M 15 25 C 15 12, 85 12, 85 25 L 85 75 C 85 88, 15 88, 15 75 Z M 15 25 C 15 38, 85 38, 85 25 M 35 50 L 65 50",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-pvc",
+    "name": "Persistent Volume Claim",
+    "category": "DevOps",
+    "path": "M 15 25 C 15 12, 85 12, 85 25 L 85 75 C 85 88, 15 88, 15 75 Z M 40 45 L 60 45 M 50 35 L 50 65",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-namespace",
+    "name": "Namespace",
+    "category": "DevOps",
+    "path": "M 10 15 L 90 15 L 90 85 L 10 85 Z M 10 32 L 90 32",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-job",
+    "name": "Job",
+    "category": "DevOps",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 50 L 45 60 L 65 40",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-cronjob",
+    "name": "CronJob",
+    "category": "DevOps",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 30 L 50 50 L 65 50",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "k8s-hpa",
+    "name": "Horizontal Pod Autoscaler",
+    "category": "DevOps",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 25 50 L 75 50 M 35 40 L 25 50 L 35 60 M 65 40 L 75 50 L 65 60",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-terraform",
+    "name": "Terraform",
+    "category": "DevOps",
+    "path": "M 20 20 L 45 35 L 45 65 L 20 50 Z M 50 38 L 75 53 L 75 83 L 50 68 Z M 50 35 L 75 20 L 75 48 L 50 63 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-ansible",
+    "name": "Ansible",
+    "category": "DevOps",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 35 70 L 50 30 L 65 70 M 40 58 L 60 58",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-module",
+    "name": "Infrastructure Module",
+    "category": "DevOps",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 40 10 L 60 10 L 60 20 L 40 20 Z M 40 80 L 60 80 L 60 90 L 40 90 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-config-file",
+    "name": "Configuration File",
+    "category": "DevOps",
+    "path": "M 20 15 L 65 15 L 85 35 L 85 85 L 20 85 Z M 65 15 L 65 35 L 85 35 M 30 50 L 70 50 M 30 65 L 55 65",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-state-file",
+    "name": "State File",
+    "category": "DevOps",
+    "path": "M 20 15 L 65 15 L 85 35 L 85 85 L 20 85 Z M 65 15 L 65 35 L 85 35 M 40 50 L 60 50 M 50 40 L 50 60",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-provisioning",
+    "name": "Provisioning",
+    "category": "DevOps",
+    "path": "M 25 25 L 75 25 L 75 75 L 25 75 Z M 50 10 L 50 25 M 50 75 L 50 90 M 10 50 L 25 50 M 75 50 L 90 50",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-resource",
+    "name": "Infrastructure Resource",
+    "category": "DevOps",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 35 35 L 65 35 L 65 65 L 35 65 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-plan",
+    "name": "Infrastructure Plan",
+    "category": "DevOps",
+    "path": "M 20 15 L 65 15 L 85 35 L 85 85 L 20 85 Z M 35 45 L 45 45 M 35 60 L 45 60 M 55 45 L 70 45 M 55 60 L 70 60",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "iac-apply",
+    "name": "Infrastructure Apply",
+    "category": "DevOps",
+    "path": "M 20 15 L 65 15 L 85 35 L 85 85 L 20 85 Z M 35 60 L 45 70 L 65 50",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-cylinder",
+    "name": "Database Cylinder",
+    "category": "Database & Data",
+    "path": "M 15 25 C 15 12, 85 12, 85 25 L 85 75 C 85 88, 15 88, 15 75 Z M 15 25 C 15 38, 85 38, 85 25 M 15 50 C 15 63, 85 63, 85 50",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-relational",
+    "name": "Relational Database",
+    "category": "Database & Data",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 40 L 85 40 M 15 60 L 85 60 M 45 20 L 45 80",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-nosql",
+    "name": "NoSQL Database",
+    "category": "Database & Data",
+    "path": "M 15 25 C 15 12, 85 12, 85 25 L 85 75 C 85 88, 15 88, 15 75 Z M 30 50 L 70 50 M 50 35 L 50 65",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-document",
+    "name": "Document Database",
+    "category": "Database & Data",
+    "path": "M 20 15 L 65 15 L 85 35 L 85 85 L 20 85 Z M 65 15 L 65 35 L 85 35 M 35 50 L 65 50 M 35 65 L 55 65",
+    "defaultWidth": 105,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-key-value",
+    "name": "Key-Value Store",
+    "category": "Database & Data",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 50 25 L 50 75 M 25 50 L 40 50 M 60 50 L 75 50",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-graph",
+    "name": "Graph Database",
+    "category": "Database & Data",
+    "path": "M 30 30 A 10 10 0 1 1 29.9 30 Z M 70 30 A 10 10 0 1 1 69.9 30 Z M 50 70 A 10 10 0 1 1 49.9 70 Z M 38 35 L 62 35 M 35 38 L 45 62 M 65 38 L 55 62",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-time-series",
+    "name": "Time-Series Database",
+    "category": "Database & Data",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 65 L 40 45 L 55 58 L 75 35",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-data-warehouse",
+    "name": "Data Warehouse",
+    "category": "Database & Data",
+    "path": "M 15 35 L 50 15 L 85 35 L 85 80 L 15 80 Z M 15 35 L 85 35 M 35 55 L 65 55 M 35 68 L 65 68",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-data-lake",
+    "name": "Data Lake",
+    "category": "Database & Data",
+    "path": "M 15 50 C 15 30, 85 30, 85 50 C 85 70, 15 70, 15 50 Z M 25 50 C 35 42, 45 58, 55 50 C 65 42, 75 58, 80 50",
+    "defaultWidth": 130,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-data-lakehouse",
+    "name": "Data Lakehouse",
+    "category": "Database & Data",
+    "path": "M 15 35 L 50 15 L 85 35 L 85 70 C 85 85, 15 85, 15 70 Z M 15 35 L 85 35",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-table",
+    "name": "Table",
+    "category": "Database & Data",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 38 L 85 38 M 15 58 L 85 58 M 40 20 L 40 80 M 65 20 L 65 80",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-schema",
+    "name": "Database Schema",
+    "category": "Database & Data",
+    "path": "M 15 15 L 85 15 L 85 85 L 15 85 Z M 15 30 L 85 30 M 30 50 L 70 50 M 30 65 L 70 65",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-entity",
+    "name": "Entity",
+    "category": "Database & Data",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-attribute",
+    "name": "Attribute",
+    "category": "Database & Data",
+    "path": "M 10 50 A 40 25 0 1 1 90 50 A 40 25 0 1 1 10 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-primary-key",
+    "name": "Primary Key",
+    "category": "Database & Data",
+    "path": "M 35 40 A 12 12 0 1 1 34.9 40 Z M 45 45 L 75 45 L 75 55 M 65 45 L 65 55",
+    "defaultWidth": 110,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-foreign-key",
+    "name": "Foreign Key",
+    "category": "Database & Data",
+    "path": "M 30 40 A 10 10 0 1 1 29.9 40 Z M 40 45 L 70 45 M 60 45 L 60 55 M 70 40 L 70 55",
+    "defaultWidth": 110,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-relationship",
+    "name": "Relationship",
+    "category": "Database & Data",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-one-to-one",
+    "name": "One-to-One Relationship",
+    "category": "Database & Data",
+    "path": "M 10 50 L 90 50 M 20 40 L 20 60 M 80 40 L 80 60",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-one-to-many",
+    "name": "One-to-Many Relationship",
+    "category": "Database & Data",
+    "path": "M 10 50 L 80 50 M 20 40 L 20 60 M 80 50 L 90 35 M 80 50 L 90 65",
+    "defaultWidth": 120,
+    "defaultHeight": 45,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "db-many-to-many",
+    "name": "Many-to-Many Relationship",
+    "category": "Database & Data",
+    "path": "M 20 50 L 80 50 M 20 50 L 10 35 M 20 50 L 10 65 M 80 50 L 90 35 M 80 50 L 90 65",
+    "defaultWidth": 120,
+    "defaultHeight": 45,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-etl-process",
+    "name": "ETL Process",
+    "category": "Database & Data",
+    "path": "M 15 30 L 75 30 L 85 50 L 75 70 L 15 70 Z M 35 40 L 45 50 L 35 60 M 55 40 L 65 50 L 55 60",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-data-pipeline",
+    "name": "Data Pipeline",
+    "category": "Database & Data",
+    "path": "M 10 35 L 70 35 L 70 20 L 90 45 L 70 70 L 70 55 L 10 55 Z M 30 45 L 50 45",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-data-source",
+    "name": "Data Source",
+    "category": "Database & Data",
+    "path": "M 15 25 C 15 15, 85 15, 85 25 L 85 65 C 85 75, 15 75, 15 65 Z M 50 65 L 50 85 M 35 85 L 65 85",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-data-sink",
+    "name": "Data Sink",
+    "category": "Database & Data",
+    "path": "M 15 15 L 85 15 L 65 65 L 35 65 Z M 50 65 L 50 85 M 35 85 L 65 85",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-stream-processor",
+    "name": "Stream Processor",
+    "category": "Database & Data",
+    "path": "M 15 30 C 30 15, 45 45, 60 30 C 75 15, 85 30, 85 30 L 85 70 C 70 55, 55 85, 40 70 C 25 55, 15 70, 15 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-kafka-topic",
+    "name": "Kafka Topic",
+    "category": "Database & Data",
+    "path": "M 15 35 L 85 35 L 85 65 L 15 65 Z M 32 35 L 32 65 M 50 35 L 50 65 M 68 35 L 68 65 M 23 50 A 2 2 0 1 1 22.9 50 Z M 41 50 A 2 2 0 1 1 40.9 50 Z M 59 50 A 2 2 0 1 1 58.9 50 Z M 77 50 A 2 2 0 1 1 76.9 50 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-kafka-producer",
+    "name": "Kafka Producer",
+    "category": "Database & Data",
+    "path": "M 15 25 L 70 25 L 85 50 L 70 75 L 15 75 Z M 30 50 L 60 50 M 50 40 L 60 50 L 50 60",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-kafka-consumer",
+    "name": "Kafka Consumer",
+    "category": "Database & Data",
+    "path": "M 30 25 L 85 25 L 85 75 L 30 75 L 15 50 Z M 60 50 L 30 50 M 40 40 L 30 50 L 40 60",
+    "defaultWidth": 120,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-data-transform",
+    "name": "Data Transformation",
+    "category": "Database & Data",
+    "path": "M 50 20 A 30 30 0 1 1 25 35 M 25 20 L 25 35 L 40 35 M 42 50 L 58 50 M 50 42 L 50 58",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "de-data-validation",
+    "name": "Data Validation",
+    "category": "Database & Data",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 50 L 45 60 L 65 40",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-plc",
+    "name": "PLC",
+    "category": "Industry 4.0",
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 20 35 L 80 35 M 30 25 A 3 3 0 1 1 29.9 25 Z M 45 25 A 3 3 0 1 1 44.9 25 Z M 60 25 A 3 3 0 1 1 59.9 25 Z M 70 25 A 3 3 0 1 1 69.9 25 Z M 30 55 L 70 55 M 30 70 L 70 70",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-scada",
+    "name": "SCADA System",
+    "category": "Industry 4.0",
+    "path": "M 15 15 L 85 15 L 85 65 L 15 65 Z M 35 65 L 30 85 L 70 85 L 65 65 M 25 30 L 45 30 M 55 30 L 75 30 M 25 45 L 75 45",
+    "defaultWidth": 120,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-hmi-panel",
+    "name": "HMI Panel",
+    "category": "Industry 4.0",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 30 L 75 30 L 75 60 L 25 60 Z M 35 70 A 3 3 0 1 1 34.9 70 Z M 50 70 A 3 3 0 1 1 49.9 70 Z M 65 70 A 3 3 0 1 1 64.9 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-dcs",
+    "name": "DCS Controller",
+    "category": "Industry 4.0",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 35 20 L 35 80 M 65 20 L 65 80 M 20 35 L 30 35 M 45 35 L 55 35 M 70 35 L 80 35",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-ind-robot",
+    "name": "Industrial Robot",
+    "category": "Industry 4.0",
+    "path": "M 30 15 L 70 15 L 70 50 L 30 50 Z M 40 28 A 3 3 0 1 1 39.9 28 Z M 60 28 A 3 3 0 1 1 59.9 28 Z M 40 40 L 60 40 M 50 50 L 50 75 M 25 85 L 75 85 L 75 90 L 25 90 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-robotic-arm",
+    "name": "Robotic Arm",
+    "category": "Industry 4.0",
+    "path": "M 20 85 L 80 85 M 50 85 L 50 65 L 30 40 L 55 25 L 70 35 M 70 35 L 78 30 M 70 35 L 78 40",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-conveyor",
+    "name": "Conveyor Belt",
+    "category": "Industry 4.0",
+    "path": "M 25 35 L 75 35 A 15 15 0 1 1 75 65 L 25 65 A 15 15 0 1 1 25 35 Z M 25 50 A 6 6 0 1 1 24.9 50 Z M 75 50 A 6 6 0 1 1 74.9 50 Z M 50 50 A 6 6 0 1 1 49.9 50 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-cnc",
+    "name": "CNC Machine",
+    "category": "Industry 4.0",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 25 30 L 55 30 L 55 60 L 25 60 Z M 65 35 L 75 35 M 65 45 L 75 45 M 65 55 L 75 55 M 35 60 L 45 70",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-motor",
+    "name": "Motor",
+    "category": "Industry 4.0",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 38 65 L 38 35 L 48 50 L 58 35 L 58 65 M 80 50 L 95 50",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-pump",
+    "name": "Pump",
+    "category": "Industry 4.0",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 20 L 75 65 L 25 65 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-valve",
+    "name": "Valve",
+    "category": "Industry 4.0",
+    "path": "M 20 30 L 80 70 L 80 30 L 20 70 Z M 50 50 L 50 25 M 35 25 L 65 25",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-compressor",
+    "name": "Compressor",
+    "category": "Industry 4.0",
+    "path": "M 25 25 L 80 40 L 80 60 L 25 75 Z M 50 32 L 50 68",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-sensor",
+    "name": "Industrial Sensor",
+    "category": "Industry 4.0",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 50 35 A 15 15 0 1 1 49.9 35 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-temp-sensor",
+    "name": "Temperature Sensor",
+    "category": "Industry 4.0",
+    "path": "M 45 20 L 55 20 L 55 60 A 15 15 0 1 1 45 60 Z M 48 35 L 52 35 M 48 45 L 52 45",
+    "defaultWidth": 80,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-pressure-sensor",
+    "name": "Pressure Sensor",
+    "category": "Industry 4.0",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 50 L 68 35 M 45 50 A 5 5 0 1 1 44.9 50 Z M 50 80 L 50 95",
+    "defaultWidth": 100,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-proximity-sensor",
+    "name": "Proximity Sensor",
+    "category": "Industry 4.0",
+    "path": "M 20 35 L 65 35 L 65 65 L 20 65 Z M 75 40 A 10 10 0 0 1 75 60 M 82 35 A 15 15 0 0 1 82 65",
+    "defaultWidth": 110,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-actuator",
+    "name": "Actuator",
+    "category": "Industry 4.0",
+    "path": "M 20 30 L 60 30 L 60 70 L 20 70 Z M 60 50 L 90 50 M 80 40 L 90 50 L 80 60",
+    "defaultWidth": 110,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-relay",
+    "name": "Relay",
+    "category": "Industry 4.0",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 40 L 35 60 M 65 40 L 65 60 M 35 50 L 55 45",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-control-panel",
+    "name": "Control Panel",
+    "category": "Industry 4.0",
+    "path": "M 15 15 L 85 15 L 85 85 L 15 85 Z M 30 35 A 5 5 0 1 1 29.9 35 Z M 50 35 A 5 5 0 1 1 49.9 35 Z M 70 35 A 5 5 0 1 1 69.9 35 Z M 25 55 L 75 55 L 75 75 L 25 75 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "auto-estop",
+    "name": "Emergency Stop",
+    "category": "Industry 4.0",
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 50 25 A 25 25 0 1 1 49.9 25 Z M 38 38 L 62 62 M 62 38 L 38 62",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-digital-twin",
+    "name": "Digital Twin",
+    "category": "Industry 4.0",
+    "path": "M 35 25 L 35 75 M 65 25 L 65 75 M 15 50 L 35 50 M 65 50 L 85 50 M 35 35 C 50 35, 50 65, 65 65 M 35 65 C 50 65, 50 35, 65 35",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-iot-gateway",
+    "name": "IoT Gateway",
+    "category": "Industry 4.0",
+    "path": "M 20 30 L 80 30 L 80 75 L 20 75 Z M 35 15 L 35 30 M 65 15 L 65 30 M 40 52 L 50 62 L 60 52",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-iot-sensor",
+    "name": "IoT Sensor",
+    "category": "Industry 4.0",
+    "path": "M 50 20 A 25 25 0 1 1 49.9 20 Z M 50 45 L 50 70 M 30 30 A 30 30 0 0 1 70 30 M 20 20 A 45 45 0 0 1 80 20",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-edge-device",
+    "name": "Edge Device",
+    "category": "Industry 4.0",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 35 L 65 35 M 35 50 L 65 50 M 35 65 L 50 65 M 10 50 L 20 50 M 80 50 L 90 50",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-edge-gateway",
+    "name": "Edge Gateway",
+    "category": "Industry 4.0",
+    "path": "M 20 25 L 80 25 L 80 75 L 20 75 Z M 30 50 L 50 35 L 70 50 L 50 65 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-smart-factory",
+    "name": "Smart Factory",
+    "category": "Industry 4.0",
+    "path": "M 15 80 L 15 45 L 38 60 L 38 45 L 62 60 L 62 30 L 85 30 L 85 80 Z M 25 70 L 35 70 M 45 70 L 55 70 M 68 50 L 78 50",
+    "defaultWidth": 120,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-agv-amr",
+    "name": "AGV / AMR Robot",
+    "category": "Industry 4.0",
+    "path": "M 20 35 L 80 35 L 80 65 L 20 65 Z M 30 65 A 8 8 0 1 1 29.9 65 Z M 70 65 A 8 8 0 1 1 69.9 65 Z M 40 25 L 60 25 L 50 35 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-vision-cam",
+    "name": "Machine Vision Camera",
+    "category": "Industry 4.0",
+    "path": "M 20 30 L 65 30 L 65 70 L 20 70 Z M 65 40 L 85 25 L 85 75 L 65 60 Z M 35 50 A 8 8 0 1 1 34.9 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-pred-maint",
+    "name": "Predictive Maintenance",
+    "category": "Industry 4.0",
+    "path": "M 30 65 L 65 30 M 60 25 L 75 40 L 70 45 L 55 30 Z M 25 70 A 5 5 0 1 1 24.9 70 Z M 45 60 L 60 60 L 75 45",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-ind-cloud",
+    "name": "Industrial Cloud",
+    "category": "Industry 4.0",
+    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 Z M 40 50 L 45 60 L 60 40",
+    "defaultWidth": 130,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-opc-ua",
+    "name": "OPC UA Gateway",
+    "category": "Industry 4.0",
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 25 50 L 45 50 M 55 50 L 75 50 M 45 40 L 55 50 L 45 60",
+    "defaultWidth": 120,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-mqtt-broker",
+    "name": "MQTT Broker",
+    "category": "Industry 4.0",
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 20 50 L 50 50 M 50 50 L 80 30 M 50 50 L 80 70",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-mes",
+    "name": "MES System",
+    "category": "Industry 4.0",
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 30 40 L 70 40 M 30 55 L 70 55 M 30 70 L 55 70",
+    "defaultWidth": 120,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-erp",
+    "name": "ERP System",
+    "category": "Industry 4.0",
+    "path": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z M 50 35 L 50 75 M 30 45 L 70 45 M 30 65 L 70 65",
+    "defaultWidth": 115,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-mfg-exec",
+    "name": "Manufacturing Execution",
+    "category": "Industry 4.0",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 35 40 L 45 50 L 65 35 M 35 65 L 65 65",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-prod-line",
+    "name": "Production Line",
+    "category": "Industry 4.0",
+    "path": "M 10 50 L 90 50 M 30 35 L 45 50 L 30 65 M 60 35 L 75 50 L 60 65",
+    "defaultWidth": 120,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-quality-insp",
+    "name": "Quality Inspection",
+    "category": "Industry 4.0",
+    "path": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 38 50 L 46 58 L 62 42",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-energy-mon",
+    "name": "Energy Monitoring",
+    "category": "Industry 4.0",
+    "path": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 55 30 L 40 52 L 52 52 L 45 70 L 65 48 L 52 48 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-asset-track",
+    "name": "Asset Tracking",
+    "category": "Industry 4.0",
+    "path": "M 50 20 C 35 20, 35 45, 50 75 C 65 45, 65 20, 50 20 Z M 50 32 A 6 6 0 1 1 49.9 32 Z",
+    "defaultWidth": 90,
+    "defaultHeight": 120,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "i40-ind-network",
+    "name": "Industrial Network",
+    "category": "Industry 4.0",
+    "path": "M 25 30 A 8 8 0 1 1 24.9 30 Z M 75 30 A 8 8 0 1 1 74.9 30 Z M 25 70 A 8 8 0 1 1 24.9 70 Z M 75 70 A 8 8 0 1 1 74.9 70 Z M 33 30 L 67 30 M 25 38 L 25 62 M 75 38 L 75 62 M 33 70 L 67 70 M 31 36 L 69 64 M 69 36 L 31 64",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
   }
 ]
