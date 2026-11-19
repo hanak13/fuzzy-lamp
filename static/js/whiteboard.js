@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnHighlighter = document.getElementById('btn-highlighter');
     const btnEraser = document.getElementById('btn-eraser');
     const btnText = document.getElementById('btn-text');
-    const btnSticky = document.getElementById('btn-sticky');
+    const btnSticky = document.getElementById('btn-sticky') || document.getElementById('btn-sidebar-notes');
+    const btnSidebarNotes = document.getElementById('btn-sidebar-notes');
     const btnLine = document.getElementById('btn-line');
     const btnArrow = document.getElementById('btn-arrow');
     const btnToggleShapes = document.getElementById('btn-toggle-shapes');
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorPreview = document.getElementById('color-preview');
     const fillColorPicker = document.getElementById('fill-color-picker');
     const fillColorPreview = document.getElementById('fill-color-preview');
+    const btnFillNone = document.getElementById('btn-fill-none');
     const selectStrokeSize = document.getElementById('select-stroke-size');
     const selectFontSize = document.getElementById('select-font-size');
     const btnBold = document.getElementById('btn-bold');
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tool settings
     let currentColor = colorPicker ? colorPicker.value : '#1e293b';
-    let currentFillColor = fillColorPicker ? fillColorPicker.value : '#ffffff';
+    let currentFillColor = 'transparent'; // Wireframe diagram shapes: transparent empty middle by default
     let isBold = false;
     let isItalic = false;
 
@@ -390,18 +392,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetY = (y !== undefined) ? y : (-vpt[5] + canvas.getHeight() / 2) / canvas.getZoom();
 
         const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
-        const fill = currentFillColor || '#ffffff';
+        const fill = currentFillColor || 'transparent';
         const stroke = currentColor || '#334155';
 
         const shapeObj = shapeDef.create(fill, stroke, strokeWidth);
         const shapeBoundsWidth = shapeObj.getScaledWidth ? shapeObj.getScaledWidth() : (shapeObj.width || 100);
         const textWidth = Math.max(60, shapeBoundsWidth * 0.75);
 
-        const textObj = new fabric.Textbox('Text', {
+        const textObj = new fabric.Textbox('', {
             width: textWidth,
             fontSize: 15,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            fill: '#1e293b',
+            fill: currentColor || '#1e293b',
             textAlign: 'center',
             originX: 'center',
             originY: 'center',
@@ -611,6 +613,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (panelId === 'shapes' && shapesSearch) {
             setTimeout(() => shapesSearch.focus(), 50);
+        } else if (panelId === 'notes') {
+            setMode('sticky');
         }
     }
 
@@ -748,6 +752,49 @@ document.addEventListener('DOMContentLoaded', () => {
             setStickyColor(btn.dataset.color, true);
         });
     });
+
+    // Drawer Sticky Note cards: click places a note at current viewport center
+    const drawerNoteCards = document.querySelectorAll('.drawer-note-card');
+    drawerNoteCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const colorKey = card.dataset.color || 'yellow';
+            const activeObj = canvas.getActiveObject();
+            if (activeObj && activeObj.isStickyNote) {
+                setStickyColor(colorKey, true);
+                return;
+            }
+
+            setStickyColor(colorKey, false);
+
+            const vpt = canvas.viewportTransform;
+            const centerX = (-vpt[4] + canvas.getWidth() / 2) / canvas.getZoom();
+            const centerY = (-vpt[5] + canvas.getHeight() / 2) / canvas.getZoom();
+
+            const { group, text } = createStickyNote(centerX, centerY, colorKey, 'Type note...');
+            canvas.add(group);
+            canvas.renderAll();
+            saveState();
+
+            setMode('select');
+            canvas.setActiveObject(text);
+            text.enterEditing();
+            text.selectAll();
+            canvas.renderAll();
+
+            text.on('editing:exited', () => {
+                canvas.setActiveObject(group);
+                canvas.renderAll();
+                saveState();
+            });
+        });
+    });
+
+    const btnDrawerPlaceNote = document.getElementById('btn-drawer-place-note');
+    if (btnDrawerPlaceNote) {
+        btnDrawerPlaceNote.addEventListener('click', () => {
+            setMode('sticky');
+        });
+    }
 
     // -------------------------------------------------------------------------
     // 9. Grid Background Synchronization
@@ -894,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnHighlighter.addEventListener('click', () => setMode('highlighter'));
     btnEraser.addEventListener('click', () => setMode('eraser'));
     btnText.addEventListener('click', () => setMode('text'));
-    btnSticky.addEventListener('click', () => setMode('sticky'));
+    if (btnSticky && btnSticky !== btnSidebarNotes) btnSticky.addEventListener('click', () => setMode('sticky'));
     if (btnLine) btnLine.addEventListener('click', () => setMode('line'));
     if (btnArrow) btnArrow.addEventListener('click', () => setMode('arrow'));
 
@@ -1154,11 +1201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeObj.isShapeGroup) {
                 const shape = activeObj.getObjects().find(o => o.type !== 'textbox' && o.type !== 'i-text');
                 if (shape) {
-                    if (shape.fill && typeof shape.fill === 'string' && shape.fill.startsWith('#')) {
-                        currentFillColor = shape.fill;
-                        if (fillColorPicker) fillColorPicker.value = currentFillColor;
-                        if (fillColorPreview) fillColorPreview.style.backgroundColor = currentFillColor;
-                    }
+                    updateFillUI(shape.fill);
                     if (shape.stroke && typeof shape.stroke === 'string' && shape.stroke.startsWith('#')) {
                         currentColor = shape.stroke;
                         if (colorPicker) colorPicker.value = currentColor;
@@ -1231,10 +1274,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     // 15. Property Handlers (Fill, Border, Stroke Size, Font Size, Bold, Italic)
     // -------------------------------------------------------------------------
+    function updateFillUI(fillVal) {
+        if (!fillVal || fillVal === 'transparent' || fillVal === 'none' || fillVal === 'rgba(0,0,0,0)') {
+            currentFillColor = 'transparent';
+            if (btnFillNone) btnFillNone.classList.add('active');
+            if (fillColorPreview) {
+                fillColorPreview.classList.add('is-transparent');
+                fillColorPreview.style.background = 'transparent';
+            }
+        } else {
+            currentFillColor = fillVal;
+            if (btnFillNone) btnFillNone.classList.remove('active');
+            if (fillColorPreview) {
+                fillColorPreview.classList.remove('is-transparent');
+                fillColorPreview.style.backgroundColor = fillVal;
+            }
+            if (fillColorPicker && typeof fillVal === 'string' && fillVal.startsWith('#')) {
+                fillColorPicker.value = fillVal;
+            }
+        }
+    }
+
+    if (btnFillNone) {
+        btnFillNone.addEventListener('click', () => {
+            updateFillUI('transparent');
+            const activeObj = canvas.getActiveObject();
+            if (activeObj && activeObj.isShapeGroup) {
+                const shape = activeObj.getObjects().find(o => o.type !== 'textbox' && o.type !== 'i-text');
+                if (shape) {
+                    shape.set('fill', 'transparent');
+                    canvas.renderAll();
+                    saveState();
+                }
+            }
+        });
+    }
+
     if (fillColorPicker) {
         fillColorPicker.addEventListener('input', (e) => {
-            currentFillColor = e.target.value;
-            if (fillColorPreview) fillColorPreview.style.backgroundColor = currentFillColor;
+            updateFillUI(e.target.value);
 
             const activeObj = canvas.getActiveObject();
             if (activeObj && activeObj.isShapeGroup) {

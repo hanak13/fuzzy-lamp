@@ -38,25 +38,73 @@ html, body {
 }
 
 /* ==========================================================================
+   Top Bar Container (Fixed Logo on Left & Centered Toolbar)
+   ========================================================================== */
+
+.top-bar-container {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.app-brand-fixed {
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 12px;
+    box-shadow: var(--toolbar-shadow);
+    user-select: none;
+    pointer-events: auto;
+    flex-shrink: 0;
+}
+
+.brand-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.brand-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+}
+
+.top-bar-spacer {
+    width: 148px;
+    height: 44px;
+    flex-shrink: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* ==========================================================================
    Top Toolbar
    ========================================================================== */
 
 #toolbar {
-    position: fixed;
-    top: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
+    pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
+    gap: 6px;
+    padding: 5px 10px;
     background: var(--toolbar-bg);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(14px);
     border: 1px solid var(--toolbar-border);
     border-radius: 12px;
     box-shadow: var(--toolbar-shadow);
-    max-width: 98vw;
+    max-width: calc(100vw - 340px);
     overflow-x: auto;
     scrollbar-width: none;
 }
@@ -65,39 +113,27 @@ html, body {
     display: none;
 }
 
-.toolbar-brand {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text-primary);
-    padding: 0 6px;
-}
-
-.brand-icon {
-    font-size: 16px;
-}
-
 .toolbar-separator {
     width: 1px;
-    height: 24px;
+    height: 22px;
     background-color: var(--toolbar-border);
     margin: 0 4px;
+    flex-shrink: 0;
 }
 
 .toolbar-group {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
 }
 
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    height: 36px;
-    padding: 0 10px;
+    justify-content: center;
+    height: 34px;
+    padding: 0 8px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--border-radius);
@@ -106,6 +142,28 @@ html, body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.15s ease-in-out;
+}
+
+.tool-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.tool-btn span {
+    display: none;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.action-btn span {
+    display: none;
 }
 
 .btn:hover:not(:disabled) {
@@ -239,6 +297,76 @@ html, body {
     box-shadow: 0 0 0 1.5px var(--primary-color), 0 3px 6px rgba(0, 0, 0, 0.18);
 }
 
+/* Shape Fill Controls & No-Fill Option */
+.fill-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-fill-none {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--toolbar-border);
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.15s ease;
+}
+
+.btn-fill-none:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.08);
+}
+
+.btn-fill-none.active {
+    border-color: #ef4444;
+    background: #fef2f2;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+}
+
+.btn-fill-none .none-icon {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid #ef4444;
+    position: relative;
+    display: block;
+}
+
+.btn-fill-none .none-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -1px;
+    right: -1px;
+    height: 1.5px;
+    background: #ef4444;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+.color-swatch-circle.is-transparent {
+    background: #ffffff !important;
+    position: relative;
+    overflow: hidden;
+    border: 1px dashed #94a3b8;
+}
+
+.color-swatch-circle.is-transparent::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -2px;
+    right: -2px;
+    height: 1.5px;
+    background: #ef4444;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
 /* Sticky Note Color Swatches */
 .sticky-color-swatches {
     display: inline-flex;
@@ -274,7 +402,7 @@ html, body {
 
 .sidebar-dock {
     position: fixed;
-    top: 76px;
+    top: 72px;
     left: 14px;
     z-index: 96;
     background: var(--toolbar-bg);
@@ -330,7 +458,7 @@ html, body {
 /* Sidebar Flyout Drawer */
 .sidebar-drawer {
     position: fixed;
-    top: 76px;
+    top: 72px;
     left: 74px; /* Placed immediately beside the sidebar dock */
     width: 290px;
     max-height: calc(100vh - 100px);
@@ -669,4 +797,112 @@ html, body {
 
 #zoom-percentage:hover {
     background-color: var(--btn-hover);
+}
+
+/* ==========================================================================
+   Sticky Notes Drawer Panel
+   ========================================================================== */
+.notes-panel-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.notes-panel-tip {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.45;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.drawer-note-card {
+    border-radius: 8px;
+    padding: 14px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.drawer-note-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.drawer-note-card:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.drawer-note-card.note-yellow {
+    background-color: #fef08a;
+    border-color: #fde047;
+}
+
+.drawer-note-card.note-pink {
+    background-color: #fbcfe8;
+    border-color: #f9a8d4;
+}
+
+.drawer-note-card.note-green {
+    background-color: #bbf7d0;
+    border-color: #86efac;
+}
+
+.drawer-note-card.note-blue {
+    background-color: #bfdbfe;
+    border-color: #93c5fd;
+}
+
+.note-card-inner {
+    display: flex;
+    flex-direction: column;
+}
+
+.note-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.note-card-sub {
+    font-size: 10px;
+    color: #64748b;
+    font-family: monospace;
+}
+
+.drawer-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.drawer-action-btn:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.drawer-action-btn:active {
+    transform: scale(0.98);
 }

@@ -4,21 +4,29 @@ An offline-first, open-source collaborative whiteboard web app built with **Pyth
 
 ---
 
-## Current Status: Phase 4 Completed
+## Current Status: Phase 5 & UI Refinement Completed
 
-Phases 1 through 4 provide a comprehensive offline whiteboard web application:
+Phases 1 through 5 provide a comprehensive offline whiteboard web application:
 - **FastAPI backend** running on `http://localhost:8000`.
 - **Offline Fabric.js** loaded locally from `static/vendor/fabric.min.js` (no CDN links).
 - **Full-screen interactive canvas** with automatic window resizing and synced grid.
+- **Fixed Top-Left App Brand (Does not move)**:
+  - "✏️ Whiteboard" badge is permanently anchored at `top: 14px; left: 14px`, cleanly positioned above the sidebar dock.
+  - Decoupled from the floating toolbar so it never shifts or moves horizontally.
+- **Top Toolbar (Cleaned & Streamlined)**:
+  - Mode tools: **Select (`V`)**, **Pan (`H`)**, **Pen (`P`)**, **Highlighter (`K`)**, **Eraser (`E`)**, **Text (`T`)**, **Line (`L`)**, **Arrow (`A`)**.
+  - Notes and Shapes buttons were moved into the left sidebar dock for a clean, distraction-free header.
+  - Active object property inspector (Stroke Color, Fill Color with No-Fill toggle, Size, Font formatting, Delete, Undo/Redo).
 - **Left Navigation Sidebar Dock & Hidden Flyout Drawer**:
-  - Docked primary left navigation dock with **6 quick-access buttons**:
-    1. **Shapes**: Opens the Shapes Library with search.
-    2. **Stickers**: Staged and ready for the upcoming stickers feature.
-    3. **Templates**: Flowcharts, mind maps, and whiteboard layouts.
-    4. **Media**: Image uploads and media assets.
-    5. **Icons**: UI symbols and diagram graphics.
-    6. **Layers**: Canvas object hierarchy and ordering.
-  - **Hidden by Default**: The drawer stays tucked away and slides out only when the user selects a sidebar button or the toolbar toggle. Clicking the active button again or the close button immediately dismisses the drawer to preserve maximum canvas workspace.
+  - Docked primary left navigation dock with quick-access buttons:
+    1. **Shapes**: Opens the Shapes Library with search, category filtering chips (*All*, *Flowchart*, *Basic*, *Arrows*, *Symbols*), and 21 shapes.
+    2. **Notes (Sticky Note)**: Opens the Sticky Notes panel with one-click pastel color cards (Yellow, Pink, Green, Blue) and instant canvas placement mode (`S` or `N`).
+    3. **Stickers**: Staged for upcoming sticker packs, emojis, and badges.
+    4. **Templates**: Flowcharts, mind maps, and whiteboard layouts.
+    5. **Media**: Image uploads and media assets.
+    6. **Icons**: UI symbols and diagram graphics.
+    7. **Layers**: Canvas object hierarchy and ordering.
+  - **Hidden by Default**: The drawer stays tucked away and slides out only when the user selects a sidebar button. Clicking the active button again or the close button immediately dismisses the drawer to preserve maximum canvas workspace.
   - **Search & Shape Library**: Real-time filtering by shape name or category.
   - **Built-in Shapes** (using native Fabric.js classes):
     - **Rectangle** (`fabric.Rect`)
