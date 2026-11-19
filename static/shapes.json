@@ -1,5 +1,95 @@
 [
   {
+    "id": "process",
+    "name": "Process",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
+    "id": "decision",
+    "name": "Decision",
+    "category": "Flowchart",
+    "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "terminator",
+    "name": "Terminator",
+    "category": "Flowchart",
+    "path": "M 25 0 L 75 0 C 90 0, 100 12, 100 25 C 100 38, 90 50, 75 50 L 25 50 C 10 50, 0 38, 0 25 C 0 12, 10 0, 25 0 Z",
+    "defaultWidth": 130,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 50"
+  },
+  {
+    "id": "data",
+    "name": "Data (I/O)",
+    "category": "Flowchart",
+    "path": "M 20 0 L 100 0 L 80 65 L 0 65 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
+    "id": "document",
+    "name": "Document",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 70 C 80 60, 60 85, 40 70 C 20 60, 10 75, 0 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 75"
+  },
+  {
+    "id": "database",
+    "name": "Database",
+    "category": "Flowchart",
+    "path": "M 5 20 C 5 5, 95 5, 95 20 L 95 80 C 95 95, 5 95, 5 80 Z M 5 20 C 5 35, 95 35, 95 20",
+    "defaultWidth": 100,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "connector-circle",
+    "name": "Connector Circle",
+    "category": "Flowchart",
+    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z",
+    "defaultWidth": 70,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "delay",
+    "name": "Delay",
+    "category": "Flowchart",
+    "path": "M 0 0 L 60 0 C 85 0, 100 15, 100 35 C 100 55, 85 70, 60 70 L 0 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 70"
+  },
+  {
+    "id": "manual-input",
+    "name": "Manual Input",
+    "category": "Flowchart",
+    "path": "M 0 25 L 100 0 L 100 70 L 0 70 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 70"
+  },
+  {
+    "id": "predefined-process",
+    "name": "Predefined Process",
+    "category": "Flowchart",
+    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 15 0 L 15 65 M 85 0 L 85 65",
+    "defaultWidth": 130,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 65"
+  },
+  {
     "id": "diamond",
     "name": "Diamond",
     "category": "Basic",
@@ -87,15 +177,6 @@
     "path": "M 35 0 L 65 0 L 65 35 L 100 35 L 100 65 L 65 65 L 65 100 L 35 100 L 35 65 L 0 65 L 0 35 L 35 35 Z",
     "defaultWidth": 105,
     "defaultHeight": 105,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "cylinder",
-    "name": "Cylinder",
-    "category": "Flowchart",
-    "path": "M 5 20 C 5 5, 95 5, 95 20 L 95 80 C 95 95, 5 95, 5 80 Z M 5 20 C 5 35, 95 35, 95 20",
-    "defaultWidth": 100,
-    "defaultHeight": 115,
     "viewBox": "0 0 100 100"
   },
   {

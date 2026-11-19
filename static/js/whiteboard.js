@@ -1,19 +1,21 @@
 /**
- * Whiteboard Web App - Client-side Logic (Phase 4)
+ * Whiteboard Web App - Client-side Logic (Phase 5)
  *
  * Implements:
  * - Full-screen Fabric.js canvas with responsive grid background
- * - Left shapes panel with instant search/filter
- * - Built-in shapes (rectangle, rounded rectangle, circle, triangle)
- * - Custom shapes loaded from static/shapes.json (diamond, star, pentagon, hexagon, arrows, cloud, cross, cylinder, speech bubble)
- * - Shapes support fill color, border color, and double-click editable text inside
- * - Sticky Note tool: Fabric.js Group of a rectangle and editable text with 4 pastel colors
+ * - Left Navigation Sidebar Dock (6 buttons) + Hidden Flyout Drawer
+ * - Shapes Library with Flowchart section (Process, Decision, Terminator, Data, Document, Database, Connector Circle, Delay, Manual Input, Predefined Process)
+ * - Category filter chips (All, Flowchart, Basic, Arrows, Symbols) + instant search
+ * - Custom shapes loaded from static/shapes.json with full contributor extensibility
+ * - Connector lines & arrows (L, A) that attach to shapes and dynamically follow them on move/scale
+ * - Shape fill color, border color, and double-click editable text inside
+ * - Sticky Note tool: Fabric.js Group of rectangle and editable text with 4 pastel colors
  * - Freehand pen & highlighter with Fabric.js PencilBrush
  * - Eraser with Fabric.js PencilBrush (destination-out & click-to-delete)
  * - Text tool: Click anywhere and type with font size, color, bold, and italic using Fabric.js IText
- * - Select tool: Move, resize, rotate, and delete objects & shapes
+ * - Select tool: Move, resize, rotate, and delete objects, shapes, and connectors
  * - Pan & Zoom with bottom-right percentage indicator
- * - Undo / Redo history management
+ * - Undo / Redo history management with connector link preservation
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,14 +33,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEraser = document.getElementById('btn-eraser');
     const btnText = document.getElementById('btn-text');
     const btnSticky = document.getElementById('btn-sticky');
+    const btnLine = document.getElementById('btn-line');
+    const btnArrow = document.getElementById('btn-arrow');
     const btnToggleShapes = document.getElementById('btn-toggle-shapes');
 
-    // Shapes Panel Elements
+    // Sidebar & Drawer Elements
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
     const shapesPanel = document.getElementById('shapes-panel');
     const btnCloseShapes = document.getElementById('btn-close-shapes');
+    const closeDrawerBtns = document.querySelectorAll('.btn-close-drawer');
+    const drawerPanels = document.querySelectorAll('.drawer-panel-content');
+
+    // Shapes Search & Categories
     const shapesSearch = document.getElementById('shapes-search');
     const btnClearSearch = document.getElementById('btn-clear-search');
     const shapesList = document.getElementById('shapes-list');
+    const categoryChips = document.querySelectorAll('.category-chip');
 
     // Tool Properties
     const colorPicker = document.getElementById('color-picker');
@@ -67,7 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     // 2. State Variables & Palette
     // -------------------------------------------------------------------------
-    let currentMode = 'select';
+    let currentMode = 'select'; // 'select', 'pan', 'pen', 'highlighter', 'eraser', 'text', 'sticky', 'line', 'arrow'
+    let activeCategory = 'all';
 
     // Tool settings
     let currentColor = colorPicker ? colorPicker.value : '#1e293b';
@@ -90,6 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let wasDrawingMode = false;
     let lastPosX = 0;
     let lastPosY = 0;
+
+    // Connector drawing state
+    let isConnecting = false;
+    let connectorModeType = 'arrow'; // 'line' or 'arrow'
+    let connectorStartObj = null;
+    let connectorStartPoint = null;
+    let connectorPreviewLine = null;
 
     // Undo / Redo history stacks
     const undoStack = [];
@@ -119,6 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
         'stickyColor',
         'isShapeGroup',
         'shapeId',
+        'shapeUid',
+        'isConnector',
+        'hasArrow',
+        'fromShapeUid',
+        'toShapeUid',
+        'isArrowHead',
         'subTargetCheck'
     ];
 
@@ -267,9 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allShapes = [...BUILTIN_SHAPES];
 
-    /**
-     * Loads custom SVG shapes from static/shapes.json.
-     */
     async function loadShapes() {
         try {
             const res = await fetch('/static/shapes.json');
@@ -294,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 originX: 'center',
                                 originY: 'center'
                             });
-                            // Normalize scale to match requested dimensions
                             if (shape.defaultWidth && pathObj.width) {
                                 const targetScale = shape.defaultWidth / pathObj.width;
                                 pathObj.scale(targetScale);
@@ -310,23 +330,22 @@ document.addEventListener('DOMContentLoaded', () => {
         renderShapesList();
     }
 
-    /**
-     * Renders shape cards in the left shapes panel according to search query.
-     */
     function renderShapesList() {
         if (!shapesList) return;
         const query = (shapesSearch ? shapesSearch.value.trim().toLowerCase() : '');
 
-        const filtered = allShapes.filter(s =>
-            s.name.toLowerCase().includes(query) || s.category.toLowerCase().includes(query)
-        );
+        const filtered = allShapes.filter(s => {
+            const matchesQuery = s.name.toLowerCase().includes(query) || s.category.toLowerCase().includes(query);
+            const matchesCategory = (activeCategory === 'all') || (s.category.toLowerCase() === activeCategory.toLowerCase());
+            return matchesQuery && matchesCategory;
+        });
 
         shapesList.innerHTML = '';
 
         if (filtered.length === 0) {
             const emptyEl = document.createElement('div');
             emptyEl.className = 'shapes-empty';
-            emptyEl.textContent = 'No shapes found';
+            emptyEl.textContent = 'No matching shapes';
             shapesList.appendChild(emptyEl);
             return;
         }
@@ -335,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('button');
             card.type = 'button';
             card.className = 'shape-card';
-            card.title = `Add ${shapeDef.name}`;
+            card.title = `Add ${shapeDef.name} (${shapeDef.category})`;
             card.innerHTML = `
                 <svg viewBox="${shapeDef.viewBox || '0 0 32 32'}">
                     ${shapeDef.svgIcon}
@@ -351,9 +370,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Adds a shape group (shape + centered editable text) to the canvas.
-     */
+    // Category Filter Chips
+    categoryChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            categoryChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            activeCategory = chip.dataset.category || 'all';
+            renderShapesList();
+        });
+    });
+
+    function generateUid() {
+        return 'shape_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7);
+    }
+
     function addShapeToCanvas(shapeDef, x, y) {
         const vpt = canvas.viewportTransform;
         const targetX = (x !== undefined) ? x : (-vpt[4] + canvas.getWidth() / 2) / canvas.getZoom();
@@ -363,17 +393,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const fill = currentFillColor || '#ffffff';
         const stroke = currentColor || '#334155';
 
-        // 1. Create underlying shape object
         const shapeObj = shapeDef.create(fill, stroke, strokeWidth);
-
-        // Calculate text box width proportional to shape bounds
         const shapeBoundsWidth = shapeObj.getScaledWidth ? shapeObj.getScaledWidth() : (shapeObj.width || 100);
         const textWidth = Math.max(60, shapeBoundsWidth * 0.75);
 
-        // 2. Create centered editable text
         const textObj = new fabric.Textbox('Text', {
             width: textWidth,
-            fontSize: 16,
+            fontSize: 15,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             fill: '#1e293b',
             textAlign: 'center',
@@ -383,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cursorColor: '#1e293b'
         });
 
-        // 3. Group shape and text together
         const group = new fabric.Group([shapeObj, textObj], {
             left: targetX,
             top: targetY,
@@ -391,8 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
             originY: 'center',
             isShapeGroup: true,
             shapeId: shapeDef.id,
+            shapeUid: generateUid(),
             subTargetCheck: false
         });
+
+        group.connectedLines = [];
 
         canvas.add(group);
         setMode('select');
@@ -402,55 +430,190 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------------------------------------------------------------
-    // Sidebar Dock & Drawer Controller (6 buttons)
+    // 6. Connector Lines & Arrows Following System
     // -------------------------------------------------------------------------
-    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
-    const drawerPanels = document.querySelectorAll('.drawer-panel-content');
-    const closeDrawerBtns = document.querySelectorAll('.btn-close-drawer');
+    function getObjectAnchors(obj) {
+        const center = obj.getCenterPoint();
+        const w = obj.getScaledWidth ? obj.getScaledWidth() : (obj.width || 100);
+        const h = obj.getScaledHeight ? obj.getScaledHeight() : (obj.height || 100);
+        return [
+            { x: center.x, y: center.y - h / 2, side: 'top' },
+            { x: center.x, y: center.y + h / 2, side: 'bottom' },
+            { x: center.x - w / 2, y: center.y, side: 'left' },
+            { x: center.x + w / 2, y: center.y, side: 'right' }
+        ];
+    }
 
+    function getClosestAnchor(anchors, point) {
+        let minDist = Infinity;
+        let closest = anchors[0];
+        for (const a of anchors) {
+            const dist = (a.x - point.x) ** 2 + (a.y - point.y) ** 2;
+            if (dist < minDist) {
+                minDist = dist;
+                closest = a;
+            }
+        }
+        return closest;
+    }
+
+    function getBestAnchorPair(objA, objB) {
+        const anchorsA = getObjectAnchors(objA);
+        const anchorsB = getObjectAnchors(objB);
+        let minDist = Infinity;
+        let best = { p1: anchorsA[0], p2: anchorsB[0] };
+
+        for (const a of anchorsA) {
+            for (const b of anchorsB) {
+                const dist = (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+                if (dist < minDist) {
+                    minDist = dist;
+                    best = { p1: a, p2: b };
+                }
+            }
+        }
+        return best;
+    }
+
+    function findConnectableTarget(target) {
+        if (!target) return null;
+        if (target.isConnector || target.isArrowHead) return null;
+        return target;
+    }
+
+    function createAttachedConnector(fromObj, toObj, hasArrow = true) {
+        if (!fromObj || !toObj) return;
+
+        fromObj.shapeUid = fromObj.shapeUid || generateUid();
+        toObj.shapeUid = toObj.shapeUid || generateUid();
+
+        const pair = getBestAnchorPair(fromObj, toObj);
+        const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
+        const strokeColor = currentColor || '#1e293b';
+
+        const line = new fabric.Line([pair.p1.x, pair.p1.y, pair.p2.x, pair.p2.y], {
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            selectable: true,
+            isConnector: true,
+            hasArrow: hasArrow,
+            fromShapeUid: fromObj.shapeUid,
+            toShapeUid: toObj.shapeUid
+        });
+
+        line.fromShape = fromObj;
+        line.toShape = toObj;
+
+        if (hasArrow) {
+            const angle = (Math.atan2(pair.p2.y - pair.p1.y, pair.p2.x - pair.p1.x) * 180 / Math.PI) + 90;
+            const arrowHead = new fabric.Triangle({
+                left: pair.p2.x,
+                top: pair.p2.y,
+                originX: 'center',
+                originY: 'center',
+                width: Math.max(12, strokeWidth * 5),
+                height: Math.max(12, strokeWidth * 5),
+                fill: strokeColor,
+                angle: angle,
+                selectable: false,
+                evented: false,
+                isArrowHead: true
+            });
+            line.arrowHead = arrowHead;
+            arrowHead.connectorLine = line;
+            canvas.add(arrowHead);
+        }
+
+        fromObj.connectedLines = fromObj.connectedLines || [];
+        fromObj.connectedLines.push(line);
+        toObj.connectedLines = toObj.connectedLines || [];
+        toObj.connectedLines.push(line);
+
+        canvas.add(line);
+        canvas.sendToBack(line); // Line sits behind connected shapes
+        canvas.renderAll();
+        saveState();
+    }
+
+    function updateConnector(line) {
+        if (!line || !line.canvas) return;
+
+        if (line.fromShape && line.toShape) {
+            const pair = getBestAnchorPair(line.fromShape, line.toShape);
+            line.set({
+                x1: pair.p1.x,
+                y1: pair.p1.y,
+                x2: pair.p2.x,
+                y2: pair.p2.y
+            });
+            line.setCoords();
+
+            if (line.arrowHead) {
+                const angle = (Math.atan2(pair.p2.y - pair.p1.y, pair.p2.x - pair.p1.x) * 180 / Math.PI) + 90;
+                line.arrowHead.set({
+                    left: pair.p2.x,
+                    top: pair.p2.y,
+                    angle: angle
+                });
+                line.arrowHead.setCoords();
+            }
+        }
+    }
+
+    function updateConnectedLinesFor(target) {
+        if (!target) return;
+
+        if (target.type === 'activeSelection') {
+            target.forEachObject(child => updateConnectedLinesFor(child));
+            return;
+        }
+
+        if (!target.connectedLines || target.connectedLines.length === 0) return;
+
+        target.connectedLines.forEach(line => {
+            updateConnector(line);
+        });
+        canvas.requestRenderAll();
+    }
+
+    canvas.on('object:moving', (e) => updateConnectedLinesFor(e.target));
+    canvas.on('object:scaling', (e) => updateConnectedLinesFor(e.target));
+    canvas.on('object:modified', (e) => updateConnectedLinesFor(e.target));
+
+    // -------------------------------------------------------------------------
+    // 7. Sidebar Dock & Drawer Controller
+    // -------------------------------------------------------------------------
     let activeDrawerPanel = null;
 
-    /**
-     * Opens or toggles a specific drawer panel (shapes, stickers, templates, media, icons, layers).
-     */
     function openDrawerPanel(panelId) {
         if (!shapesPanel) return;
 
-        // If clicking the active panel that's currently open, toggle it closed
         if (!shapesPanel.classList.contains('hidden') && activeDrawerPanel === panelId) {
             closeDrawer();
             return;
         }
 
-        // Open drawer
         shapesPanel.classList.remove('hidden');
         activeDrawerPanel = panelId;
 
-        // Update active class on sidebar dock buttons
         sidebarBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.panel === panelId);
         });
 
-        // Sync toolbar shapes button if shapes is opened
         if (btnToggleShapes) {
             btnToggleShapes.classList.toggle('active', panelId === 'shapes');
         }
 
-        // Show matching panel content and hide others
         drawerPanels.forEach(panel => {
             const matches = (panel.id === `drawer-panel-${panelId}`);
             panel.style.display = matches ? 'flex' : 'none';
         });
 
-        // Auto-focus search input when shapes panel is active
         if (panelId === 'shapes' && shapesSearch) {
             setTimeout(() => shapesSearch.focus(), 50);
         }
     }
 
-    /**
-     * Closes the sidebar drawer and deactivates button highlights.
-     */
     function closeDrawer() {
         if (!shapesPanel) return;
         shapesPanel.classList.add('hidden');
@@ -502,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------------------------------------------------------------
-    // 6. Sticky Note Factory Function
+    // 8. Sticky Note Factory Function
     // -------------------------------------------------------------------------
     function createStickyNote(x, y, colorKey = currentStickyColor, initialText = 'Type a note...') {
         const colors = STICKY_COLORS[colorKey] || STICKY_COLORS.yellow;
@@ -546,8 +709,11 @@ document.addEventListener('DOMContentLoaded', () => {
             originY: 'center',
             isStickyNote: true,
             stickyColor: colorKey,
+            shapeUid: generateUid(),
             subTargetCheck: false
         });
+
+        group.connectedLines = [];
 
         return { group, rect, text };
     }
@@ -584,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 7. Grid Background Synchronization
+    // 9. Grid Background Synchronization
     // -------------------------------------------------------------------------
     function updateGrid() {
         const zoom = canvas.getZoom();
@@ -599,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------------------------------------------------------------
-    // 8. Zoom Controls & Indicator
+    // 10. Zoom Controls & Indicator
     // -------------------------------------------------------------------------
     function updateZoomDisplay() {
         const zoom = canvas.getZoom();
@@ -638,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
     zoomPercentageEl.addEventListener('click', resetView);
 
     // -------------------------------------------------------------------------
-    // 9. Mode Management
+    // 11. Mode Management
     // -------------------------------------------------------------------------
     const toolButtons = {
         select: btnSelect,
@@ -647,7 +813,9 @@ document.addEventListener('DOMContentLoaded', () => {
         highlighter: btnHighlighter,
         eraser: btnEraser,
         text: btnText,
-        sticky: btnSticky
+        sticky: btnSticky,
+        line: btnLine,
+        arrow: btnArrow
     };
 
     function setMode(mode) {
@@ -662,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.selection = true;
             canvas.defaultCursor = 'default';
             canvas.forEachObject(obj => {
-                if (obj.globalCompositeOperation !== 'destination-out') {
+                if (obj.globalCompositeOperation !== 'destination-out' && !obj.isArrowHead) {
                     obj.selectable = true;
                 }
             });
@@ -710,6 +878,13 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.defaultCursor = 'copy';
             canvas.forEachObject(obj => obj.selectable = false);
             canvas.renderAll();
+        } else if (mode === 'line' || mode === 'arrow') {
+            canvas.isDrawingMode = false;
+            canvas.selection = false;
+            canvas.discardActiveObject();
+            canvas.defaultCursor = 'crosshair';
+            canvas.forEachObject(obj => obj.selectable = false);
+            canvas.renderAll();
         }
     }
 
@@ -720,9 +895,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnEraser.addEventListener('click', () => setMode('eraser'));
     btnText.addEventListener('click', () => setMode('text'));
     btnSticky.addEventListener('click', () => setMode('sticky'));
+    if (btnLine) btnLine.addEventListener('click', () => setMode('line'));
+    if (btnArrow) btnArrow.addEventListener('click', () => setMode('arrow'));
 
     // -------------------------------------------------------------------------
-    // 10. Freehand Brush & Eraser Finalization (path:created)
+    // 12. Freehand Brush & Eraser Finalization (path:created)
     // -------------------------------------------------------------------------
     canvas.on('path:created', (opt) => {
         const path = opt.path;
@@ -751,7 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 11. Mouse Down: Pan, Sticky Notes, Text, Eraser Clicks
+    // 13. Mouse Down, Move, Up (Pan, Connectors, Shapes, Text)
     // -------------------------------------------------------------------------
     canvas.on('mouse:down', (opt) => {
         const evt = opt.e;
@@ -767,13 +944,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Eraser click on existing object deletes it
         if (currentMode === 'eraser' && opt.target) {
-            canvas.remove(opt.target);
+            deleteSingleObject(opt.target);
             canvas.renderAll();
             saveState();
             return;
         }
 
+        // Connector Line / Arrow: start connecting
+        if ((currentMode === 'line' || currentMode === 'arrow') && !shouldPan) {
+            isConnecting = true;
+            connectorModeType = currentMode;
+            const pointer = canvas.getPointer(opt.e);
+            connectorStartObj = findConnectableTarget(opt.target || canvas.findTarget(opt.e));
+
+            if (connectorStartObj) {
+                const anchors = getObjectAnchors(connectorStartObj);
+                connectorStartPoint = getClosestAnchor(anchors, pointer);
+            } else {
+                connectorStartPoint = pointer;
+            }
+
+            connectorPreviewLine = new fabric.Line([connectorStartPoint.x, connectorStartPoint.y, pointer.x, pointer.y], {
+                stroke: currentColor || '#1e293b',
+                strokeWidth: parseInt(selectStrokeSize.value, 10) || 2,
+                strokeDashArray: [4, 4],
+                selectable: false,
+                evented: false
+            });
+            canvas.add(connectorPreviewLine);
+            return;
+        }
+
+        // Sticky Note Tool: click places note
         if (currentMode === 'sticky') {
             const pointer = canvas.getPointer(opt.e);
             const { group, text } = createStickyNote(pointer.x, pointer.y, currentStickyColor, 'Type note...');
@@ -796,6 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Text Tool: click places text
         if (currentMode === 'text') {
             if (opt.target && opt.target.type === 'i-text') {
                 canvas.setActiveObject(opt.target);
@@ -855,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mouse Move: Pan execution
+    // Mouse Move: Pan execution & Connector preview
     canvas.on('mouse:move', (opt) => {
         if (isPanning) {
             const evt = opt.e;
@@ -867,31 +1072,74 @@ document.addEventListener('DOMContentLoaded', () => {
             lastPosY = evt.clientY;
 
             updateGrid();
+            return;
+        }
+
+        if (isConnecting && connectorPreviewLine) {
+            const pointer = canvas.getPointer(opt.e);
+            connectorPreviewLine.set({ x2: pointer.x, y2: pointer.y });
+            connectorPreviewLine.setCoords();
+            canvas.requestRenderAll();
         }
     });
 
-    function stopPanning() {
+    // Mouse Up: Stop panning or finalize connector
+    function handleMouseUp(opt) {
         if (isPanning) {
             isPanning = false;
-            if (currentMode === 'pan' || isSpacePressed) {
-                canvas.defaultCursor = 'grab';
-            } else if (currentMode === 'pen' || currentMode === 'highlighter' || currentMode === 'eraser') {
-                canvas.defaultCursor = 'crosshair';
-            } else if (currentMode === 'text') {
-                canvas.defaultCursor = 'text';
-            } else if (currentMode === 'sticky') {
-                canvas.defaultCursor = 'copy';
-            } else {
-                canvas.defaultCursor = 'default';
+            updateCursorForMode();
+        }
+
+        if (isConnecting) {
+            isConnecting = false;
+            if (connectorPreviewLine) {
+                canvas.remove(connectorPreviewLine);
+                connectorPreviewLine = null;
             }
+
+            const pointer = canvas.getPointer(opt.e);
+            const endObj = findConnectableTarget(opt.target || canvas.findTarget(opt.e));
+
+            if (connectorStartObj && endObj && connectorStartObj !== endObj) {
+                createAttachedConnector(connectorStartObj, endObj, connectorModeType === 'arrow');
+            }
+
+            setMode('select');
         }
     }
 
-    canvas.on('mouse:up', stopPanning);
-    window.addEventListener('mouseup', stopPanning);
+    function updateCursorForMode() {
+        if (currentMode === 'pan' || isSpacePressed) {
+            canvas.defaultCursor = 'grab';
+        } else if (currentMode === 'pen' || currentMode === 'highlighter' || currentMode === 'eraser' || currentMode === 'line' || currentMode === 'arrow') {
+            canvas.defaultCursor = 'crosshair';
+        } else if (currentMode === 'text') {
+            canvas.defaultCursor = 'text';
+        } else if (currentMode === 'sticky') {
+            canvas.defaultCursor = 'copy';
+        } else {
+            canvas.defaultCursor = 'default';
+        }
+    }
+
+    canvas.on('mouse:up', handleMouseUp);
+    window.addEventListener('mouseup', (e) => {
+        if (isPanning) {
+            isPanning = false;
+            updateCursorForMode();
+        }
+        if (isConnecting) {
+            isConnecting = false;
+            if (connectorPreviewLine) {
+                canvas.remove(connectorPreviewLine);
+                connectorPreviewLine = null;
+            }
+            setMode('select');
+        }
+    });
 
     // -------------------------------------------------------------------------
-    // 12. Selection, Move, Resize & Delete Controls
+    // 14. Selection, Move, Resize & Delete Controls
     // -------------------------------------------------------------------------
     function updateSelectionUI() {
         const activeObjs = canvas.getActiveObjects();
@@ -899,12 +1147,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const activeObj = canvas.getActiveObject();
         if (activeObj) {
-            // 1. If Sticky Note selected
             if (activeObj.isStickyNote && activeObj.stickyColor) {
                 setStickyColor(activeObj.stickyColor, false);
             }
 
-            // 2. If Shape Group selected: sync Fill & Border colors and text formatting
             if (activeObj.isShapeGroup) {
                 const shape = activeObj.getObjects().find(o => o.type !== 'textbox' && o.type !== 'i-text');
                 if (shape) {
@@ -932,7 +1178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 3. If a standalone IText is selected
             if (activeObj.type === 'i-text') {
                 selectFontSize.value = String(activeObj.fontSize || 24);
                 if (activeObj.fill && activeObj.fill.startsWith('#')) {
@@ -954,12 +1199,29 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDelete.disabled = true;
     });
 
+    function deleteSingleObject(obj) {
+        if (!obj) return;
+        if (obj.connectedLines) {
+            obj.connectedLines.forEach(line => {
+                if (line.arrowHead) canvas.remove(line.arrowHead);
+                canvas.remove(line);
+            });
+            obj.connectedLines = [];
+        }
+        if (obj.isConnector && obj.arrowHead) {
+            canvas.remove(obj.arrowHead);
+        }
+        canvas.remove(obj);
+    }
+
     function deleteSelectedObjects() {
         const activeObjs = canvas.getActiveObjects();
         if (!activeObjs || activeObjs.length === 0) return;
 
         canvas.discardActiveObject();
-        activeObjs.forEach(obj => canvas.remove(obj));
+        activeObjs.forEach(obj => {
+            deleteSingleObject(obj);
+        });
         canvas.requestRenderAll();
         saveState();
     }
@@ -967,9 +1229,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDelete.addEventListener('click', deleteSelectedObjects);
 
     // -------------------------------------------------------------------------
-    // 13. Property Handlers (Fill, Border, Stroke Size, Font Size, Bold, Italic)
+    // 15. Property Handlers (Fill, Border, Stroke Size, Font Size, Bold, Italic)
     // -------------------------------------------------------------------------
-    // Fill color picker for shapes
     if (fillColorPicker) {
         fillColorPicker.addEventListener('input', (e) => {
             currentFillColor = e.target.value;
@@ -987,7 +1248,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Border / Pen / Stroke color picker
     if (colorPicker) {
         colorPicker.addEventListener('input', (e) => {
             currentColor = e.target.value;
@@ -1003,6 +1263,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (activeObj && activeObj.type === 'i-text') {
                 activeObj.set('fill', currentColor);
+                canvas.renderAll();
+                saveState();
+            } else if (activeObj && activeObj.isConnector) {
+                activeObj.set('stroke', currentColor);
+                if (activeObj.arrowHead) {
+                    activeObj.arrowHead.set('fill', currentColor);
+                }
                 canvas.renderAll();
                 saveState();
             }
@@ -1023,6 +1290,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.renderAll();
                 saveState();
             }
+        } else if (activeObj && activeObj.isConnector) {
+            activeObj.set('strokeWidth', strokeWidth);
+            canvas.renderAll();
+            saveState();
         }
 
         if (canvas.isDrawingMode) {
@@ -1086,7 +1357,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 14. Keyboard Shortcuts & Typing Detection
+    // 16. Keyboard Shortcuts & Typing Detection
     // -------------------------------------------------------------------------
     function isUserTyping() {
         const activeObj = canvas.getActiveObject();
@@ -1131,6 +1402,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'e' || e.key === 'E') setMode('eraser');
         if (e.key === 't' || e.key === 'T') setMode('text');
         if (e.key === 's' || e.key === 'S' || e.key === 'n' || e.key === 'N') setMode('sticky');
+        if (e.key === 'l' || e.key === 'L') setMode('line');
+        if (e.key === 'a' || e.key === 'A') setMode('arrow');
 
         // Undo: Ctrl+Z or Cmd+Z
         if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
@@ -1150,23 +1423,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.code === 'Space') {
             isSpacePressed = false;
             canvas.isDrawingMode = wasDrawingMode;
-            if (currentMode === 'select') {
-                canvas.defaultCursor = 'default';
-                canvas.selection = true;
-            } else if (currentMode === 'pan') {
-                canvas.defaultCursor = 'grab';
-            } else if (currentMode === 'pen' || currentMode === 'highlighter' || currentMode === 'eraser') {
-                canvas.defaultCursor = 'crosshair';
-            } else if (currentMode === 'text') {
-                canvas.defaultCursor = 'text';
-            } else if (currentMode === 'sticky') {
-                canvas.defaultCursor = 'copy';
-            }
+            updateCursorForMode();
         }
     });
 
     // -------------------------------------------------------------------------
-    // 15. Undo / Redo History Management
+    // 17. Undo / Redo History Management
     // -------------------------------------------------------------------------
     function updateHistoryButtons() {
         btnUndo.disabled = undoStack.length <= 1;
@@ -1219,11 +1481,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.setViewportTransform(currentVpt);
             }
 
+            // Re-establish connector links and shapes
+            const shapesByUid = {};
             canvas.forEachObject(obj => {
+                if (obj.shapeUid) {
+                    shapesByUid[obj.shapeUid] = obj;
+                    obj.connectedLines = [];
+                }
+            });
+
+            const arrowHeads = [];
+            canvas.forEachObject(obj => {
+                if (obj.isArrowHead) {
+                    arrowHeads.push(obj);
+                    obj.selectable = false;
+                    obj.evented = false;
+                }
+            });
+
+            canvas.forEachObject(obj => {
+                if (obj.isConnector && obj.fromShapeUid && obj.toShapeUid) {
+                    const fromShape = shapesByUid[obj.fromShapeUid];
+                    const toShape = shapesByUid[obj.toShapeUid];
+                    if (fromShape && toShape) {
+                        obj.fromShape = fromShape;
+                        obj.toShape = toShape;
+                        fromShape.connectedLines.push(obj);
+                        toShape.connectedLines.push(obj);
+                    }
+                }
+
                 if (obj.globalCompositeOperation === 'destination-out') {
                     obj.selectable = false;
                     obj.evented = false;
-                } else if (currentMode === 'select') {
+                } else if (currentMode === 'select' && !obj.isArrowHead) {
                     obj.selectable = true;
                 } else if (currentMode === 'text') {
                     obj.selectable = (obj.type === 'i-text');
@@ -1247,7 +1538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.on('object:removed', () => saveState());
 
     // -------------------------------------------------------------------------
-    // 16. Sample Shapes & Clear
+    // 18. Sample Shapes & Clear
     // -------------------------------------------------------------------------
     const colors = ['#60a5fa', '#34d399', '#f87171', '#fbbf24', '#a78bfa', '#f472b6'];
     let colorIndex = 0;
@@ -1270,8 +1561,11 @@ document.addEventListener('DOMContentLoaded', () => {
             fill: color,
             stroke: '#334155',
             strokeWidth: 2,
-            selectable: currentMode === 'select'
+            selectable: currentMode === 'select',
+            shapeUid: generateUid()
         });
+
+        rect.connectedLines = [];
 
         canvas.add(rect);
         if (currentMode === 'select') {
@@ -1287,10 +1581,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 17. Initial Boot
+    // 19. Initial Boot
     // -------------------------------------------------------------------------
     saveState();
     updateZoomDisplay();
     updateGrid();
-    loadShapes(); // Fetch non-built-in shapes from static/shapes.json & render list
+    loadShapes();
 });

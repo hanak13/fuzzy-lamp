@@ -480,6 +480,46 @@ html, body {
     color: var(--text-primary);
 }
 
+/* Category Filter Chips */
+.shapes-categories {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px 10px;
+    border-bottom: 1px solid var(--toolbar-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.shapes-categories::-webkit-scrollbar {
+    display: none;
+}
+
+.category-chip {
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid var(--toolbar-border);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.category-chip:hover {
+    background-color: var(--btn-hover);
+    color: var(--text-primary);
+}
+
+.category-chip.active {
+    background-color: var(--active-bg);
+    border-color: #bfdbfe;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 .shapes-list {
     overflow-y: auto;
     padding: 12px 14px;
