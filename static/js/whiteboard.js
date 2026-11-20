@@ -2956,8 +2956,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mode !== 'eraser') {
             if (propEraserGroup) propEraserGroup.style.display = 'none';
             if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
-            if (propSizeGroup && (mode === 'pen' || mode === 'highlighter' || mode === 'line' || mode === 'arrow' || mode === 'select')) {
-                propSizeGroup.style.display = 'inline-flex';
+            if (propSizeGroup) {
+                propSizeGroup.style.display = 'none';
             }
             if (fsEraserModeGroup) fsEraserModeGroup.style.display = 'none';
             if (fsSizeDisplay) fsSizeDisplay.textContent = strokeSize + 'px';
