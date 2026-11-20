@@ -3098,6 +3098,154 @@ document.addEventListener('DOMContentLoaded', () => {
     let boards = [];
     let activeBoardId = null;
     let autoSaveTimer = null;
+    let autoSaveIntervalId = null;
+    let isBoardDirty = false;
+    let isSavingBoard = false;
+    let isBoardLoading = false;
+    let lastSavedTime = null;
+
+    const autosaveStatusEl = document.getElementById('autosave-status');
+
+    function updateAutosaveIndicator(state, customMessage) {
+        if (!autosaveStatusEl) return;
+        autosaveStatusEl.classList.remove('saving', 'dirty', 'error');
+
+        const dotEl = autosaveStatusEl.querySelector('.autosave-dot');
+        const textEl = autosaveStatusEl.querySelector('.autosave-text');
+
+        if (state === 'saving') {
+            autosaveStatusEl.classList.add('saving');
+            if (textEl) textEl.textContent = customMessage || 'Saving...';
+            autosaveStatusEl.title = 'Saving board changes to SQLite database...';
+        } else if (state === 'dirty') {
+            autosaveStatusEl.classList.add('dirty');
+            if (textEl) textEl.textContent = customMessage || 'Unsaved changes';
+            autosaveStatusEl.title = 'Unsaved changes will auto-save in a few seconds';
+        } else if (state === 'error') {
+            autosaveStatusEl.classList.add('error');
+            if (textEl) textEl.textContent = customMessage || 'Save error';
+            autosaveStatusEl.title = 'Failed to save to database. Will retry automatically.';
+        } else {
+            // 'saved'
+            if (textEl) textEl.textContent = customMessage || 'Saved';
+            const timeStr = lastSavedTime ? lastSavedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'recently';
+            autosaveStatusEl.title = `Auto-saved to SQLite database (${timeStr})`;
+        }
+    }
+
+    function markBoardDirty() {
+        if (isProcessingHistory || isBoardLoading) return;
+        isBoardDirty = true;
+        updateAutosaveIndicator('dirty');
+    }
+
+    async function saveActiveBoardToServer(force = false) {
+        if (!activeBoardId || isSavingBoard || isBoardLoading) return;
+        if (!isBoardDirty && !force) return;
+
+        isSavingBoard = true;
+        updateAutosaveIndicator('saving');
+
+        try {
+            const dataObj = canvas.toJSON(EXTRA_PROPS);
+            const activeBoard = boards.find(b => b.id === activeBoardId);
+            const bgColor = (activeBoard && (activeBoard.bg_color || activeBoard.bgColor)) ? (activeBoard.bg_color || activeBoard.bgColor) : '#f8fafc';
+
+            const res = await fetch(`/api/boards/${activeBoardId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data: JSON.stringify(dataObj),
+                    bg_color: bgColor
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error(`Server returned HTTP ${res.status}`);
+            }
+
+            const updatedBoard = await res.json();
+            isBoardDirty = false;
+            lastSavedTime = new Date();
+            updateAutosaveIndicator('saved');
+
+            if (activeBoard) {
+                activeBoard.updated_at = updatedBoard.updated_at || Date.now();
+                activeBoard.updatedAt = activeBoard.updated_at;
+            }
+
+            try {
+                localStorage.setItem('whiteboard_board_data_' + activeBoardId, JSON.stringify(dataObj));
+                localStorage.setItem('whiteboard_saved_board', JSON.stringify(dataObj));
+            } catch (storageErr) {}
+        } catch (err) {
+            console.error('Auto-save error:', err);
+            updateAutosaveIndicator('error');
+        } finally {
+            isSavingBoard = false;
+        }
+    }
+
+    function saveCurrentBoardData() {
+        saveActiveBoardToServer(true);
+    }
+
+    function saveActiveBoardDebounced() {
+        if (isBoardLoading) return;
+        markBoardDirty();
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(() => {
+            saveActiveBoardToServer();
+        }, 500);
+    }
+
+    function startAutosaveLoop() {
+        if (autoSaveIntervalId) clearInterval(autoSaveIntervalId);
+        autoSaveIntervalId = setInterval(() => {
+            if (isBoardDirty && !isSavingBoard && !isBoardLoading && activeBoardId) {
+                saveActiveBoardToServer();
+            }
+        }, 3000);
+    }
+
+    function reconnectLoadedObjects() {
+        const shapesByUid = {};
+        canvas.forEachObject(obj => {
+            if (obj.shapeUid) {
+                shapesByUid[obj.shapeUid] = obj;
+                obj.connectedLines = [];
+            }
+        });
+
+        canvas.forEachObject(obj => {
+            if (obj.isArrowHead) {
+                obj.selectable = false;
+                obj.evented = false;
+            }
+
+            if (obj.isConnector && obj.fromShapeUid && obj.toShapeUid) {
+                const fromShape = shapesByUid[obj.fromShapeUid];
+                const toShape = shapesByUid[obj.toShapeUid];
+                if (fromShape && toShape) {
+                    obj.fromShape = fromShape;
+                    obj.toShape = toShape;
+                    fromShape.connectedLines.push(obj);
+                    toShape.connectedLines.push(obj);
+                }
+            }
+
+            if (obj.globalCompositeOperation === 'destination-out') {
+                obj.selectable = false;
+                obj.evented = false;
+            } else if (currentMode === 'select' && !obj.isArrowHead) {
+                obj.selectable = true;
+            } else if (currentMode === 'text') {
+                obj.selectable = (obj.type === 'i-text');
+            } else {
+                obj.selectable = false;
+            }
+        });
+    }
 
     function hexToRgb(hex) {
         if (!hex || typeof hex !== 'string') return null;
@@ -3119,7 +3267,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const activeBoard = boards.find(b => b.id === activeBoardId);
         if (activeBoard) {
             activeBoard.bgColor = color;
-            if (save) saveBoardsMeta();
+            activeBoard.bg_color = color;
+            if (save) {
+                markBoardDirty();
+                saveActiveBoardDebounced();
+            }
         }
 
         // Apply background color to canvas container
@@ -3132,10 +3284,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rgb) {
                 const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
                 if (brightness < 128) {
-                    // Dark background -> soft light grid lines
                     canvasContainer.style.setProperty('--grid-line-color', 'rgba(255, 255, 255, 0.12)');
                 } else {
-                    // Light background -> soft gray grid lines
                     canvasContainer.style.setProperty('--grid-line-color', '#e2e8f0');
                 }
             }
@@ -3165,30 +3315,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function saveCurrentBoardData() {
-        if (!activeBoardId) return;
-        try {
-            const data = canvas.toJSON(EXTRA_PROPS);
-            const jsonStr = JSON.stringify(data);
-            localStorage.setItem('whiteboard_board_data_' + activeBoardId, jsonStr);
-            localStorage.setItem('whiteboard_saved_board', jsonStr);
-            const currentBoard = boards.find(b => b.id === activeBoardId);
-            if (currentBoard) {
-                currentBoard.updatedAt = Date.now();
-                saveBoardsMeta();
-            }
-        } catch (e) {
-            console.error('Could not save current board data:', e);
-        }
-    }
-
-    function saveActiveBoardDebounced() {
-        if (autoSaveTimer) clearTimeout(autoSaveTimer);
-        autoSaveTimer = setTimeout(() => {
-            saveCurrentBoardData();
-        }, 300);
-    }
-
     function expandBoardsSidebar() {
         if (!rightBoardsSidebar) return;
         rightBoardsSidebar.classList.remove('collapsed');
@@ -3213,28 +3339,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function downloadBoard(boardId) {
+    async function downloadBoard(boardId) {
         const board = boards.find(b => b.id === boardId);
         if (!board) return;
 
         let boardObj;
         if (boardId === activeBoardId) {
             boardObj = canvas.toJSON(EXTRA_PROPS);
+            boardObj.bgColor = board.bg_color || board.bgColor || '#f8fafc';
         } else {
-            const stored = localStorage.getItem('whiteboard_board_data_' + boardId);
-            if (stored) {
-                try {
-                    boardObj = JSON.parse(stored);
-                } catch (e) {
-                    boardObj = { version: '5.3.0', objects: [] };
+            try {
+                const res = await fetch(`/api/boards/${boardId}`);
+                if (res.ok) {
+                    const full = await res.json();
+                    boardObj = typeof full.data === 'string' ? JSON.parse(full.data) : full.data;
+                    boardObj.bgColor = full.bg_color || '#f8fafc';
+                } else {
+                    throw new Error(`HTTP ${res.status}`);
                 }
-            } else {
-                boardObj = { version: '5.3.0', objects: [] };
+            } catch (e) {
+                const stored = localStorage.getItem('whiteboard_board_data_' + boardId);
+                boardObj = stored ? JSON.parse(stored) : { version: '5.3.0', objects: [] };
+                boardObj.bgColor = board.bg_color || board.bgColor || '#f8fafc';
             }
         }
-        boardObj.bgColor = board.bgColor || '#f8fafc';
-        const boardDataJson = JSON.stringify(boardObj, null, 2);
 
+        const boardDataJson = JSON.stringify(boardObj, null, 2);
         const safeName = board.name.toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'board';
         const blob = new Blob([boardDataJson], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -3248,103 +3378,152 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`Downloaded "${board.name}" (.json)`);
     }
 
-    function switchBoard(targetBoardId) {
+    async function switchBoard(targetBoardId) {
         if (targetBoardId === activeBoardId) return;
         const targetBoard = boards.find(b => b.id === targetBoardId);
         if (!targetBoard) return;
 
-        // Save current board data first
-        saveCurrentBoardData();
+        // Save current board data first if dirty
+        if (isBoardDirty) {
+            await saveActiveBoardToServer(true);
+        }
 
         activeBoardId = targetBoardId;
         localStorage.setItem('whiteboard_active_board_id', activeBoardId);
 
+        // Update URL cleanly without reloading page
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', `/board/${targetBoardId}`);
+        }
+
         // Restore target board's background color
-        const targetBg = targetBoard.bgColor || '#f8fafc';
+        const targetBg = targetBoard.bg_color || targetBoard.bgColor || '#f8fafc';
         setBoardBackgroundColor(targetBg, false);
 
-        // Reset history for new board
+        isBoardLoading = true;
         isProcessingHistory = true;
         undoStack.length = 0;
         redoStack.length = 0;
         updateHistoryButtons();
-        if (typeof saveActiveBoardDebounced === 'function') {
-            saveActiveBoardDebounced();
-        }
 
-        // Load new board
-        const saved = localStorage.getItem('whiteboard_board_data_' + targetBoardId);
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                canvas.loadFromJSON(data, () => {
-                    isProcessingHistory = false;
-                    canvas.renderAll();
-                    updateSelectionUI();
-                    saveState();
-                    showToast(`Switched to "${targetBoard.name}"`);
-                });
-            } catch (err) {
-                console.error('Error loading board data:', err);
-                canvas.clear();
-                isProcessingHistory = false;
-                canvas.renderAll();
-                saveState();
+        // Load new board from server
+        try {
+            const res = await fetch(`/api/boards/${targetBoardId}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const fullBoard = await res.json();
+
+            let parsedData = null;
+            if (typeof fullBoard.data === 'string') {
+                try {
+                    parsedData = JSON.parse(fullBoard.data);
+                } catch (e) {
+                    parsedData = { version: '5.3.0', objects: [] };
+                }
+            } else {
+                parsedData = fullBoard.data || { version: '5.3.0', objects: [] };
             }
-        } else {
+
+            canvas.loadFromJSON(parsedData, () => {
+                reconnectLoadedObjects();
+                canvas.renderAll();
+                isBoardLoading = false;
+                isProcessingHistory = false;
+                isBoardDirty = false;
+                updateSelectionUI();
+                saveState();
+                updateAutosaveIndicator('saved');
+                showToast(`Switched to "${targetBoard.name}"`);
+            });
+        } catch (err) {
+            console.error('Error switching board from server:', err);
+            const saved = localStorage.getItem('whiteboard_board_data_' + targetBoardId);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    canvas.loadFromJSON(data, () => {
+                        reconnectLoadedObjects();
+                        canvas.renderAll();
+                        isBoardLoading = false;
+                        isProcessingHistory = false;
+                        isBoardDirty = false;
+                        updateSelectionUI();
+                        saveState();
+                        updateAutosaveIndicator('saved');
+                        showToast(`Switched to "${targetBoard.name}" (cached)`);
+                    });
+                    return;
+                } catch (e) {}
+            }
             canvas.clear();
+            isBoardLoading = false;
             isProcessingHistory = false;
+            isBoardDirty = false;
             canvas.renderAll();
             saveState();
+            updateAutosaveIndicator('saved');
             showToast(`Switched to "${targetBoard.name}"`);
         }
 
         renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
     }
 
-    function addNewBoard() {
-        saveCurrentBoardData();
+    async function addNewBoard() {
+        if (isBoardDirty) {
+            await saveActiveBoardToServer(true);
+        }
 
         const newNum = boards.length + 1;
         const boardName = prompt('Enter a name for the new board:', `Board ${newNum}`);
         if (boardName === null) return;
         const finalName = boardName.trim() || `Board ${newNum}`;
 
-        const newId = 'board_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-        const newBoard = {
-            id: newId,
-            name: finalName,
-            bgColor: '#f8fafc',
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-        };
+        try {
+            const res = await fetch('/api/boards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: finalName,
+                    bg_color: '#f8fafc',
+                    data: JSON.stringify({ version: '5.3.0', objects: [] })
+                })
+            });
 
-        boards.push(newBoard);
-        saveBoardsMeta();
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const newBoard = await res.json();
+            newBoard.bgColor = newBoard.bg_color || '#f8fafc';
 
-        activeBoardId = newId;
-        localStorage.setItem('whiteboard_active_board_id', activeBoardId);
-        setBoardBackgroundColor('#f8fafc', false);
+            boards.push(newBoard);
+            activeBoardId = newBoard.id;
+            localStorage.setItem('whiteboard_active_board_id', activeBoardId);
 
-        isProcessingHistory = true;
-        undoStack.length = 0;
-        redoStack.length = 0;
-        updateHistoryButtons();
-        if (typeof saveActiveBoardDebounced === 'function') {
-            saveActiveBoardDebounced();
+            setBoardBackgroundColor('#f8fafc', false);
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', `/board/${newBoard.id}`);
+            }
+
+            isBoardLoading = false;
+            isProcessingHistory = true;
+            undoStack.length = 0;
+            redoStack.length = 0;
+            updateHistoryButtons();
+
+            canvas.clear();
+            isProcessingHistory = false;
+            canvas.renderAll();
+            saveState();
+            isBoardDirty = false;
+            updateAutosaveIndicator('saved');
+
+            expandBoardsSidebar();
+            renderBoardsList();
+            showToast(`Created "${finalName}"`);
+        } catch (err) {
+            console.error('Error creating board:', err);
+            showToast('Failed to create board on server');
         }
-        canvas.clear();
-        isProcessingHistory = false;
-        canvas.renderAll();
-        saveState();
-        saveCurrentBoardData();
-
-        expandBoardsSidebar();
-        renderBoardsList();
-        showToast(`Created "${finalName}"`);
     }
 
-    function deleteBoard(boardId) {
+    async function deleteBoard(boardId) {
         if (boards.length <= 1) {
             showToast('Cannot delete the only board');
             return;
@@ -3355,17 +3534,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!confirm(`Are you sure you want to delete "${board.name}"?`)) return;
 
-        boards = boards.filter(b => b.id !== boardId);
-        localStorage.removeItem('whiteboard_board_data_' + boardId);
-        saveBoardsMeta();
+        try {
+            const res = await fetch(`/api/boards/${boardId}`, {
+                method: 'DELETE'
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        if (activeBoardId === boardId) {
-            switchBoard(boards[0].id);
-        } else {
-            renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+            boards = boards.filter(b => b.id !== boardId);
+            localStorage.removeItem('whiteboard_board_data_' + boardId);
+
+            showToast(`Deleted "${board.name}"`);
+
+            if (activeBoardId === boardId) {
+                await switchBoard(boards[0].id);
+            } else {
+                renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
+            }
+        } catch (err) {
+            console.error('Failed to delete board:', err);
+            showToast('Failed to delete board on server');
         }
-
-        showToast(`Deleted "${board.name}"`);
     }
 
     function startRenameBoard(boardId, titleEl) {
@@ -3388,15 +3576,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let finished = false;
 
-        function commitRename() {
+        async function commitRename() {
             if (finished) return;
             finished = true;
             const val = input.value.trim();
             if (val && val !== originalName) {
                 board.name = val;
-                board.updatedAt = Date.now();
-                saveBoardsMeta();
-                showToast(`Renamed to "${board.name}"`);
+                try {
+                    await fetch(`/api/boards/${boardId}/rename`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: val })
+                    });
+                    showToast(`Renamed to "${board.name}"`);
+                } catch (err) {
+                    console.error('Failed to rename board on server:', err);
+                }
             }
             renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
         }
@@ -3428,20 +3623,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renameBoard(boardId) {
+    async function renameBoard(boardId) {
         const board = boards.find(b => b.id === boardId);
         if (!board) return;
 
         const newName = prompt('Enter new board name:', board.name);
         if (newName === null) return;
         const finalName = newName.trim();
-        if (!finalName) return;
+        if (!finalName || finalName === board.name) return;
 
         board.name = finalName;
-        board.updatedAt = Date.now();
-        saveBoardsMeta();
+        try {
+            await fetch(`/api/boards/${boardId}/rename`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: finalName })
+            });
+            showToast(`Renamed to "${board.name}"`);
+        } catch (err) {
+            console.error('Failed to rename board on server:', err);
+        }
         renderBoardsList(boardsSearchEl ? boardsSearchEl.value : '');
-        showToast(`Renamed to "${board.name}"`);
     }
 
     function handleImportBoardFile(e) {
@@ -3449,7 +3651,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = async function(event) {
             const content = event.target.result;
 
             // Check 1: Is it valid JSON?
@@ -3462,7 +3664,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Check 2: Is it an importable Whiteboard board?
-            // Fabric canvas serialization contains an 'objects' array
             const isImportable = parsedData &&
                 typeof parsedData === 'object' &&
                 !Array.isArray(parsedData) &&
@@ -3473,10 +3674,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Save active board before loading imported one
-            saveCurrentBoardData();
+            // Save active board before loading imported one if dirty
+            if (isBoardDirty) {
+                await saveActiveBoardToServer(true);
+            }
 
-            // Derive board name from filename
             let boardName = file.name.replace(/\.[^/.]+$/, '').trim();
             if (!boardName) boardName = 'Imported Board';
 
@@ -3484,22 +3686,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? parsedData.bgColor
                 : '#f8fafc';
 
-            const newId = 'board_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-            const newBoard = {
-                id: newId,
-                name: boardName,
-                bgColor: importedBg,
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            };
+            try {
+                const res = await fetch('/api/boards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: boardName,
+                        bg_color: importedBg,
+                        data: JSON.stringify(parsedData)
+                    })
+                });
 
-            boards.push(newBoard);
-            localStorage.setItem('whiteboard_board_data_' + newId, JSON.stringify(parsedData));
-            saveBoardsMeta();
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const newBoard = await res.json();
+                newBoard.bgColor = importedBg;
+                boards.push(newBoard);
 
-            switchBoard(newId);
-            expandBoardsSidebar();
-            showToast(`Board "${boardName}" imported successfully!`);
+                await switchBoard(newBoard.id);
+                expandBoardsSidebar();
+                showToast(`Board "${boardName}" imported successfully!`);
+            } catch (err) {
+                console.error('Import board error:', err);
+                showToast('Error saving imported board to database');
+            }
         };
 
         reader.onerror = function() {
@@ -3625,70 +3834,131 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function initBoards() {
+    async function initBoards() {
+        isBoardLoading = true;
+        updateAutosaveIndicator('saving', 'Loading...');
+
+        // 1. Determine requested board ID
+        const bodyInitialId = (document.body.dataset && document.body.dataset.initialBoardId) ? document.body.dataset.initialBoardId.trim() : '';
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryBoardId = urlParams.get('board');
+        let preferredId = bodyInitialId || queryBoardId || localStorage.getItem('whiteboard_active_board_id') || null;
+
+        // 2. Fetch boards list from SQLite
         try {
-            const meta = localStorage.getItem('whiteboard_boards_meta');
-            if (meta) {
-                boards = JSON.parse(meta);
-            }
-        } catch (e) {
-            console.warn('Could not parse boards meta:', e);
-        }
-
-        if (!boards || boards.length === 0) {
-            const legacyData = localStorage.getItem('whiteboard_saved_board');
-            const defaultBoard = {
-                id: 'board_main',
-                name: 'Board 1',
-                bgColor: '#f8fafc',
-                createdAt: Date.now(),
-                updatedAt: Date.now()
-            };
-            boards = [defaultBoard];
-            if (legacyData) {
-                localStorage.setItem('whiteboard_board_data_board_main', legacyData);
-            }
-            saveBoardsMeta();
-        } else {
-            let metaUpdated = false;
-            boards.forEach(b => {
-                if (!b.bgColor) {
-                    b.bgColor = '#f8fafc';
-                    metaUpdated = true;
+            const res = await fetch('/api/boards');
+            if (res.ok) {
+                const serverBoards = await res.json();
+                if (Array.isArray(serverBoards) && serverBoards.length > 0) {
+                    boards = serverBoards.map(b => ({
+                        ...b,
+                        bgColor: b.bg_color || b.bgColor || '#f8fafc'
+                    }));
                 }
-            });
-            if (metaUpdated) saveBoardsMeta();
+            }
+        } catch (fetchErr) {
+            console.warn('Could not fetch boards from server, checking fallback:', fetchErr);
         }
 
-        const savedActiveId = localStorage.getItem('whiteboard_active_board_id');
-        if (savedActiveId && boards.some(b => b.id === savedActiveId)) {
-            activeBoardId = savedActiveId;
+        // 3. Fallback / legacy check if server returned no boards
+        if (!boards || boards.length === 0) {
+            try {
+                const meta = localStorage.getItem('whiteboard_boards_meta');
+                if (meta) boards = JSON.parse(meta);
+            } catch (e) {}
+
+            if (!boards || boards.length === 0) {
+                boards = [{
+                    id: 'board_main',
+                    name: 'Main Board',
+                    bgColor: '#f8fafc',
+                    created_at: Date.now(),
+                    updated_at: Date.now()
+                }];
+            }
+        }
+
+        // 4. Select active board ID
+        if (preferredId && boards.some(b => b.id === preferredId)) {
+            activeBoardId = preferredId;
         } else {
             activeBoardId = boards[0].id;
         }
+        localStorage.setItem('whiteboard_active_board_id', activeBoardId);
 
-        // Apply active board's background color
+        // 5. Fetch full board data for active board from SQLite
         const activeBoard = boards.find(b => b.id === activeBoardId);
-        const currentBg = (activeBoard && activeBoard.bgColor) ? activeBoard.bgColor : '#f8fafc';
+        const currentBg = (activeBoard && (activeBoard.bg_color || activeBoard.bgColor)) ? (activeBoard.bg_color || activeBoard.bgColor) : '#f8fafc';
         setBoardBackgroundColor(currentBg, false);
 
-        const currentBoardData = localStorage.getItem('whiteboard_board_data_' + activeBoardId);
-        if (currentBoardData && canvas.getObjects().length === 0) {
-            try {
-                const data = JSON.parse(currentBoardData);
+        try {
+            const res = await fetch(`/api/boards/${activeBoardId}`);
+            if (res.ok) {
+                const boardRecord = await res.json();
+                let parsedData = null;
+                if (typeof boardRecord.data === 'string') {
+                    try {
+                        parsedData = JSON.parse(boardRecord.data);
+                    } catch (e) {
+                        parsedData = { version: '5.3.0', objects: [] };
+                    }
+                } else {
+                    parsedData = boardRecord.data || { version: '5.3.0', objects: [] };
+                }
+
+                if (boardRecord.bg_color) {
+                    setBoardBackgroundColor(boardRecord.bg_color, false);
+                }
+
                 isProcessingHistory = true;
-                canvas.loadFromJSON(data, () => {
-                    isProcessingHistory = false;
+                canvas.loadFromJSON(parsedData, () => {
+                    reconnectLoadedObjects();
                     canvas.renderAll();
-                    updateSelectionUI();
+                    isBoardLoading = false;
+                    isProcessingHistory = false;
+                    isBoardDirty = false;
+                    undoStack.length = 0;
+                    redoStack.length = 0;
                     saveState();
+                    isBoardDirty = false;
+                    updateAutosaveIndicator('saved');
                 });
-            } catch (e) {
+            } else {
+                throw new Error(`HTTP ${res.status}`);
+            }
+        } catch (loadErr) {
+            console.warn('Could not load board from server, trying local cache:', loadErr);
+            const currentBoardData = localStorage.getItem('whiteboard_board_data_' + activeBoardId);
+            if (currentBoardData) {
+                try {
+                    const data = JSON.parse(currentBoardData);
+                    isProcessingHistory = true;
+                    canvas.loadFromJSON(data, () => {
+                        reconnectLoadedObjects();
+                        canvas.renderAll();
+                        isBoardLoading = false;
+                        isProcessingHistory = false;
+                        isBoardDirty = false;
+                        undoStack.length = 0;
+                        redoStack.length = 0;
+                        saveState();
+                        isBoardDirty = false;
+                        updateAutosaveIndicator('saved');
+                    });
+                } catch (e) {
+                    isBoardLoading = false;
+                    isProcessingHistory = false;
+                    updateAutosaveIndicator('saved');
+                }
+            } else {
+                isBoardLoading = false;
                 isProcessingHistory = false;
+                updateAutosaveIndicator('saved');
             }
         }
 
         renderBoardsList();
+        startAutosaveLoop();
     }
 
     if (boardsCollapsedStrip) {
@@ -4143,6 +4413,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         redoStack.length = 0;
         updateHistoryButtons();
+        if (typeof markBoardDirty === 'function') {
+            markBoardDirty();
+        }
         if (typeof saveActiveBoardDebounced === 'function') {
             saveActiveBoardDebounced();
         }
@@ -4156,6 +4429,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const previousState = undoStack[undoStack.length - 1];
         loadCanvasState(previousState);
+        if (typeof markBoardDirty === 'function') {
+            markBoardDirty();
+        }
+        if (typeof saveActiveBoardDebounced === 'function') {
+            saveActiveBoardDebounced();
+        }
     }
 
     function redo() {
@@ -4165,6 +4444,12 @@ document.addEventListener('DOMContentLoaded', () => {
         undoStack.push(nextState);
 
         loadCanvasState(nextState);
+        if (typeof markBoardDirty === 'function') {
+            markBoardDirty();
+        }
+        if (typeof saveActiveBoardDebounced === 'function') {
+            saveActiveBoardDebounced();
+        }
     }
 
     function loadCanvasState(jsonState) {
@@ -4176,47 +4461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.setViewportTransform(currentVpt);
             }
 
-            // Re-establish connector links and shapes
-            const shapesByUid = {};
-            canvas.forEachObject(obj => {
-                if (obj.shapeUid) {
-                    shapesByUid[obj.shapeUid] = obj;
-                    obj.connectedLines = [];
-                }
-            });
-
-            const arrowHeads = [];
-            canvas.forEachObject(obj => {
-                if (obj.isArrowHead) {
-                    arrowHeads.push(obj);
-                    obj.selectable = false;
-                    obj.evented = false;
-                }
-            });
-
-            canvas.forEachObject(obj => {
-                if (obj.isConnector && obj.fromShapeUid && obj.toShapeUid) {
-                    const fromShape = shapesByUid[obj.fromShapeUid];
-                    const toShape = shapesByUid[obj.toShapeUid];
-                    if (fromShape && toShape) {
-                        obj.fromShape = fromShape;
-                        obj.toShape = toShape;
-                        fromShape.connectedLines.push(obj);
-                        toShape.connectedLines.push(obj);
-                    }
-                }
-
-                if (obj.globalCompositeOperation === 'destination-out') {
-                    obj.selectable = false;
-                    obj.evented = false;
-                } else if (currentMode === 'select' && !obj.isArrowHead) {
-                    obj.selectable = true;
-                } else if (currentMode === 'text') {
-                    obj.selectable = (obj.type === 'i-text');
-                } else {
-                    obj.selectable = false;
-                }
-            });
+            reconnectLoadedObjects();
 
             canvas.renderAll();
             isProcessingHistory = false;
@@ -4231,6 +4476,23 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.on('object:added', () => saveState());
     canvas.on('object:modified', () => saveState());
     canvas.on('object:removed', () => saveState());
+
+    // Flush dirty board save on window unload
+    window.addEventListener('beforeunload', () => {
+        if (isBoardDirty && activeBoardId && !isBoardLoading) {
+            try {
+                const dataObj = canvas.toJSON(EXTRA_PROPS);
+                const activeBoard = boards.find(b => b.id === activeBoardId);
+                const bgColor = (activeBoard && (activeBoard.bg_color || activeBoard.bgColor)) ? (activeBoard.bg_color || activeBoard.bgColor) : '#f8fafc';
+                const payload = JSON.stringify({
+                    data: JSON.stringify(dataObj),
+                    bg_color: bgColor
+                });
+                const blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon(`/api/boards/${activeBoardId}`, blob);
+            } catch (e) {}
+        }
+    });
 
     // -------------------------------------------------------------------------
     // 18. Sample Shapes & Clear
@@ -4278,7 +4540,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     // 19. Initial Boot
     // -------------------------------------------------------------------------
-    saveState();
     updateZoomDisplay();
     updateGrid();
     loadShapes();

@@ -1,17 +1,20 @@
 """
 Whiteboard Web App - FastAPI Backend
-Phase 6: Stickers Panel & Local Shared Stickers Storage
+Phase 7: SQLite Boards Storage, Boards List Page & Auto-Save
 """
 
 import os
 import re
 import time
-from typing import List
+from typing import List, Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+
+import db
 
 # Initialize FastAPI application
 app = FastAPI(title="Whiteboard App")
@@ -31,23 +34,155 @@ templates = Jinja2Templates(directory="templates")
 
 ALLOWED_EXTENSIONS = {".png", ".svg", ".gif"}
 
+# Ensure SQLite database is initialized
+db.init_db()
+
+
+# Pydantic Schemas for Board API
+class BoardCreate(BaseModel):
+    name: Optional[str] = "New Board"
+    bg_color: Optional[str] = "#f8fafc"
+    data: Optional[str] = None
+
+
+class BoardUpdate(BaseModel):
+    data: Optional[str] = None
+    bg_color: Optional[str] = None
+    name: Optional[str] = None
+
+
+class BoardRename(BaseModel):
+    name: str
+
 
 def sanitize_filename(filename: str) -> str:
     """Strip dangerous characters and keep safe filename."""
     base = os.path.basename(filename)
-    # Remove anything not alphanumeric, underscore, hyphen or dot
     clean = re.sub(r"[^a-zA-Z0-9_\-\.]", "_", base)
     return clean or f"sticker_{int(time.time())}"
 
 
+# -----------------------------------------------------------------------------
+# HTML Pages
+# -----------------------------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index(request: Request, board: Optional[str] = None):
     """
-    Serve the main whiteboard page.
+    Serve the main whiteboard canvas page.
+    Optionally accepts a ?board=<id> parameter.
     """
-    return templates.TemplateResponse(request=request, name="index.html")
+    initial_id = board
+    if not initial_id:
+        boards = db.list_boards()
+        initial_id = boards[0]["id"] if boards else "board_main"
+
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"initial_board_id": initial_id}
+    )
 
 
+@app.get("/boards", response_class=HTMLResponse)
+async def boards_list_page(request: Request):
+    """
+    Serve the dedicated Board List dashboard page.
+    """
+    return templates.TemplateResponse(request=request, name="boards.html")
+
+
+@app.get("/board/{board_id}", response_class=HTMLResponse)
+async def board_page(request: Request, board_id: str):
+    """
+    Serve a specific whiteboard canvas by route.
+    """
+    board = db.get_board(board_id)
+    target_id = board_id if board else "board_main"
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"initial_board_id": target_id}
+    )
+
+
+# -----------------------------------------------------------------------------
+# SQLite Boards REST APIs
+# -----------------------------------------------------------------------------
+@app.get("/api/boards")
+async def api_list_boards():
+    """
+    List all boards stored in SQLite.
+    """
+    boards = db.list_boards()
+    return JSONResponse(boards)
+
+
+@app.get("/api/boards/{board_id}")
+async def api_get_board(board_id: str):
+    """
+    Get full board details and Fabric.js JSON data from SQLite.
+    """
+    board = db.get_board(board_id)
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+    return JSONResponse(board)
+
+
+@app.post("/api/boards")
+async def api_create_board(payload: BoardCreate):
+    """
+    Create a new board in SQLite.
+    """
+    board = db.create_board(
+        name=payload.name or "New Board",
+        bg_color=payload.bg_color or "#f8fafc",
+        data=payload.data
+    )
+    return JSONResponse(board, status_code=201)
+
+
+@app.put("/api/boards/{board_id}")
+async def api_update_board(board_id: str, payload: BoardUpdate):
+    """
+    Save board Fabric.js JSON, background color, and metadata to SQLite.
+    """
+    now = int(time.time())
+    success = db.update_board(
+        board_id=board_id,
+        data=payload.data,
+        bg_color=payload.bg_color,
+        name=payload.name
+    )
+    if not success:
+        raise HTTPException(status_code=404, detail="Board not found")
+    return JSONResponse({"success": True, "id": board_id, "updated_at": now})
+
+
+@app.patch("/api/boards/{board_id}/rename")
+async def api_rename_board(board_id: str, payload: BoardRename):
+    """
+    Rename a board in SQLite.
+    """
+    success = db.rename_board(board_id=board_id, new_name=payload.name)
+    if not success:
+        raise HTTPException(status_code=404, detail="Board not found")
+    return JSONResponse({"success": True, "id": board_id, "name": payload.name})
+
+
+@app.delete("/api/boards/{board_id}")
+async def api_delete_board(board_id: str):
+    """
+    Delete a board from SQLite.
+    """
+    success = db.delete_board(board_id)
+    if not success:
+        raise HTTPException(status_code=400, detail="Cannot delete the only board or board not found")
+    return JSONResponse({"success": True, "id": board_id})
+
+
+# -----------------------------------------------------------------------------
+# Stickers REST APIs
+# -----------------------------------------------------------------------------
 @app.get("/api/stickers")
 async def list_stickers():
     """
@@ -73,7 +208,6 @@ async def list_stickers():
                 except OSError:
                     continue
 
-    # Sort most recently modified first
     stickers.sort(key=lambda s: s["updatedAt"], reverse=True)
     return JSONResponse(stickers)
 
@@ -98,7 +232,6 @@ async def upload_stickers(files: List[UploadFile] = File(...)):
         safe_filename = f"{clean_base}{ext}"
         target_path = os.path.join(STICKERS_DIR, safe_filename)
 
-        # Avoid collision by appending timestamp if file already exists
         if os.path.exists(target_path):
             safe_filename = f"{clean_base}_{int(time.time()*1000) % 1000000}{ext}"
             target_path = os.path.join(STICKERS_DIR, safe_filename)
@@ -141,5 +274,4 @@ async def delete_sticker(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    # Run server on all network interfaces so other devices on Wi-Fi can connect
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

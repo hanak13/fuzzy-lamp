@@ -7,13 +7,25 @@
     <!-- Local CSS stylesheet -->
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
+<body data-initial-board-id="{{ initial_board_id or '' }}">
     <!-- Top Bar: Fixed Logo on Left (Never Moves) & Centered Toolbar -->
     <div class="top-bar-container">
-        <!-- Fixed Brand Logo -->
+        <!-- Fixed Brand Logo & Boards Navigation -->
         <div id="brand-badge" class="app-brand-fixed">
-            <span class="brand-icon">✏️</span>
-            <span class="brand-name">Whiteboard</span>
+            <a href="/boards" class="brand-link" title="Whiteboard Boards Dashboard">
+                <span class="brand-icon">✏️</span>
+                <span class="brand-name">Whiteboard</span>
+            </a>
+            <div class="brand-divider" aria-hidden="true"></div>
+            <a href="/boards" class="btn-all-boards-link" title="Open Boards List Page">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                <span>Boards</span>
+            </a>
         </div>
 
         <!-- Top Toolbar -->
@@ -227,9 +239,14 @@
         </div>
     </header>
 
-    <!-- Right Balance Spacer: Keeps #toolbar centered and prevents any logo collision -->
-    <div class="top-bar-spacer" aria-hidden="true"></div>
-</div>
+        <!-- Top Bar Right: Auto-Save Status Indicator -->
+        <div class="top-bar-right">
+            <div id="autosave-status" class="autosave-indicator" title="Changes auto-saved to SQLite database">
+                <span class="autosave-dot"></span>
+                <span class="autosave-text">Saved</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Left Navigation Sidebar Dock (7 buttons) -->
     <nav id="left-sidebar" class="sidebar-dock" aria-label="Sidebar Navigation">
