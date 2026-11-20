@@ -4,20 +4,24 @@ An offline-first, open-source collaborative whiteboard web app built with **Pyth
 
 ---
 
-## Current Status: Phase 8 - Step Box Feature Completed
+## Current Status: Phase 9 - Export, Import, Image Upload & Polish Completed
 
-Phases 1 through 8 provide a comprehensive offline whiteboard web application:
+Phases 1 through 9 provide a comprehensive offline whiteboard web application:
 - **FastAPI backend** running on `http://localhost:8000` with **SQLite database persistence** (`boards.db`) for all boards and auto-saving every 3 seconds.
 - **Offline Fabric.js** loaded locally from `static/vendor/fabric.min.js` (no CDN links).
 - **Full-screen interactive canvas** with automatic window resizing and synced grid.
 - **Fixed Top-Left App Brand**: "✏️ Whiteboard" badge anchored at `top: 14px; left: 14px`.
 - **Top Toolbar**: Select (`V`), Pan (`H`), Pen (`P`), Highlighter (`K`), Eraser (`E`), Text (`T`), Line (`L`), Arrow (`A`), plus color, size, font, undo/redo controls.
+- **Dark Mode UI Theme Toggle**: One-click theme switcher in top bar with `localStorage` persistence.
+- **Export & Download Suite**: PNG (2x high-res), SVG, PDF (single board or multi-page Step Box / slides), PPTX, and full board `.json` backup.
+- **Board JSON Import**: Import any exported `.json` board as a new board in SQLite with complete step boxes and step contents preserved.
+- **Image Upload & Pasting**: Upload PNG, JPG, or SVG images onto the canvas via file browser, direct drag-and-drop, or clipboard pasting (`Ctrl + V`).
 - **Left Navigation Sidebar Dock & Panels**:
   1. **Shapes**: Over 280+ engineering, flowchart, UML, architecture, circuit, and logic gate shapes.
   2. **Notes (Sticky Note)**: Quick pastel notes (`S` or `N`).
   3. **Stickers**: Shared stickers gallery with local upload (PNG, SVG, GIF) and drag-and-drop onto canvas.
   4. **Templates**: Flowchart, mind map, and wireframe layouts.
-  5. **Media**: Image uploads and media assets.
+  5. **Media & Uploads**: Upload, preview, and reuse PNG, JPG, and SVG graphic assets onto canvas.
   6. **Icons**: UI symbols and diagram graphics.
   7. **Layers**: Canvas object hierarchy and ordering.
   8. **Step Box**: Scoped multi-step sequential diagrams inside container boxes.
@@ -329,3 +333,96 @@ white-board/
 10. **Fullscreen Mode**:
    - Click the **Fullscreen** button in the top-right header (or in the bottom-right zoom widget, or press `F11`).
    - The whiteboard expands to fill the display; click **Exit** or press `Escape` / `F11` to exit.
+
+
+11. **Phase 9: Export, Import, Image Upload & Polish**:
+    - **Export Menu (PNG, SVG, PDF, PPTX, JSON)**:
+      - Click **Download** in the top header.
+      - **Export as PNG**: Generates a 2x retina crisp raster image cropped cleanly to canvas content boundaries using Fabric.js `canvas.toDataURL()`.
+      - **Export as SVG**: Exports the whiteboard drawings, text, and vector shapes as clean SVG markup using `canvas.toSVG()`.
+      - **Export as PDF Document (.pdf)**:
+        - If an active **Step Box** has multiple steps, it automatically exports one PDF page per step in sequential order.
+        - If in **Slide Mode**, it exports each slide as its own page.
+        - On normal infinite whiteboard, it exports the entire canvas drawing as a single publication-grade document.
+      - **Export as Presentation (.pptx)**: Generates a PowerPoint presentation from slides or steps.
+      - **Download Board (.json)**: Full JSON backup containing all board shapes, text, connectors, step boxes, and multi-step configurations.
+    - **Board JSON Import**:
+      - Open the right **Boards** sidebar.
+      - Click **Import** (`#btn-import-board`) and choose any exported `.json` board file.
+      - Automatically creates a brand new board in SQLite, switches to it, and restores all contents, including Step Boxes and their ordered steps.
+    - **Image Upload onto Canvas (PNG, JPG, SVG)**:
+      - **Left Sidebar Media Tab**: Open **Media & Uploads** (`#btn-sidebar-media`), click **Browse** or drop files into the dropzone.
+      - **Direct Drag & Drop**: Drag image files directly from your computer and drop them anywhere onto the whiteboard canvas; images are automatically placed at the cursor location.
+      - **Clipboard Paste (`Ctrl + V`)**: Copy an image or take a screenshot with Windows Snipping Tool (`Win + Shift + S`) and press `Ctrl + V` on the canvas to paste it immediately.
+      - **Recent Uploads Gallery**: Uploaded images are stored in the Media drawer gallery with thumbnail cards so you can click to place them onto the canvas again anytime.
+    - **Dark Mode UI Theme Toggle**:
+      - Click the **Theme** button (`#btn-theme-toggle`) in the top-right toolbar to toggle between Light and Dark mode.
+      - Preserves selection across reloads via `localStorage.getItem('whiteboard_theme')`.
+      - Fully styles headers, toolbars, sidebars, drawers, menus, dropdowns, and modal dialogs with smooth transitions.
+    - **Keyboard Shortcuts & '?' Help Dialog**:
+      - Press `?`, `F1`, or `Ctrl + /` (or click `?` in the bottom-right zoom widget) to toggle the interactive cheat sheet popup.
+      - Core shortcuts:
+        - `V`: Select tool
+        - `H`: Hand / Pan tool
+        - `P`: Pen tool
+        - `E`: Eraser tool
+        - `T`: Text tool
+        - `Ctrl + Z`: Undo
+        - `Ctrl + Y`: Redo
+        - `Delete` / `Backspace`: Remove selected object
+        - `Ctrl + S`: Force save board to database
+    - **Docker Container Support**:
+      - Includes `Dockerfile` and `.dockerignore` for isolated, reproducible deployments.
+      - Build and run in seconds with zero extra dependencies.
+
+---
+
+## Running and Testing the App
+
+### 1. Running Locally with Python
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Run with Uvicorn
+uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+```
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+
+### 2. Running with Docker
+```bash
+# 1. Build the Docker image
+docker build -t whiteboard-app .
+
+# 2. Run the container
+docker run -d -p 8000:8000 --name whiteboard whiteboard-app
+```
+Access the application at [http://localhost:8000](http://localhost:8000).
+
+---
+
+## Step-by-Step Verification Checklist
+
+1. **Test Export & Download**:
+   - Draw shapes, lines, or notes on the canvas.
+   - Click **Download** > **Export as PNG**: verify a high-resolution PNG is downloaded.
+   - Click **Download** > **Export as SVG**: verify the downloaded file opens in a vector viewer or browser.
+   - Click **Download** > **Export as PDF Document**: verify a printable PDF is generated.
+   - Create a **Step Box** (`Step Box` tool in left sidebar), add 2 or 3 steps with different shapes, and click **Download** > **Export as PDF**: verify each step becomes an individual page in the PDF.
+2. **Test JSON Export and Import**:
+   - Click **Download** > **Download Board (.json)**.
+   - Open the right **Boards** sidebar, click **Import**, and select the downloaded `.json` file.
+   - Verify a new board appears with all shapes and multi-step Step Boxes completely intact.
+3. **Test Image Upload**:
+   - Click **Media & Uploads** in the left sidebar dock, click **Browse**, and pick a PNG, JPG, or SVG image. Verify it appears on the canvas and is selectable/movable.
+   - Drag an image file from your computer and drop it directly onto the canvas. Verify it is inserted at the mouse position.
+   - Take a screenshot (`Win + Shift + S`) and press `Ctrl + V` on the canvas. Verify the pasted image appears immediately.
+4. **Test Dark Mode Toggle**:
+   - Click the **Theme** button in the top bar. Verify the toolbars, sidebars, drawers, and menus transition to a refined dark slate theme.
+   - Refresh the page and verify dark mode is remembered via `localStorage`.
+   - Click the button again to return to light theme.
+5. **Test Keyboard Shortcuts & '?' Help Popup**:
+   - Press `V`, `H`, `P`, `E`, `T` to switch tools.
+   - Draw something, press `Ctrl + Z` to undo, `Ctrl + Y` to redo.
+   - Select an object and press `Delete`.
+   - Press `?` (or click `?` in the bottom-right zoom widget) to open the shortcuts cheat sheet modal. Press `Escape` to close it.

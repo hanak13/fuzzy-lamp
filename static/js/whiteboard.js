@@ -302,7 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'relLeft',
         'relTop',
         'isSlideFrame',
-        'slideFrameRatio'
+        'slideFrameRatio',
+        'imageName'
     ];
 
     // -------------------------------------------------------------------------
@@ -1441,6 +1442,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (panelId === 'notes') {
             setMode('sticky');
+        } else if (panelId === 'media') {
+            if (typeof renderMediaGallery === 'function') {
+                renderMediaGallery();
+            }
         }
     }
 
@@ -3461,6 +3466,309 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initPanelMinimizeSystem();
+
+    // -------------------------------------------------------------------------
+    // Dark Mode Theme System (with localStorage persistence)
+    // -------------------------------------------------------------------------
+    const btnThemeToggle = document.getElementById('btn-theme-toggle');
+    const themeIconMoon = document.getElementById('theme-icon-moon');
+    const themeIconSun = document.getElementById('theme-icon-sun');
+    const themeBtnLabel = document.getElementById('theme-btn-label');
+
+    function applyTheme(theme, save = true) {
+        const isDark = theme === 'dark';
+        document.body.classList.toggle('dark-theme', isDark);
+        document.documentElement.setAttribute('data-theme', theme);
+
+        if (themeIconMoon && themeIconSun) {
+            themeIconMoon.style.display = isDark ? 'none' : 'block';
+            themeIconSun.style.display = isDark ? 'block' : 'none';
+        }
+        if (themeBtnLabel) {
+            themeBtnLabel.textContent = isDark ? 'Dark' : 'Theme';
+        }
+
+        if (save) {
+            try {
+                localStorage.setItem('whiteboard_theme', theme);
+            } catch (e) {}
+        }
+    }
+
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', () => {
+            const currentIsDark = document.body.classList.contains('dark-theme');
+            const newTheme = currentIsDark ? 'light' : 'dark';
+            applyTheme(newTheme, true);
+            showToast(newTheme === 'dark' ? 'Dark theme enabled' : 'Light theme enabled');
+        });
+    }
+
+    // Load saved theme on boot
+    const savedTheme = localStorage.getItem('whiteboard_theme') || 'light';
+    applyTheme(savedTheme, false);
+
+    // -------------------------------------------------------------------------
+    // Image Upload & Media Management System (PNG, JPG, SVG onto Canvas)
+    // -------------------------------------------------------------------------
+    const mediaFileInput = document.getElementById('media-file-input');
+    const btnBrowseMedia = document.getElementById('btn-browse-media');
+    const mediaUploadBox = document.getElementById('media-upload-box');
+    const mediaGalleryEl = document.getElementById('media-gallery');
+    const mediaCountBadge = document.getElementById('media-count-badge');
+
+    let uploadedMediaList = [];
+    try {
+        const storedMedia = localStorage.getItem('whiteboard_uploaded_media');
+        if (storedMedia) uploadedMediaList = JSON.parse(storedMedia);
+    } catch (e) {
+        uploadedMediaList = [];
+    }
+
+    function saveUploadedMedia() {
+        try {
+            // Keep recent 20 uploads in localStorage
+            const trimmed = uploadedMediaList.slice(0, 20);
+            localStorage.setItem('whiteboard_uploaded_media', JSON.stringify(trimmed));
+        } catch (e) {
+            console.warn('Could not save media to localStorage:', e);
+        }
+    }
+
+    function renderMediaGallery() {
+        if (!mediaGalleryEl) return;
+        mediaGalleryEl.innerHTML = '';
+
+        if (!uploadedMediaList || uploadedMediaList.length === 0) {
+            if (mediaCountBadge) mediaCountBadge.textContent = '0';
+            const emptyEl = document.createElement('div');
+            emptyEl.id = 'empty-media-msg';
+            emptyEl.style.cssText = 'grid-column: 1 / -1; text-align: center; padding: 20px 10px; color: var(--text-muted); font-size: 11px;';
+            emptyEl.innerHTML = 'No images uploaded yet.<br>Click "Browse" or drop images to add them.';
+            mediaGalleryEl.appendChild(emptyEl);
+            return;
+        }
+
+        if (mediaCountBadge) mediaCountBadge.textContent = String(uploadedMediaList.length);
+
+        uploadedMediaList.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'media-thumb-card';
+            card.title = `Click to add "${item.name}" to canvas`;
+
+            const img = document.createElement('img');
+            img.src = item.url;
+            img.alt = item.name;
+            img.className = 'media-thumb-img';
+
+            const name = document.createElement('span');
+            name.className = 'media-thumb-name';
+            name.textContent = item.name;
+
+            const btnDel = document.createElement('button');
+            btnDel.className = 'media-thumb-delete';
+            btnDel.innerHTML = '&times;';
+            btnDel.title = 'Remove from uploaded list';
+            btnDel.addEventListener('click', (e) => {
+                e.stopPropagation();
+                uploadedMediaList.splice(idx, 1);
+                saveUploadedMedia();
+                renderMediaGallery();
+            });
+
+            card.appendChild(img);
+            card.appendChild(name);
+            card.appendChild(btnDel);
+
+            card.addEventListener('click', () => {
+                addImageToCanvas(item.url, null, null, item.name);
+            });
+
+            mediaGalleryEl.appendChild(card);
+        });
+    }
+
+    function addImageToCanvas(dataUrl, targetX, targetY, fileName) {
+        if (!dataUrl) return;
+
+        fabric.Image.fromURL(dataUrl, (img) => {
+            if (!img) {
+                showToast('Failed to load image onto canvas');
+                return;
+            }
+
+            // Calculate viewport placement if coordinates not provided
+            let posX = targetX;
+            let posY = targetY;
+
+            if (posX === null || posX === undefined || posY === null || posY === undefined) {
+                if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+                    posX = slideFrameRect.left + slideFrameRect.getScaledWidth() / 2;
+                    posY = slideFrameRect.top + slideFrameRect.getScaledHeight() / 2;
+                } else {
+                    const vpt = canvas.viewportTransform;
+                    const zoom = canvas.getZoom() || 1;
+                    posX = (-vpt[4] + canvas.getWidth() / 2) / zoom;
+                    posY = (-vpt[5] + canvas.getHeight() / 2) / zoom;
+                }
+            }
+
+            // Scale image proportionally so it fits nicely
+            const maxW = Math.min(canvas.getWidth() * 0.65, 600);
+            const maxH = Math.min(canvas.getHeight() * 0.65, 500);
+            const imgW = img.width || 400;
+            const imgH = img.height || 300;
+            const scale = Math.min(maxW / imgW, maxH / imgH, 1);
+
+            img.set({
+                left: posX,
+                top: posY,
+                originX: 'center',
+                originY: 'center',
+                scaleX: scale,
+                scaleY: scale,
+                cornerColor: '#2563eb',
+                cornerSize: 10,
+                transparentCorners: false,
+                hasRotatingPoint: true,
+                hasControls: true,
+                selectable: true,
+                shapeUid: generateUid(),
+                imageName: fileName || 'Uploaded Image'
+            });
+
+            img.connectedLines = [];
+            canvas.add(img);
+
+            if (typeof constrainObjectToSlideFrame === 'function') {
+                constrainObjectToSlideFrame(img);
+            }
+
+            setMode('select');
+            canvas.setActiveObject(img);
+            canvas.renderAll();
+            saveState();
+            showToast(`Added image: "${fileName || 'Image'}"`);
+
+            // Also register in recent uploaded media if not already present
+            const exists = uploadedMediaList.some(m => m.name === fileName && m.url === dataUrl);
+            if (!exists) {
+                uploadedMediaList.unshift({
+                    name: fileName || 'Uploaded Image',
+                    url: dataUrl
+                });
+                saveUploadedMedia();
+                renderMediaGallery();
+            }
+        });
+    }
+
+    function processImageFiles(files, dropX, dropY) {
+        if (!files || files.length === 0) return;
+        Array.from(files).forEach((file) => {
+            const isValid = file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|svg|webp|gif)$/i);
+            if (!isValid) {
+                showToast(`Skipped non-image file: ${file.name}`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                addImageToCanvas(dataUrl, dropX, dropY, file.name);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (btnBrowseMedia && mediaFileInput) {
+        btnBrowseMedia.addEventListener('click', () => {
+            mediaFileInput.value = '';
+            mediaFileInput.click();
+        });
+    }
+
+    if (mediaUploadBox && mediaFileInput) {
+        mediaUploadBox.addEventListener('click', (e) => {
+            if (e.target !== btnBrowseMedia) {
+                mediaFileInput.value = '';
+                mediaFileInput.click();
+            }
+        });
+
+        mediaUploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            mediaUploadBox.style.borderColor = 'var(--primary-color)';
+        });
+
+        mediaUploadBox.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            mediaUploadBox.style.borderColor = '';
+        });
+
+        mediaUploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            mediaUploadBox.style.borderColor = '';
+            if (e.dataTransfer && e.dataTransfer.files) {
+                processImageFiles(e.dataTransfer.files, null, null);
+            }
+        });
+    }
+
+    if (mediaFileInput) {
+        mediaFileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                processImageFiles(e.target.files, null, null);
+            }
+        });
+    }
+
+    // Drag and drop image files directly onto canvas
+    if (canvasContainer) {
+        canvasContainer.addEventListener('dragover', (e) => {
+            if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
+                e.preventDefault();
+                canvasContainer.classList.add('drag-over-active');
+            }
+        });
+
+        canvasContainer.addEventListener('dragleave', () => {
+            canvasContainer.classList.remove('drag-over-active');
+        });
+
+        canvasContainer.addEventListener('drop', (e) => {
+            canvasContainer.classList.remove('drag-over-active');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const pointer = canvas.getPointer(e);
+                processImageFiles(e.dataTransfer.files, pointer.x, pointer.y);
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Paste image from system clipboard (e.g. Snipping tool / screenshots)
+    window.addEventListener('paste', (e) => {
+        // If user is editing text in an active textbox/input, don't intercept text pastes
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag === 'input' || activeTag === 'textarea') return;
+
+        if (e.clipboardData && e.clipboardData.items) {
+            const items = Array.from(e.clipboardData.items);
+            const imageItem = items.find(item => item.type && item.type.startsWith('image/'));
+            if (imageItem) {
+                const file = imageItem.getAsFile();
+                if (file) {
+                    e.preventDefault();
+                    processImageFiles([file], null, null);
+                }
+            }
+        }
+    });
+
+    renderMediaGallery();
 
     // -------------------------------------------------------------------------
     // 12. Freehand Brush & Eraser Finalization (path:created)

@@ -3193,3 +3193,277 @@ kbd {
         transform: scale(1);
     }
 }
+
+/* ==========================================================================
+   Dark Mode Theme System
+   ========================================================================== */
+
+body.dark-theme,
+[data-theme="dark"] {
+    --bg-color: #0b0f19;
+    --grid-line-color: rgba(255, 255, 255, 0.08);
+    --toolbar-bg: rgba(24, 32, 47, 0.95);
+    --toolbar-border: #334155;
+    --toolbar-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --primary-color: #38bdf8;
+    --primary-hover: #0284c7;
+    --active-bg: rgba(56, 189, 248, 0.16);
+    --btn-hover: #1e293b;
+}
+
+body.dark-theme #canvas-container {
+    background-color: var(--board-bg-color, #0f172a);
+}
+
+body.dark-theme .top-bar-action-btn {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+    color: var(--text-primary);
+}
+
+body.dark-theme .top-bar-action-btn:hover {
+    background: #1e293b;
+    border-color: #475569;
+    color: #38bdf8;
+}
+
+body.dark-theme .top-bar-action-btn.btn-primary-action {
+    background: rgba(56, 189, 248, 0.16);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+}
+
+body.dark-theme .top-bar-action-btn.btn-primary-action:hover {
+    background: rgba(56, 189, 248, 0.28);
+    border-color: #38bdf8;
+    color: #e0f2fe;
+}
+
+body.dark-theme .brand-badge {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+    color: #f8fafc;
+}
+
+body.dark-theme #toolbar {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+}
+
+body.dark-theme .tool-btn {
+    color: #94a3b8;
+}
+
+body.dark-theme .tool-btn:hover {
+    background: #1e293b;
+    color: #f8fafc;
+}
+
+body.dark-theme .tool-btn.active {
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+}
+
+body.dark-theme .sidebar-dock {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+}
+
+body.dark-theme .sidebar-btn {
+    color: #94a3b8;
+}
+
+body.dark-theme .sidebar-btn:hover {
+    background: #1e293b;
+    color: #f8fafc;
+}
+
+body.dark-theme .sidebar-btn.active {
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+}
+
+body.dark-theme .sidebar-drawer {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+    color: #f8fafc;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-theme .download-dropdown-menu,
+body.dark-theme .frame-dropdown-menu {
+    background: #18202f;
+    border-color: #334155;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+}
+
+body.dark-theme .download-menu-item:hover,
+body.dark-theme .frame-menu-item:hover {
+    background: #1e293b;
+}
+
+body.dark-theme .menu-item-title,
+body.dark-theme .frame-menu-title {
+    color: #f8fafc;
+}
+
+body.dark-theme .modal-card {
+    background: #18202f;
+    border-color: #334155;
+    color: #f8fafc;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+}
+
+body.dark-theme .modal-header {
+    border-bottom-color: #334155;
+}
+
+body.dark-theme .modal-footer {
+    border-top-color: #334155;
+}
+
+body.dark-theme .shortcuts-section {
+    background: rgba(15, 23, 42, 0.7);
+    border-color: #334155;
+}
+
+body.dark-theme .shortcut-row {
+    border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+
+body.dark-theme .shortcut-row kbd {
+    background: #0f172a;
+    border-color: #475569;
+    color: #38bdf8;
+}
+
+body.dark-theme #zoom-widget {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+    color: #f8fafc;
+}
+
+body.dark-theme .zoom-btn {
+    color: #94a3b8;
+}
+
+body.dark-theme .zoom-btn:hover {
+    background: #1e293b;
+    color: #38bdf8;
+}
+
+body.dark-theme .right-boards-sidebar .boards-tab-strip {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+    color: #94a3b8;
+}
+
+body.dark-theme .boards-expanded-content {
+    background: var(--toolbar-bg);
+    border-color: var(--toolbar-border);
+    color: #f8fafc;
+}
+
+body.dark-theme .boards-search-box input,
+body.dark-theme .shapes-search-wrapper input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+}
+
+body.dark-theme .board-item {
+    border-color: rgba(51, 65, 85, 0.5);
+}
+
+body.dark-theme .board-item:hover {
+    background: #1e293b;
+}
+
+body.dark-theme .board-item.active {
+    background: rgba(56, 189, 248, 0.16);
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+body.dark-theme .board-item-name {
+    color: #f8fafc;
+}
+
+body.dark-theme .shape-card {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+body.dark-theme .shape-card:hover {
+    border-color: #38bdf8;
+    background: #1e293b;
+}
+
+/* ==========================================================================
+   Media & Image Uploads Styling
+   ========================================================================== */
+
+.media-thumb-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.media-thumb-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.media-thumb-img {
+    max-width: 100%;
+    max-height: 70px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.media-thumb-name {
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.media-thumb-delete {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    background: rgba(239, 68, 68, 0.9);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.media-thumb-card:hover .media-thumb-delete {
+    display: flex;
+}
+
+#canvas-container.drag-over-active {
+    box-shadow: inset 0 0 0 4px #38bdf8 !important;
+}
