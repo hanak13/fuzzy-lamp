@@ -425,12 +425,13 @@
             </div>
         </div>
 
-        <!-- Panel 2: Stickers Panel (Next Feature) -->
+        <!-- Panel 2: Stickers Panel -->
         <div id="drawer-panel-stickers" class="drawer-panel-content" style="display: none;">
             <div class="shapes-panel-header">
                 <div class="shapes-panel-title">
                     <span style="font-size: 16px;">🎨</span>
-                    <span>Stickers</span>
+                    <span>Stickers Gallery</span>
+                    <span id="stickers-count-badge" class="template-card-badge" style="margin-left: 6px;">0</span>
                 </div>
                 <button class="shapes-panel-close btn-close-drawer" title="Close drawer">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -439,11 +440,37 @@
                     </svg>
                 </button>
             </div>
-            <div class="drawer-placeholder-box">
-                <div class="placeholder-badge">Next Feature</div>
-                <div class="placeholder-icon">✨</div>
-                <h4>Stickers Library</h4>
-                <p>Drag-and-drop stickers, emojis, reactions, and decorative badges will appear right here.</p>
+
+            <!-- Upload Dropzone / Button -->
+            <div id="stickers-upload-box" class="stickers-upload-box" title="Upload PNG, SVG, or GIF stickers">
+                <input type="file" id="stickers-file-input" accept=".png,.svg,.gif,image/png,image/svg+xml,image/gif" multiple style="display: none;">
+                <div class="upload-icon-wrapper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <div class="upload-text-group">
+                    <span class="upload-primary-text">Upload Stickers</span>
+                    <span class="upload-sub-text">PNG, SVG or GIF (click or drop)</span>
+                </div>
+                <button type="button" id="btn-browse-stickers" class="btn-browse-stickers">Browse</button>
+            </div>
+
+            <!-- Search Stickers -->
+            <div class="shapes-search-wrapper" style="margin-top: 4px;">
+                <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="stickers-search" placeholder="Search stickers..." autocomplete="off">
+                <button id="btn-clear-stickers-search" class="clear-search-btn" title="Clear search" style="display: none;">&times;</button>
+            </div>
+
+            <!-- Stickers Gallery Grid -->
+            <div id="stickers-gallery" class="stickers-gallery">
+                <!-- Populated dynamically via /api/stickers -->
             </div>
         </div>
 

@@ -102,6 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const templatesList = document.getElementById('templates-list');
     const templatesSearch = document.getElementById('templates-search');
     const btnClearTemplatesSearch = document.getElementById('btn-clear-templates-search');
+
+    // Stickers Elements
+    let allStickers = [];
+    const stickersGallery = document.getElementById('stickers-gallery');
+    const stickersCountBadge = document.getElementById('stickers-count-badge');
+    const stickersSearch = document.getElementById('stickers-search');
+    const btnClearStickersSearch = document.getElementById('btn-clear-stickers-search');
+    const stickersUploadBox = document.getElementById('stickers-upload-box');
+    const stickersFileInput = document.getElementById('stickers-file-input');
+    const btnBrowseStickers = document.getElementById('btn-browse-stickers');
     let currentLinePattern = 'solid'; // 'solid', 'dashed', 'dotted'
     let currentArrowHeadStyle = 'end'; // 'none', 'end', 'start', 'both'
 
@@ -175,7 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'strokeDashArray',
         'arrowHeadStyle',
         'isFreeLine',
-        'subTargetCheck'
+        'subTargetCheck',
+        'isSticker',
+        'stickerUrl'
     ];
 
     // -------------------------------------------------------------------------
@@ -953,6 +965,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (templatesSearch) {
                 setTimeout(() => templatesSearch.focus(), 50);
             }
+        } else if (panelId === 'stickers') {
+            loadStickers();
+            if (stickersSearch) {
+                setTimeout(() => stickersSearch.focus(), 50);
+            }
         } else if (panelId === 'notes') {
             setMode('sticky');
         }
@@ -1356,6 +1373,262 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.renderAll();
         saveState();
         showToast(`Template "${templateDef.name}" inserted!`);
+    }
+
+    // -------------------------------------------------------------------------
+    // 8C. Stickers Gallery & Local Storage Controller (Phase 6)
+    // -------------------------------------------------------------------------
+    async function loadStickers() {
+        try {
+            const res = await fetch('/api/stickers');
+            if (res.ok) {
+                allStickers = await res.json();
+                if (stickersCountBadge) {
+                    stickersCountBadge.textContent = `${allStickers.length} Sticker${allStickers.length === 1 ? '' : 's'}`;
+                }
+                renderStickersGallery();
+            }
+        } catch (err) {
+            console.error('Failed to load /api/stickers:', err);
+        }
+    }
+
+    function renderStickersGallery() {
+        if (!stickersGallery) return;
+        const query = (stickersSearch ? stickersSearch.value.trim().toLowerCase() : '');
+
+        const filtered = allStickers.filter(s => {
+            return !query || s.name.toLowerCase().includes(query) || s.ext.toLowerCase().includes(query);
+        });
+
+        stickersGallery.innerHTML = '';
+
+        if (filtered.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'shapes-empty';
+            emptyEl.style.gridColumn = 'span 3';
+            emptyEl.textContent = query ? 'No matching stickers found' : 'No stickers yet. Upload PNG, SVG or GIF files above!';
+            stickersGallery.appendChild(emptyEl);
+            return;
+        }
+
+        filtered.forEach(sticker => {
+            const card = document.createElement('div');
+            card.className = 'sticker-card';
+            card.draggable = true;
+            card.title = `Click or drag "${sticker.name}" onto canvas`;
+
+            card.innerHTML = `
+                <span class="sticker-format-badge">.${sticker.ext}</span>
+                <button type="button" class="btn-delete-sticker" data-filename="${sticker.filename}" title="Delete sticker">&times;</button>
+                <div class="sticker-thumbnail-wrapper">
+                    <img class="sticker-thumbnail" src="${sticker.url}" alt="${sticker.name}" loading="lazy">
+                </div>
+                <span class="sticker-name">${sticker.name}</span>
+            `;
+
+            // Drag from gallery
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', sticker.url);
+                e.dataTransfer.setData('application/json', JSON.stringify(sticker));
+                e.dataTransfer.effectAllowed = 'copy';
+            });
+
+            // Click to add to viewport center
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.btn-delete-sticker')) return;
+                const vpt = canvas.viewportTransform;
+                const zoom = canvas.getZoom();
+                const centerX = (-vpt[4] + canvas.getWidth() / 2) / zoom;
+                const centerY = (-vpt[5] + canvas.getHeight() / 2) / zoom;
+                addStickerToCanvas(sticker.url, centerX, centerY);
+            });
+
+            // Delete sticker
+            const btnDel = card.querySelector('.btn-delete-sticker');
+            if (btnDel) {
+                btnDel.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm(`Delete sticker "${sticker.name}" from library?`)) return;
+                    try {
+                        const res = await fetch(`/api/stickers/${encodeURIComponent(sticker.filename)}`, {
+                            method: 'DELETE'
+                        });
+                        if (res.ok) {
+                            showToast(`Sticker "${sticker.name}" deleted`);
+                            loadStickers();
+                        } else {
+                            showToast('Failed to delete sticker');
+                        }
+                    } catch (err) {
+                        console.error('Delete error:', err);
+                        showToast('Error deleting sticker');
+                    }
+                });
+            }
+
+            stickersGallery.appendChild(card);
+        });
+    }
+
+    function addStickerToCanvas(url, x, y) {
+        fabric.Image.fromURL(url, (img) => {
+            if (!img) {
+                showToast('Failed to load sticker image');
+                return;
+            }
+
+            const maxSize = 130;
+            const imgWidth = img.width || 100;
+            const imgHeight = img.height || 100;
+            const scale = Math.min(maxSize / imgWidth, maxSize / imgHeight, 1);
+
+            img.set({
+                left: x,
+                top: y,
+                originX: 'center',
+                originY: 'center',
+                scaleX: scale,
+                scaleY: scale,
+                cornerColor: '#2563eb',
+                cornerSize: 10,
+                transparentCorners: false,
+                hasRotatingPoint: true,
+                hasControls: true,
+                selectable: true,
+                isSticker: true,
+                stickerUrl: url,
+                shapeUid: generateUid()
+            });
+
+            img.connectedLines = [];
+            canvas.add(img);
+            setMode('select');
+            canvas.setActiveObject(img);
+            canvas.renderAll();
+            saveState();
+            showToast('Sticker added to canvas');
+        }, { crossOrigin: 'anonymous' });
+    }
+
+    // Canvas Drop Handler for Stickers
+    if (canvasContainer) {
+        canvasContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        canvasContainer.addEventListener('drop', (e) => {
+            const stickerUrl = e.dataTransfer.getData('text/plain');
+            if (!stickerUrl) return;
+
+            e.preventDefault();
+            const rect = canvas.upperCanvasEl.getBoundingClientRect();
+            const clientX = e.clientX - rect.left;
+            const clientY = e.clientY - rect.top;
+            const vpt = canvas.viewportTransform;
+            const zoom = canvas.getZoom();
+            const targetX = (clientX - vpt[4]) / zoom;
+            const targetY = (clientY - vpt[5]) / zoom;
+
+            addStickerToCanvas(stickerUrl, targetX, targetY);
+        });
+    }
+
+    // Stickers Upload Handlers
+    async function uploadStickerFiles(fileList) {
+        if (!fileList || fileList.length === 0) return;
+        const validExtensions = ['.png', '.svg', '.gif'];
+        const validFiles = Array.from(fileList).filter(f => {
+            const ext = '.' + f.name.split('.').pop().toLowerCase();
+            return validExtensions.includes(ext);
+        });
+
+        if (validFiles.length === 0) {
+            showToast('Please select valid PNG, SVG, or GIF images');
+            return;
+        }
+
+        const formData = new FormData();
+        validFiles.forEach(file => {
+            formData.append('files', file);
+        });
+
+        showToast(`Uploading ${validFiles.length} sticker${validFiles.length === 1 ? '' : 's'}...`);
+
+        try {
+            const res = await fetch('/api/stickers', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                const uploaded = await res.json();
+                showToast(`Successfully uploaded ${uploaded.length} sticker${uploaded.length === 1 ? '' : 's'}!`);
+                loadStickers();
+            } else {
+                const err = await res.json();
+                showToast(`Upload failed: ${err.detail || 'Server error'}`);
+            }
+        } catch (err) {
+            console.error('Upload error:', err);
+            showToast('Failed to upload stickers');
+        }
+    }
+
+    if (stickersFileInput) {
+        stickersFileInput.addEventListener('change', () => {
+            uploadStickerFiles(stickersFileInput.files);
+            stickersFileInput.value = '';
+        });
+    }
+
+    if (btnBrowseStickers) {
+        btnBrowseStickers.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (stickersFileInput) stickersFileInput.click();
+        });
+    }
+
+    if (stickersUploadBox) {
+        stickersUploadBox.addEventListener('click', () => {
+            if (stickersFileInput) stickersFileInput.click();
+        });
+
+        stickersUploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            stickersUploadBox.classList.add('drag-over');
+        });
+
+        stickersUploadBox.addEventListener('dragleave', () => {
+            stickersUploadBox.classList.remove('drag-over');
+        });
+
+        stickersUploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            stickersUploadBox.classList.remove('drag-over');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                uploadStickerFiles(e.dataTransfer.files);
+            }
+        });
+    }
+
+    if (stickersSearch) {
+        stickersSearch.addEventListener('input', () => {
+            if (btnClearStickersSearch) {
+                btnClearStickersSearch.style.display = stickersSearch.value ? 'block' : 'none';
+            }
+            renderStickersGallery();
+        });
+    }
+
+    if (btnClearStickersSearch) {
+        btnClearStickersSearch.addEventListener('click', () => {
+            stickersSearch.value = '';
+            btnClearStickersSearch.style.display = 'none';
+            stickersSearch.focus();
+            renderStickersGallery();
+        });
     }
 
     // -------------------------------------------------------------------------
@@ -4010,4 +4283,5 @@ document.addEventListener('DOMContentLoaded', () => {
     updateGrid();
     loadShapes();
     loadTemplates();
+    loadStickers();
 });
