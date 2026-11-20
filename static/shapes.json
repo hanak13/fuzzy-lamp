@@ -1,5 +1,1861 @@
 [
   {
+    "id": "fc-basic-terminator",
+    "name": "Start / End (Terminator)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "start",
+      "end",
+      "terminator",
+      "stop",
+      "oval",
+      "pill"
+    ],
+    "path": "M 25 25 L 75 25 A 25 25 0 0 1 75 75 L 25 75 A 25 25 0 0 1 25 25 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-process",
+    "name": "Process (Rectangle)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "process",
+      "action",
+      "step",
+      "rectangle",
+      "task"
+    ],
+    "path": "M 10 25 L 90 25 L 90 75 L 10 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-decision",
+    "name": "Decision (Diamond)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "decision",
+      "condition",
+      "branch",
+      "diamond",
+      "rhombus",
+      "if"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-io",
+    "name": "Input / Output (Parallelogram)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "input",
+      "output",
+      "data",
+      "io",
+      "parallelogram"
+    ],
+    "path": "M 25 25 L 90 25 L 75 75 L 10 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-flow-line",
+    "name": "Flow Line (Arrow)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "flow",
+      "arrow",
+      "line",
+      "direction",
+      "connector"
+    ],
+    "path": "M 10 50 L 80 50 M 65 35 L 80 50 L 65 65",
+    "defaultWidth": 110,
+    "defaultHeight": 50,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-connector-circle",
+    "name": "Connector (Circle)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "connector",
+      "circle",
+      "junction",
+      "onpage"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-off-page-connector",
+    "name": "Off-Page Connector (Pentagon)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "offpage",
+      "connector",
+      "pentagon",
+      "page"
+    ],
+    "path": "M 20 20 L 80 20 L 80 60 L 50 85 L 20 60 Z",
+    "defaultWidth": 90,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-predefined-process",
+    "name": "Predefined Process (Double-Sided Rectangle)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "predefined",
+      "subroutine",
+      "function",
+      "subprocess"
+    ],
+    "path": "M 10 25 L 90 25 L 90 75 L 10 75 Z M 25 25 L 25 75 M 75 25 L 75 75",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-preparation",
+    "name": "Preparation (Hexagon)",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "preparation",
+      "init",
+      "setup",
+      "hexagon"
+    ],
+    "path": "M 25 25 L 75 25 L 90 50 L 75 75 L 25 75 L 10 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-document",
+    "name": "Document",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "document",
+      "report",
+      "paper",
+      "printout"
+    ],
+    "path": "M 15 20 L 85 20 L 85 70 Q 67 85 50 70 Q 33 55 15 70 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-multiple-documents",
+    "name": "Multiple Documents",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "documents",
+      "reports",
+      "files",
+      "batch"
+    ],
+    "path": "M 25 15 L 90 15 L 90 60 M 20 23 L 85 23 L 85 68 M 15 30 L 80 30 L 80 75 Q 63 90 48 75 Q 31 60 15 75 Z",
+    "defaultWidth": 115,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-manual-input",
+    "name": "Manual Input",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "manual",
+      "input",
+      "keyboard",
+      "user"
+    ],
+    "path": "M 10 38 L 90 25 L 90 75 L 10 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-manual-operation",
+    "name": "Manual Operation",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "operation",
+      "manual",
+      "hand",
+      "trapezoid"
+    ],
+    "path": "M 10 25 L 90 25 L 75 75 L 25 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-display",
+    "name": "Display",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "display",
+      "screen",
+      "monitor",
+      "output"
+    ],
+    "path": "M 25 25 L 75 25 A 25 25 0 0 1 75 75 L 25 75 L 10 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-delay",
+    "name": "Delay",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "delay",
+      "wait",
+      "pause",
+      "time"
+    ],
+    "path": "M 15 25 L 60 25 A 25 25 0 0 1 60 75 L 15 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-basic-annotation",
+    "name": "Annotation / Comment",
+    "category": "Flowchart",
+    "section": "Basic Flowchart",
+    "tags": [
+      "annotation",
+      "comment",
+      "note",
+      "callout"
+    ],
+    "path": "M 40 20 L 20 20 L 20 80 L 40 80 M 20 50 L 5 50",
+    "defaultWidth": 110,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-database",
+    "name": "Database (Cylinder)",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "database",
+      "db",
+      "cylinder",
+      "storage",
+      "sql"
+    ],
+    "path": "M 20 25 A 30 12 0 1 1 80 25 A 30 12 0 1 1 20 25 Z M 20 25 L 20 75 A 30 12 0 0 0 80 75 L 80 25",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-stored-data",
+    "name": "Stored Data",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "stored",
+      "data",
+      "file",
+      "record"
+    ],
+    "path": "M 20 25 Q 10 50 20 75 L 80 75 Q 90 50 80 25 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-internal-storage",
+    "name": "Internal Storage",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "internal",
+      "storage",
+      "memory",
+      "ram"
+    ],
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 35 L 85 35 M 30 20 L 30 80",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-sequential-access",
+    "name": "Sequential Access Storage",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "sequential",
+      "storage",
+      "tape",
+      "stream"
+    ],
+    "path": "M 45 20 A 28 28 0 1 1 44.9 20 Z M 45 76 L 85 76",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-direct-access",
+    "name": "Direct Access Storage",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "direct",
+      "access",
+      "storage",
+      "drum",
+      "disk"
+    ],
+    "path": "M 25 25 A 12 25 0 1 1 25 75 L 75 75 A 12 25 0 1 0 75 25 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-magnetic-disk",
+    "name": "Magnetic Disk",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "disk",
+      "hdd",
+      "magnetic",
+      "drive"
+    ],
+    "path": "M 20 28 A 30 9 0 1 1 80 28 A 30 9 0 1 1 20 28 Z M 20 28 L 20 48 A 30 9 0 0 0 80 48 L 80 28 M 20 48 L 20 68 A 30 9 0 0 0 80 68 L 80 48",
+    "defaultWidth": 100,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-magnetic-tape",
+    "name": "Magnetic Tape",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "tape",
+      "reel",
+      "cassette",
+      "backup"
+    ],
+    "path": "M 30 50 A 18 18 0 1 1 29.9 50 Z M 70 50 A 18 18 0 1 1 69.9 50 Z M 30 68 L 70 68 M 30 50 A 6 6 0 1 1 29.9 50 Z M 70 50 A 6 6 0 1 1 69.9 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-file",
+    "name": "Data File",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "file",
+      "document",
+      "data",
+      "sheet"
+    ],
+    "path": "M 20 15 L 60 15 L 80 35 L 80 85 L 20 85 Z M 60 15 L 60 35 L 80 35 M 32 45 L 68 45 M 32 60 L 68 60 M 32 72 L 55 72",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-store",
+    "name": "Data Store",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "store",
+      "datastore",
+      "nosql",
+      "cache"
+    ],
+    "path": "M 15 30 L 85 30 M 15 70 L 85 70 M 15 30 A 10 20 0 0 0 15 70 M 85 30 A 10 20 0 0 1 85 70",
+    "defaultWidth": 120,
+    "defaultHeight": 65,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-data-cloud-storage",
+    "name": "Cloud Storage",
+    "category": "Flowchart",
+    "section": "Data & Storage",
+    "tags": [
+      "cloud",
+      "storage",
+      "s3",
+      "blob",
+      "bucket"
+    ],
+    "path": "M 25 65 A 16 16 0 0 1 18 38 A 24 24 0 0 1 50 20 A 30 30 0 0 1 84 28 A 20 20 0 0 1 95 50 A 18 18 0 0 1 85 75 L 25 75 A 10 10 0 0 1 25 65 Z M 40 52 L 60 52 M 50 42 L 50 62",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-loop-start",
+    "name": "Loop Start",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "loop",
+      "start",
+      "iteration",
+      "begin"
+    ],
+    "path": "M 25 25 L 75 25 L 85 75 L 15 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-loop-end",
+    "name": "Loop End",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "loop",
+      "end",
+      "limit",
+      "break"
+    ],
+    "path": "M 15 25 L 85 25 L 75 75 L 25 75 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-for-loop",
+    "name": "For Loop",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "for",
+      "loop",
+      "counter",
+      "iterate"
+    ],
+    "path": "M 25 25 L 75 25 L 90 50 L 75 75 L 25 75 L 10 50 Z M 38 48 A 12 12 0 1 1 52 62 L 52 54 M 52 62 L 44 62",
+    "defaultWidth": 120,
+    "defaultHeight": 70,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-while-loop",
+    "name": "While Loop",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "while",
+      "loop",
+      "condition",
+      "repeat"
+    ],
+    "path": "M 50 18 A 32 32 0 1 1 28 32 M 16 32 L 28 32 L 28 20",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-repeat-until",
+    "name": "Repeat Until",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "repeat",
+      "until",
+      "dowhile",
+      "loop"
+    ],
+    "path": "M 20 30 L 75 30 L 75 70 L 30 70 M 40 60 L 30 70 L 40 80",
+    "defaultWidth": 110,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-merge",
+    "name": "Merge",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "merge",
+      "join",
+      "triangle",
+      "converge"
+    ],
+    "path": "M 15 25 L 85 25 L 50 75 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-extract",
+    "name": "Extract",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "extract",
+      "split",
+      "diverge",
+      "triangle"
+    ],
+    "path": "M 50 25 L 85 75 L 15 75 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-sort",
+    "name": "Sort",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "sort",
+      "order",
+      "arrange",
+      "diamond"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z M 10 50 L 90 50",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-summing-junction",
+    "name": "Summing Junction",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "sum",
+      "plus",
+      "junction",
+      "add"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 30 L 50 70 M 30 50 L 70 50",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-or-junction",
+    "name": "Or Junction",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "or",
+      "cross",
+      "junction",
+      "xor"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 36 36 L 64 64 M 64 36 L 36 64",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-multiple-branch",
+    "name": "Multiple Branch",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "branch",
+      "multiple",
+      "switch",
+      "case"
+    ],
+    "path": "M 10 50 L 35 50 M 35 25 L 35 75 M 35 25 L 80 25 M 70 18 L 80 25 L 70 32 M 35 50 L 80 50 M 70 43 L 80 50 L 70 57 M 35 75 L 80 75 M 70 68 L 80 75 L 70 82",
+    "defaultWidth": 120,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-parallel-processing",
+    "name": "Parallel Processing",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "parallel",
+      "fork",
+      "async",
+      "concurrent"
+    ],
+    "path": "M 15 35 L 85 35 M 15 65 L 85 65",
+    "defaultWidth": 120,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-synchronization",
+    "name": "Synchronization",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "synchronization",
+      "barrier",
+      "join",
+      "lock"
+    ],
+    "path": "M 20 20 L 80 20 L 80 30 L 20 30 Z M 35 30 L 35 75 M 65 30 L 65 75",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-subprocess",
+    "name": "Subprocess",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "subprocess",
+      "routine",
+      "child",
+      "flow"
+    ],
+    "path": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 44 65 L 56 65 M 50 59 L 50 71 M 42 57 L 58 57 L 58 73 L 42 73 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-ctrl-decision-branch",
+    "name": "Decision Branch",
+    "category": "Flowchart",
+    "section": "Process Control",
+    "tags": [
+      "decision",
+      "branch",
+      "path",
+      "route"
+    ],
+    "path": "M 50 20 L 80 50 L 50 80 L 20 50 Z M 80 50 L 95 50 M 50 80 L 50 95",
+    "defaultWidth": 110,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-event",
+    "name": "Event",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "event",
+      "trigger",
+      "circle",
+      "occurrence"
+    ],
+    "path": "M 50 15 A 35 35 0 1 1 49.9 15 Z M 50 25 A 25 25 0 1 1 49.9 25 Z",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-timer",
+    "name": "Timer",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "timer",
+      "clock",
+      "time",
+      "schedule"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 32 L 50 50 L 65 50",
+    "defaultWidth": 85,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-message",
+    "name": "Message",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "message",
+      "mail",
+      "envelope",
+      "email",
+      "notification"
+    ],
+    "path": "M 15 30 L 85 30 L 85 70 L 15 70 Z M 15 30 L 50 55 L 85 30",
+    "defaultWidth": 110,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-signal",
+    "name": "Signal",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "signal",
+      "broadcast",
+      "radar",
+      "antenna"
+    ],
+    "path": "M 50 75 L 50 48 M 50 48 A 15 15 0 0 1 65 33 M 35 33 A 15 15 0 0 1 50 48 M 50 48 A 28 28 0 0 1 78 20 M 22 20 A 28 28 0 0 1 50 48",
+    "defaultWidth": 100,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-exception",
+    "name": "Exception",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "exception",
+      "error",
+      "lightning",
+      "fault"
+    ],
+    "path": "M 50 18 A 32 32 0 1 1 49.9 18 Z M 52 30 L 40 50 L 52 50 L 46 70 L 62 48 L 50 48 Z",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-error-handler",
+    "name": "Error Handler",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "error",
+      "handler",
+      "catch",
+      "shield"
+    ],
+    "path": "M 50 18 L 80 30 L 80 55 C 80 72 50 85 50 85 C 50 85 20 72 20 55 L 20 30 Z M 40 42 L 60 62 M 60 42 L 40 62",
+    "defaultWidth": 95,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-success",
+    "name": "Success",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "success",
+      "check",
+      "valid",
+      "pass",
+      "done"
+    ],
+    "path": "M 50 18 A 32 32 0 1 1 49.9 18 Z M 35 50 L 45 60 L 65 40",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-failure",
+    "name": "Failure",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "failure",
+      "cross",
+      "fail",
+      "rejected"
+    ],
+    "path": "M 50 18 A 32 32 0 1 1 49.9 18 Z M 36 36 L 64 64 M 64 36 L 36 64",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-warning",
+    "name": "Warning",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "warning",
+      "alert",
+      "caution",
+      "triangle"
+    ],
+    "path": "M 50 18 L 85 78 L 15 78 Z M 50 38 L 50 58 M 50 66 A 2 2 0 1 1 49.9 66 Z",
+    "defaultWidth": 95,
+    "defaultHeight": 95,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-validation",
+    "name": "Validation",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "validation",
+      "check",
+      "verify",
+      "clipboard"
+    ],
+    "path": "M 25 25 L 75 25 L 75 80 L 25 80 Z M 35 25 L 35 18 L 65 18 L 65 25 Z M 40 50 L 48 58 L 62 42",
+    "defaultWidth": 95,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-approval",
+    "name": "Approval",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "approval",
+      "badge",
+      "signoff",
+      "accepted"
+    ],
+    "path": "M 50 20 A 25 25 0 1 1 49.9 20 Z M 35 60 L 30 85 L 50 75 L 70 85 L 65 60 M 40 43 L 48 51 L 62 37",
+    "defaultWidth": 95,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-rejection",
+    "name": "Rejection",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "rejection",
+      "prohibited",
+      "deny",
+      "cancel"
+    ],
+    "path": "M 50 18 A 32 32 0 1 1 49.9 18 Z M 27 27 L 73 73",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-manual-review",
+    "name": "Manual Review",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "review",
+      "human",
+      "manual",
+      "inspect"
+    ],
+    "path": "M 38 35 A 12 12 0 1 1 37.9 35 Z M 20 68 C 20 52 56 52 56 68 Z M 65 55 A 12 12 0 1 1 64.9 55 Z M 73 63 L 83 73",
+    "defaultWidth": 105,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-external-system",
+    "name": "External System",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "external",
+      "system",
+      "thirdparty",
+      "integration"
+    ],
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 22 27 L 78 27 L 78 73 L 22 73 Z",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-adv-api-call",
+    "name": "API Call",
+    "category": "Flowchart",
+    "section": "Advanced Flowchart",
+    "tags": [
+      "api",
+      "rest",
+      "call",
+      "http",
+      "service"
+    ],
+    "path": "M 30 35 L 20 50 L 30 65 M 70 35 L 80 50 L 70 65 M 55 30 L 45 70",
+    "defaultWidth": 100,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-straight",
+    "name": "Straight Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "straight",
+      "connector",
+      "line",
+      "arrow"
+    ],
+    "path": "M 15 50 L 85 50 M 75 42 L 85 50 L 75 58",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-elbow",
+    "name": "Elbow Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "elbow",
+      "orthogonal",
+      "corner",
+      "turn"
+    ],
+    "path": "M 20 20 L 20 75 L 80 75 M 70 67 L 80 75 L 70 83",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-curved",
+    "name": "Curved Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "curved",
+      "bezier",
+      "smooth",
+      "arc"
+    ],
+    "path": "M 15 25 C 50 25 50 75 85 75 M 75 67 L 85 75 L 75 83",
+    "defaultWidth": 110,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-bidirectional",
+    "name": "Bidirectional Arrow",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "bidirectional",
+      "two-way",
+      "double",
+      "arrow"
+    ],
+    "path": "M 25 50 L 75 50 M 25 42 L 15 50 L 25 58 M 75 42 L 85 50 L 75 58",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-dashed",
+    "name": "Dashed Arrow",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "dashed",
+      "arrow",
+      "dependency",
+      "weak"
+    ],
+    "path": "M 15 50 L 30 50 M 40 50 L 55 50 M 65 50 L 80 50 M 70 42 L 80 50 L 70 58",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-dotted",
+    "name": "Dotted Arrow",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "dotted",
+      "arrow",
+      "trace",
+      "link"
+    ],
+    "path": "M 15 50 L 18 50 M 28 50 L 31 50 M 41 50 L 44 50 M 54 50 L 57 50 M 67 50 L 70 50 M 80 50 L 85 50 M 75 42 L 85 50 L 75 58",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-thick",
+    "name": "Thick Arrow",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "thick",
+      "bold",
+      "arrow",
+      "pointer"
+    ],
+    "path": "M 15 40 L 60 40 L 60 25 L 85 50 L 60 75 L 60 60 L 15 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 60,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-orthogonal",
+    "name": "Orthogonal Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "orthogonal",
+      "z-shape",
+      "step",
+      "connector"
+    ],
+    "path": "M 15 25 L 50 25 L 50 75 L 85 75 M 75 67 L 85 75 L 75 83",
+    "defaultWidth": 110,
+    "defaultHeight": 85,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-labeled",
+    "name": "Connector with Label",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "labeled",
+      "annotated",
+      "connector",
+      "tag"
+    ],
+    "path": "M 15 50 L 38 50 M 62 50 L 85 50 M 75 42 L 85 50 L 75 58 M 38 40 L 62 40 L 62 60 L 38 60 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 50,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-snap",
+    "name": "Dynamic Snap Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "snap",
+      "dynamic",
+      "anchor",
+      "port"
+    ],
+    "path": "M 20 50 A 6 6 0 1 1 19.9 50 Z M 26 50 L 74 50 M 80 50 A 6 6 0 1 1 79.9 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-branch",
+    "name": "Branch Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "branch",
+      "fork",
+      "split",
+      "tree"
+    ],
+    "path": "M 15 50 L 50 50 M 50 50 L 80 25 M 70 20 L 80 25 L 75 33 M 50 50 L 80 75 M 75 67 L 80 75 L 70 80",
+    "defaultWidth": 110,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "fc-conn-multipoint",
+    "name": "Multi-Point Connector",
+    "category": "Flowchart",
+    "section": "Connectors & Relationships",
+    "tags": [
+      "multipoint",
+      "bus",
+      "nodes",
+      "points"
+    ],
+    "path": "M 15 50 L 85 50 M 35 50 A 4 4 0 1 1 34.9 50 Z M 50 50 A 4 4 0 1 1 49.9 50 Z M 65 50 A 4 4 0 1 1 64.9 50 Z",
+    "defaultWidth": 120,
+    "defaultHeight": 40,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-start-event",
+    "name": "Start Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "start",
+      "event",
+      "circle"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-end-event",
+    "name": "End Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "end",
+      "event",
+      "circle",
+      "thick"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 24 A 26 26 0 1 1 49.9 24 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-intermediate-event",
+    "name": "Intermediate Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "intermediate",
+      "event",
+      "double"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 26 A 24 24 0 1 1 49.9 26 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-timer-event",
+    "name": "Timer Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "timer",
+      "event",
+      "clock"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 26 A 24 24 0 1 1 49.9 26 Z M 50 34 L 50 50 L 62 50",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-message-event",
+    "name": "Message Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "message",
+      "event",
+      "envelope"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 26 A 24 24 0 1 1 49.9 26 Z M 35 40 L 65 40 L 65 60 L 35 60 Z M 35 40 L 50 52 L 65 40",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-signal-event",
+    "name": "Signal Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "signal",
+      "event",
+      "triangle"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 26 A 24 24 0 1 1 49.9 26 Z M 50 34 L 64 58 L 36 58 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-error-event",
+    "name": "Error Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "error",
+      "event",
+      "lightning"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 26 A 24 24 0 1 1 49.9 26 Z M 52 34 L 42 50 L 52 50 L 46 64 L 58 48 L 48 48 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-escalation-event",
+    "name": "Escalation Event",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "escalation",
+      "event",
+      "chevron"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 49.9 20 Z M 50 26 A 24 24 0 1 1 49.9 26 Z M 50 36 L 62 58 L 50 50 L 38 58 Z",
+    "defaultWidth": 80,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-user-task",
+    "name": "User Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "user",
+      "person",
+      "human"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 22 38 A 4 4 0 1 1 21.9 38 Z M 16 52 C 16 46 28 46 28 52 Z",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-service-task",
+    "name": "Service Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "service",
+      "gear",
+      "automated"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 22 42 A 5 5 0 1 1 21.9 42 Z M 22 34 L 22 50 M 14 42 L 30 42",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-script-task",
+    "name": "Script Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "script",
+      "code"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 16 38 L 26 38 L 26 48 L 16 48 Z M 19 42 L 23 42",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-manual-task",
+    "name": "Manual Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "manual",
+      "hand"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 18 36 L 18 48 L 24 50 L 28 46 L 24 40 L 22 36 Z",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-business-rule-task",
+    "name": "Business Rule Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "rule",
+      "decision",
+      "table"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 15 36 L 27 36 L 27 48 L 15 48 Z M 15 40 L 27 40 M 19 36 L 19 48",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-send-task",
+    "name": "Send Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "send",
+      "message"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 15 38 L 27 38 L 27 48 L 15 48 Z M 15 38 L 21 43 L 27 38",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-receive-task",
+    "name": "Receive Task",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "task",
+      "receive",
+      "message"
+    ],
+    "path": "M 15 25 L 85 25 A 8 8 0 0 1 93 33 L 93 67 A 8 8 0 0 1 85 75 L 15 75 A 8 8 0 0 1 7 67 L 7 33 A 8 8 0 0 1 15 25 Z M 15 38 L 27 38 L 27 48 L 15 48 Z M 15 38 L 21 43 L 27 38 M 15 48 L 19 44 M 27 48 L 23 44",
+    "defaultWidth": 125,
+    "defaultHeight": 75,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-exclusive-gateway",
+    "name": "Exclusive Gateway",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "gateway",
+      "exclusive",
+      "xor",
+      "cross"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z M 38 38 L 62 62 M 62 38 L 38 62",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-parallel-gateway",
+    "name": "Parallel Gateway",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "gateway",
+      "parallel",
+      "and",
+      "plus"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z M 50 32 L 50 68 M 32 50 L 68 50",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-inclusive-gateway",
+    "name": "Inclusive Gateway",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "gateway",
+      "inclusive",
+      "or",
+      "circle"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z M 50 36 A 14 14 0 1 1 49.9 36 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-event-gateway",
+    "name": "Event-Based Gateway",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "gateway",
+      "event",
+      "pentagon"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z M 50 36 L 63 45 L 58 60 L 42 60 L 37 45 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-complex-gateway",
+    "name": "Complex Gateway",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "gateway",
+      "complex",
+      "asterisk"
+    ],
+    "path": "M 50 15 L 90 50 L 50 85 L 10 50 Z M 50 32 L 50 68 M 32 50 L 68 50 M 37 37 L 63 63 M 63 37 L 37 63",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-pool",
+    "name": "Pool",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "pool",
+      "swimlane",
+      "participant"
+    ],
+    "path": "M 10 15 L 90 15 L 90 85 L 10 85 Z M 22 15 L 22 85",
+    "defaultWidth": 160,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-lane",
+    "name": "Lane",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "lane",
+      "swimlane",
+      "role"
+    ],
+    "path": "M 10 25 L 90 25 L 90 75 L 10 75 Z M 22 25 L 22 75",
+    "defaultWidth": 160,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-data-object",
+    "name": "Data Object",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "data",
+      "object",
+      "document"
+    ],
+    "path": "M 25 15 L 62 15 L 75 28 L 75 85 L 25 85 Z M 62 15 L 62 28 L 75 28",
+    "defaultWidth": 95,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-data-store",
+    "name": "Data Store",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "data",
+      "store",
+      "database"
+    ],
+    "path": "M 20 25 A 30 10 0 1 1 80 25 A 30 10 0 1 1 20 25 Z M 20 25 L 20 75 A 30 10 0 0 0 80 75 L 80 25 M 20 50 A 30 10 0 0 0 80 50",
+    "defaultWidth": 100,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-group",
+    "name": "Group",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "group",
+      "boundary",
+      "dashed"
+    ],
+    "path": "M 15 20 L 85 20 A 8 8 0 0 1 93 28 L 93 72 A 8 8 0 0 1 85 80 L 15 80 A 8 8 0 0 1 7 72 L 7 28 A 8 8 0 0 1 15 20 Z",
+    "defaultWidth": 140,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "bpmn-text-annotation",
+    "name": "Text Annotation",
+    "category": "Flowchart",
+    "section": "BPMN Business Process",
+    "tags": [
+      "bpmn",
+      "text",
+      "annotation",
+      "comment"
+    ],
+    "path": "M 35 20 L 15 20 L 15 80 L 35 80",
+    "defaultWidth": 100,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-requirement",
+    "name": "Requirement",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "requirement",
+      "spec",
+      "checklist",
+      "scope"
+    ],
+    "path": "M 20 15 L 80 15 L 80 85 L 20 85 Z M 28 32 L 34 38 L 44 26 M 48 34 L 72 34 M 28 52 L 34 58 L 44 46 M 48 54 L 72 54 M 28 72 L 34 78 L 44 66 M 48 74 L 72 74",
+    "defaultWidth": 100,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-design",
+    "name": "Design",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "design",
+      "architecture",
+      "wireframe",
+      "ui",
+      "ux"
+    ],
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 15 35 L 85 35 M 38 35 L 38 80 M 50 55 L 75 55 M 50 68 L 75 68",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-development",
+    "name": "Development",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "development",
+      "code",
+      "programming",
+      "software"
+    ],
+    "path": "M 32 35 L 18 50 L 32 65 M 68 35 L 82 50 L 68 65 M 56 28 L 44 72",
+    "defaultWidth": 100,
+    "defaultHeight": 80,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-code-review",
+    "name": "Code Review",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "code review",
+      "pr",
+      "pull request",
+      "git"
+    ],
+    "path": "M 30 30 A 10 10 0 1 1 29.9 30 Z M 30 70 A 10 10 0 1 1 29.9 70 Z M 70 50 A 10 10 0 1 1 69.9 50 Z M 30 40 L 30 60 M 30 40 C 30 50 70 35 70 40",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-build",
+    "name": "Build",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "build",
+      "compile",
+      "package",
+      "bundle"
+    ],
+    "path": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z M 50 15 L 50 55 L 85 35 M 50 55 L 15 35 M 50 55 L 50 95",
+    "defaultWidth": 105,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-unit-testing",
+    "name": "Unit Testing",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "unit testing",
+      "tests",
+      "beaker",
+      "pytest",
+      "jest"
+    ],
+    "path": "M 38 18 L 62 18 M 44 18 L 44 42 L 24 75 A 8 8 0 0 0 31 85 L 69 85 A 8 8 0 0 0 76 75 L 56 42 L 56 18 M 32 68 L 68 68 M 46 76 A 3 3 0 1 1 45.9 76 Z",
+    "defaultWidth": 95,
+    "defaultHeight": 110,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-integration-testing",
+    "name": "Integration Testing",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "integration",
+      "testing",
+      "puzzle",
+      "api test"
+    ],
+    "path": "M 20 20 L 50 20 A 10 10 0 0 1 50 40 L 50 50 L 20 50 Z M 50 50 L 50 80 L 80 80 L 80 50 A 10 10 0 0 1 60 50 Z",
+    "defaultWidth": 100,
+    "defaultHeight": 100,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-security-testing",
+    "name": "Security Testing",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "security",
+      "audit",
+      "shield",
+      "lock",
+      "cve"
+    ],
+    "path": "M 50 18 L 82 30 L 82 55 C 82 72 50 85 50 85 C 50 85 18 72 18 55 L 18 30 Z M 42 48 L 42 42 A 8 8 0 0 1 58 42 L 58 48 M 38 48 L 62 48 L 62 65 L 38 65 Z",
+    "defaultWidth": 95,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-quality-check",
+    "name": "Quality Check",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "quality",
+      "qa",
+      "check",
+      "badge",
+      "certified"
+    ],
+    "path": "M 50 15 L 61 24 L 75 22 L 80 36 L 92 44 L 88 58 L 95 70 L 82 77 L 79 91 L 65 90 L 55 98 L 45 90 L 35 91 L 32 77 L 19 70 L 26 58 L 22 44 L 34 36 L 39 22 L 53 24 Z M 40 54 L 47 61 L 62 46",
+    "defaultWidth": 100,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-approval-gate",
+    "name": "Approval Gate",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "gate",
+      "approval",
+      "barrier",
+      "signoff",
+      "pass"
+    ],
+    "path": "M 15 25 L 25 25 L 25 75 L 15 75 Z M 75 25 L 85 25 L 85 75 L 75 75 Z M 25 40 L 75 40 M 25 60 L 75 60 M 43 45 L 49 51 L 59 41",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-deployment",
+    "name": "Deployment",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "deployment",
+      "deploy",
+      "rocket",
+      "ship",
+      "launch"
+    ],
+    "path": "M 50 15 C 65 25 70 50 65 70 L 50 62 L 35 70 C 30 50 35 25 50 15 Z M 35 70 L 25 82 L 35 80 L 40 85 M 65 70 L 75 82 L 65 80 L 60 85 M 50 38 A 6 6 0 1 1 49.9 38 Z",
+    "defaultWidth": 95,
+    "defaultHeight": 115,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-production",
+    "name": "Production",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "production",
+      "live",
+      "server",
+      "cluster",
+      "cloud"
+    ],
+    "path": "M 18 20 L 82 20 L 82 38 L 18 38 Z M 18 42 L 82 42 L 82 60 L 18 60 Z M 18 64 L 82 64 L 82 82 L 18 82 Z M 26 29 A 3 3 0 1 1 25.9 29 Z M 26 51 A 3 3 0 1 1 25.9 51 Z M 26 73 A 3 3 0 1 1 25.9 73 Z",
+    "defaultWidth": 105,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-monitoring",
+    "name": "Monitoring",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "monitoring",
+      "pulse",
+      "metrics",
+      "observability",
+      "grafana"
+    ],
+    "path": "M 15 20 L 85 20 L 85 80 L 15 80 Z M 22 52 L 35 52 L 42 36 L 52 64 L 60 46 L 68 52 L 78 52",
+    "defaultWidth": 110,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-rollback",
+    "name": "Rollback",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "rollback",
+      "undo",
+      "revert",
+      "rewind"
+    ],
+    "path": "M 50 20 A 30 30 0 1 1 26 36 M 14 36 L 26 36 L 26 24 M 46 44 L 38 52 L 46 60 M 38 52 L 62 52",
+    "defaultWidth": 90,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-incident",
+    "name": "Incident",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "incident",
+      "siren",
+      "p1",
+      "outage",
+      "emergency"
+    ],
+    "path": "M 30 75 L 70 75 L 64 45 C 64 32 36 32 36 45 Z M 20 75 L 80 75 L 80 85 L 20 85 Z M 50 15 L 50 25 M 24 28 L 32 34 M 76 28 L 68 34",
+    "defaultWidth": 95,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-alert",
+    "name": "Alert",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "alert",
+      "bell",
+      "notification",
+      "pagerduty"
+    ],
+    "path": "M 50 18 A 8 8 0 0 1 50 34 C 36 34 32 46 32 60 L 24 72 L 76 72 L 68 60 C 68 46 64 34 50 34 M 44 76 A 6 6 0 0 0 56 76",
+    "defaultWidth": 95,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-notification",
+    "name": "Notification",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "notification",
+      "message",
+      "ping",
+      "slack"
+    ],
+    "path": "M 15 25 L 85 25 L 85 65 L 50 65 L 35 78 L 35 65 L 15 65 Z M 50 35 L 50 50 M 50 56 A 1.5 1.5 0 1 1 49.9 56 Z",
+    "defaultWidth": 105,
+    "defaultHeight": 90,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-automation",
+    "name": "Automation",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "automation",
+      "bot",
+      "worker",
+      "cron",
+      "runner"
+    ],
+    "path": "M 25 35 L 75 35 L 75 75 L 25 75 Z M 35 48 A 4 4 0 1 1 34.9 48 Z M 65 48 A 4 4 0 1 1 64.9 48 Z M 38 64 L 62 64 M 50 18 L 50 35 M 46 18 L 54 18 M 15 50 L 25 50 M 75 50 L 85 50",
+    "defaultWidth": 105,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-human-intervention",
+    "name": "Human Intervention",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "human",
+      "intervention",
+      "operator",
+      "hand",
+      "manual"
+    ],
+    "path": "M 50 15 L 78 27 L 78 73 L 50 85 L 22 73 L 22 27 Z M 40 40 L 40 55 M 46 36 L 46 55 M 52 35 L 52 55 M 58 38 L 58 55 M 64 45 L 64 55 M 40 55 C 40 68 64 68 64 55",
+    "defaultWidth": 100,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
+    "id": "eng-release",
+    "name": "Release",
+    "category": "Flowchart",
+    "section": "Engineering Workflow",
+    "tags": [
+      "release",
+      "package",
+      "version",
+      "tag",
+      "publish"
+    ],
+    "path": "M 20 30 L 80 30 L 80 80 L 20 80 Z M 15 20 L 85 20 L 85 30 L 15 30 Z M 50 20 L 50 80 M 35 20 L 45 12 L 55 20",
+    "defaultWidth": 105,
+    "defaultHeight": 105,
+    "viewBox": "0 0 100 100"
+  },
+  {
     "id": "general-circle",
     "name": "Circle",
     "category": "General",
@@ -583,231 +2439,6 @@
     "defaultWidth": 120,
     "defaultHeight": 110,
     "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-process",
-    "name": "Process Rectangle",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
-  },
-  {
-    "id": "flowchart-decision",
-    "name": "Decision Diamond",
-    "category": "Flowchart",
-    "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z",
-    "defaultWidth": 110,
-    "defaultHeight": 110,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-terminator",
-    "name": "Start / End Terminator",
-    "category": "Flowchart",
-    "path": "M 25 0 L 75 0 C 90 0, 100 12, 100 25 C 100 38, 90 50, 75 50 L 25 50 C 10 50, 0 38, 0 25 C 0 12, 10 0, 25 0 Z",
-    "defaultWidth": 130,
-    "defaultHeight": 70,
-    "viewBox": "0 0 100 50"
-  },
-  {
-    "id": "flowchart-io",
-    "name": "Input / Output Parallelogram",
-    "category": "Flowchart",
-    "path": "M 20 0 L 100 0 L 80 65 L 0 65 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
-  },
-  {
-    "id": "flowchart-predefined-process",
-    "name": "Predefined Process",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 15 0 L 15 65 M 85 0 L 85 65",
-    "defaultWidth": 130,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
-  },
-  {
-    "id": "flowchart-manual-operation",
-    "name": "Manual Operation",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 80 65 L 20 65 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
-  },
-  {
-    "id": "flowchart-document",
-    "name": "Document",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 70 C 80 60, 60 85, 40 70 C 20 60, 10 75, 0 70 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 85,
-    "viewBox": "0 0 100 75"
-  },
-  {
-    "id": "flowchart-multi-document",
-    "name": "Multiple Documents",
-    "category": "Flowchart",
-    "path": "M 10 10 L 95 10 L 95 65 C 80 55, 60 75, 45 65 L 10 65 Z M 0 20 L 85 20 L 85 75 C 70 65, 50 85, 35 75 C 20 65, 10 80, 0 75 Z",
-    "defaultWidth": 130,
-    "defaultHeight": 95,
-    "viewBox": "0 0 100 85"
-  },
-  {
-    "id": "flowchart-database",
-    "name": "Database / Cylinder",
-    "category": "Flowchart",
-    "path": "M 5 20 C 5 5, 95 5, 95 20 L 95 80 C 95 95, 5 95, 5 80 Z M 5 20 C 5 35, 95 35, 95 20",
-    "defaultWidth": 100,
-    "defaultHeight": 115,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-stored-data",
-    "name": "Stored Data",
-    "category": "Flowchart",
-    "path": "M 15 0 L 90 0 C 75 32.5, 75 32.5, 90 65 L 15 65 C 0 32.5, 0 32.5, 15 0 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
-  },
-  {
-    "id": "flowchart-delay",
-    "name": "Delay",
-    "category": "Flowchart",
-    "path": "M 0 0 L 60 0 C 85 0, 100 15, 100 35 C 100 55, 85 70, 60 70 L 0 70 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 70"
-  },
-  {
-    "id": "flowchart-preparation",
-    "name": "Preparation / Initialization",
-    "category": "Flowchart",
-    "path": "M 20 0 L 80 0 L 100 35 L 80 70 L 20 70 L 0 35 Z",
-    "defaultWidth": 130,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 70"
-  },
-  {
-    "id": "flowchart-connector-circle",
-    "name": "Connector Circle",
-    "category": "Flowchart",
-    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z",
-    "defaultWidth": 70,
-    "defaultHeight": 70,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-offpage-connector",
-    "name": "Off-Page Connector",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 50 L 50 85 L 0 50 Z",
-    "defaultWidth": 90,
-    "defaultHeight": 110,
-    "viewBox": "0 0 100 90"
-  },
-  {
-    "id": "flowchart-merge",
-    "name": "Merge",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 50 85 Z",
-    "defaultWidth": 110,
-    "defaultHeight": 95,
-    "viewBox": "0 0 100 90"
-  },
-  {
-    "id": "flowchart-extract",
-    "name": "Extract",
-    "category": "Flowchart",
-    "path": "M 50 5 L 100 90 L 0 90 Z",
-    "defaultWidth": 110,
-    "defaultHeight": 95,
-    "viewBox": "0 0 100 90"
-  },
-  {
-    "id": "flowchart-sort",
-    "name": "Sort",
-    "category": "Flowchart",
-    "path": "M 50 0 L 100 50 L 50 100 L 0 50 Z M 0 50 L 100 50",
-    "defaultWidth": 110,
-    "defaultHeight": 110,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-loop-limit",
-    "name": "Loop Limit",
-    "category": "Flowchart",
-    "path": "M 0 25 L 25 0 L 75 0 L 100 25 L 100 70 L 0 70 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 85,
-    "viewBox": "0 0 100 75"
-  },
-  {
-    "id": "flowchart-annotation",
-    "name": "Annotation",
-    "category": "Flowchart",
-    "path": "M 40 0 L 0 0 L 0 80 L 40 80 M 0 40 L -25 40",
-    "defaultWidth": 120,
-    "defaultHeight": 90,
-    "viewBox": "-30 0 100 80"
-  },
-  {
-    "id": "flowchart-flow-line",
-    "name": "Flow Line",
-    "category": "Flowchart",
-    "path": "M 10 50 L 80 50 M 65 35 L 80 50 L 65 65",
-    "defaultWidth": 120,
-    "defaultHeight": 40,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-summing-junction",
-    "name": "Summing Junction",
-    "category": "Flowchart",
-    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z M 22 22 L 78 78 M 78 22 L 22 78",
-    "defaultWidth": 80,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-or-junction",
-    "name": "Or Junction",
-    "category": "Flowchart",
-    "path": "M 50 10 A 40 40 0 1 1 49.9 10 Z M 50 10 L 50 90 M 10 50 L 90 50",
-    "defaultWidth": 80,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 100"
-  },
-  {
-    "id": "flowchart-subprocess",
-    "name": "Subprocess",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 50 50 L 50 60 M 45 55 L 55 55",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
-  },
-  {
-    "id": "flowchart-display",
-    "name": "Display",
-    "category": "Flowchart",
-    "path": "M 20 0 L 75 0 C 100 20, 100 50, 75 70 L 20 70 L 0 35 Z",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 70"
-  },
-  {
-    "id": "flowchart-internal-storage",
-    "name": "Internal Storage",
-    "category": "Flowchart",
-    "path": "M 0 0 L 100 0 L 100 65 L 0 65 Z M 15 0 L 15 65 M 0 15 L 100 15",
-    "defaultWidth": 120,
-    "defaultHeight": 80,
-    "viewBox": "0 0 100 65"
   },
   {
     "id": "uml-class",

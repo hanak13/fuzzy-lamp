@@ -93,6 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     let currentMode = 'select'; // 'select', 'pan', 'pen', 'highlighter', 'eraser', 'text', 'sticky', 'line', 'arrow'
     let activeCategory = 'all';
+    let activeFlowchartSection = 'all';
+    const fcSubsectionsEl = document.getElementById('flowchart-subsections');
+    const fcSubPills = document.querySelectorAll('.fc-sub-pill');
+
+    // Templates Elements
+    let allTemplates = [];
+    const templatesList = document.getElementById('templates-list');
+    const templatesSearch = document.getElementById('templates-search');
+    const btnClearTemplatesSearch = document.getElementById('btn-clear-templates-search');
     let currentLinePattern = 'solid'; // 'solid', 'dashed', 'dotted'
     let currentArrowHeadStyle = 'end'; // 'none', 'end', 'start', 'both'
 
@@ -355,6 +364,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     id: shape.id,
                     name: shape.name,
                     category: shape.category || 'Shapes',
+                    section: shape.section || null,
+                    tags: Array.isArray(shape.tags) ? shape.tags : [],
                     isBuiltin: false,
                     viewBox: shape.viewBox || '0 0 100 100',
                     svgIcon: `<path d="${shape.path}" fill="none" stroke="currentColor" stroke-width="6"/>`,
@@ -386,11 +397,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderShapesList() {
         if (!shapesList) return;
         const query = (shapesSearch ? shapesSearch.value.trim().toLowerCase() : '');
+        const isFlowchart = (activeCategory && activeCategory.toLowerCase() === 'flowchart');
+
+        if (fcSubsectionsEl) {
+            fcSubsectionsEl.style.display = isFlowchart ? 'flex' : 'none';
+        }
 
         const filtered = allShapes.filter(s => {
-            const matchesQuery = s.name.toLowerCase().includes(query) || (s.category && s.category.toLowerCase().includes(query));
-            const matchesCategory = (activeCategory === 'all') || (s.category && s.category.toLowerCase() === activeCategory.toLowerCase());
-            return matchesQuery && matchesCategory;
+            const matchesQuery = !query ||
+                s.name.toLowerCase().includes(query) ||
+                (s.category && s.category.toLowerCase().includes(query)) ||
+                (s.section && s.section.toLowerCase().includes(query)) ||
+                (Array.isArray(s.tags) && s.tags.some(t => t.toLowerCase().includes(query)));
+
+            const matchesCategory = (activeCategory === 'all') ||
+                (s.category && s.category.toLowerCase() === activeCategory.toLowerCase());
+
+            let matchesSection = true;
+            if (isFlowchart && activeFlowchartSection !== 'all') {
+                matchesSection = (s.section === activeFlowchartSection);
+            }
+
+            return matchesQuery && matchesCategory && matchesSection;
         });
 
         shapesList.innerHTML = '';
@@ -488,6 +516,23 @@ document.addEventListener('DOMContentLoaded', () => {
             categoryChips.forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
             activeCategory = chip.dataset.category || 'all';
+            if (activeCategory.toLowerCase() === 'flowchart') {
+                activeDrawerPanel = 'flowchart';
+                sidebarBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.panel === 'flowchart'));
+            } else if (activeDrawerPanel === 'flowchart') {
+                activeDrawerPanel = 'shapes';
+                sidebarBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.panel === 'shapes'));
+            }
+            renderShapesList();
+        });
+    });
+
+    // Flowchart Sub-Section Filter Pills Navigation
+    fcSubPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            fcSubPills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            activeFlowchartSection = pill.dataset.section || 'all';
             renderShapesList();
         });
     });
@@ -864,7 +909,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (btnToggleShapes) {
-            btnToggleShapes.classList.toggle('active', panelId === 'shapes');
+            btnToggleShapes.classList.toggle('active', panelId === 'shapes' || panelId === 'flowchart');
+        }
+
+        if (panelId === 'flowchart') {
+            drawerPanels.forEach(panel => {
+                panel.style.display = (panel.id === 'drawer-panel-shapes') ? 'flex' : 'none';
+            });
+            activeCategory = 'Flowchart';
+            activeFlowchartSection = 'all';
+            fcSubPills.forEach(p => p.classList.toggle('active', p.dataset.section === 'all'));
+            categoryChips.forEach(chip => {
+                const isFc = (chip.dataset.category && chip.dataset.category.toLowerCase() === 'flowchart');
+                chip.classList.toggle('active', isFc);
+                if (isFc && shapesCategoriesEl) {
+                    chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            });
+            if (shapesSearch) shapesSearch.value = '';
+            if (btnClearSearch) btnClearSearch.style.display = 'none';
+            renderShapesList();
+            return;
         }
 
         drawerPanels.forEach(panel => {
@@ -872,8 +937,22 @@ document.addEventListener('DOMContentLoaded', () => {
             panel.style.display = matches ? 'flex' : 'none';
         });
 
-        if (panelId === 'shapes' && shapesSearch) {
-            setTimeout(() => shapesSearch.focus(), 50);
+        if (panelId === 'shapes') {
+            if (activeCategory === 'Flowchart') {
+                activeCategory = 'all';
+                categoryChips.forEach(chip => {
+                    chip.classList.toggle('active', (chip.dataset.category || 'all').toLowerCase() === 'all');
+                });
+            }
+            renderShapesList();
+            if (shapesSearch) {
+                setTimeout(() => shapesSearch.focus(), 50);
+            }
+        } else if (panelId === 'templates') {
+            renderTemplatesList();
+            if (templatesSearch) {
+                setTimeout(() => templatesSearch.focus(), 50);
+            }
         } else if (panelId === 'notes') {
             setMode('sticky');
         }
@@ -1055,6 +1134,228 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDrawerPlaceNote.addEventListener('click', () => {
             setMode('sticky');
         });
+    }
+
+    // -------------------------------------------------------------------------
+    // 8B. Flowchart Templates Gallery Controller
+    // -------------------------------------------------------------------------
+    async function loadTemplates() {
+        try {
+            const res = await fetch('/static/templates.json');
+            if (res.ok) {
+                allTemplates = await res.json();
+                renderTemplatesList();
+            }
+        } catch (err) {
+            console.error('Failed to load /static/templates.json:', err);
+        }
+    }
+
+    function renderTemplatesList() {
+        if (!templatesList) return;
+        const query = (templatesSearch ? templatesSearch.value.trim().toLowerCase() : '');
+
+        const filtered = allTemplates.filter(t => {
+            return !query ||
+                t.name.toLowerCase().includes(query) ||
+                (t.category && t.category.toLowerCase().includes(query)) ||
+                (t.description && t.description.toLowerCase().includes(query)) ||
+                (t.badge && t.badge.toLowerCase().includes(query));
+        });
+
+        templatesList.innerHTML = '';
+
+        if (filtered.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'shapes-empty';
+            emptyEl.textContent = 'No matching templates found';
+            templatesList.appendChild(emptyEl);
+            return;
+        }
+
+        filtered.forEach(tpl => {
+            const card = document.createElement('div');
+            card.className = 'template-card';
+            const nodeCount = (tpl.nodes && tpl.nodes.length) ? tpl.nodes.length : 0;
+            const connCount = (tpl.connections && tpl.connections.length) ? tpl.connections.length : 0;
+
+            card.innerHTML = `
+                <div class="template-card-header">
+                    <span class="template-card-title">${tpl.name}</span>
+                    <span class="template-card-badge">${tpl.badge || tpl.category}</span>
+                </div>
+                <div class="template-card-desc">${tpl.description}</div>
+                <div class="template-card-footer">
+                    <span class="template-node-count">${nodeCount} steps &bull; ${connCount} links</span>
+                    <button type="button" class="template-btn-insert">Insert &rarr;</button>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                loadTemplateOntoCanvas(tpl);
+            });
+
+            templatesList.appendChild(card);
+        });
+    }
+
+    if (templatesSearch) {
+        templatesSearch.addEventListener('input', () => {
+            if (btnClearTemplatesSearch) {
+                btnClearTemplatesSearch.style.display = templatesSearch.value ? 'block' : 'none';
+            }
+            renderTemplatesList();
+        });
+    }
+
+    if (btnClearTemplatesSearch) {
+        btnClearTemplatesSearch.addEventListener('click', () => {
+            templatesSearch.value = '';
+            btnClearTemplatesSearch.style.display = 'none';
+            templatesSearch.focus();
+            renderTemplatesList();
+        });
+    }
+
+    function loadTemplateOntoCanvas(templateDef) {
+        if (!templateDef || !templateDef.nodes || templateDef.nodes.length === 0) return;
+
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        templateDef.nodes.forEach(n => {
+            const nw = n.width || 120;
+            const nh = n.height || 70;
+            minX = Math.min(minX, n.x - nw / 2);
+            maxX = Math.max(maxX, n.x + nw / 2);
+            minY = Math.min(minY, n.y - nh / 2);
+            maxY = Math.max(maxY, n.y + nh / 2);
+        });
+
+        const vpt = canvas.viewportTransform;
+        const zoom = canvas.getZoom();
+        const centerX = (-vpt[4] + canvas.getWidth() / 2) / zoom;
+        const centerY = (-vpt[5] + canvas.getHeight() / 2) / zoom;
+        const templateCenterOrigX = (minX + maxX) / 2;
+        const templateCenterOrigY = (minY + maxY) / 2;
+        const dx = centerX - templateCenterOrigX;
+        const dy = centerY - templateCenterOrigY;
+
+        const nodeMap = {};
+
+        templateDef.nodes.forEach(node => {
+            const posX = node.x + dx;
+            const posY = node.y + dy;
+            const nodeWidth = node.width || 120;
+            const nodeHeight = node.height || 70;
+
+            const shapeDef = allShapes.find(s => s.id === node.shapeId) || allShapes.find(s => s.id === 'fc-basic-process');
+            let shapeObj;
+            if (shapeDef && shapeDef.path) {
+                shapeObj = new fabric.Path(shapeDef.path, {
+                    fill: node.fill || '#eff6ff',
+                    stroke: node.stroke || '#3b82f6',
+                    strokeWidth: 2,
+                    originX: 'center',
+                    originY: 'center'
+                });
+                if (shapeObj.width) {
+                    const scaleX = nodeWidth / shapeObj.width;
+                    const scaleY = nodeHeight / (shapeObj.height || 100);
+                    shapeObj.scaleX = scaleX;
+                    shapeObj.scaleY = scaleY;
+                }
+            } else {
+                shapeObj = new fabric.Rect({
+                    width: nodeWidth,
+                    height: nodeHeight,
+                    rx: 8,
+                    ry: 8,
+                    fill: node.fill || '#eff6ff',
+                    stroke: node.stroke || '#3b82f6',
+                    strokeWidth: 2,
+                    originX: 'center',
+                    originY: 'center'
+                });
+            }
+
+            const textObj = new fabric.Textbox(node.text || '', {
+                width: Math.max(60, nodeWidth - 20),
+                fontSize: 13,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                fill: '#1e293b',
+                fontWeight: 600,
+                textAlign: 'center',
+                originX: 'center',
+                originY: 'center',
+                splitByGrapheme: true,
+                cursorColor: '#1e293b'
+            });
+
+            const group = new fabric.Group([shapeObj, textObj], {
+                left: posX,
+                top: posY,
+                originX: 'center',
+                originY: 'center',
+                isShapeGroup: true,
+                shapeId: node.shapeId,
+                shapeUid: generateUid(),
+                subTargetCheck: false
+            });
+
+            group.connectedLines = [];
+            nodeMap[node.id] = group;
+            canvas.add(group);
+        });
+
+        if (Array.isArray(templateDef.connections)) {
+            templateDef.connections.forEach(conn => {
+                const fromNode = nodeMap[conn.from];
+                const toNode = nodeMap[conn.to];
+                if (!fromNode || !toNode) return;
+
+                const anchorPair = getBestAnchorPair(fromNode, toNode);
+                const line = new fabric.Line([anchorPair.from.x, anchorPair.from.y, anchorPair.to.x, anchorPair.to.y], {
+                    stroke: '#475569',
+                    strokeWidth: 2,
+                    selectable: true,
+                    isConnector: true,
+                    hasArrow: true,
+                    arrowHeadStyle: 'end',
+                    fromShapeUid: fromNode.shapeUid,
+                    toShapeUid: toNode.shapeUid,
+                    fromShape: fromNode,
+                    toShape: toNode,
+                    objectCaching: false
+                });
+
+                const angle = Math.atan2(anchorPair.to.y - anchorPair.from.y, anchorPair.to.x - anchorPair.from.x) * (180 / Math.PI);
+                const arrowHead = new fabric.Triangle({
+                    left: anchorPair.to.x,
+                    top: anchorPair.to.y,
+                    originX: 'center',
+                    originY: 'center',
+                    pointType: 'arrow_end',
+                    angle: angle + 90,
+                    width: 12,
+                    height: 12,
+                    fill: '#475569',
+                    selectable: false,
+                    evented: false,
+                    isArrowHead: true
+                });
+
+                line.arrowHead = arrowHead;
+                fromNode.connectedLines.push(line);
+                toNode.connectedLines.push(line);
+
+                canvas.add(line);
+                canvas.add(arrowHead);
+            });
+        }
+
+        setMode('select');
+        canvas.renderAll();
+        saveState();
+        showToast(`Template "${templateDef.name}" inserted!`);
     }
 
     // -------------------------------------------------------------------------
@@ -3708,4 +4009,5 @@ document.addEventListener('DOMContentLoaded', () => {
     updateZoomDisplay();
     updateGrid();
     loadShapes();
+    loadTemplates();
 });

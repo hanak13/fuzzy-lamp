@@ -1,0 +1,2205 @@
+[
+  {
+    "id": "tpl-simple-process",
+    "name": "Simple Process Flow",
+    "category": "Basic",
+    "description": "Standard linear workflow from start to completion across sequential process stages.",
+    "badge": "Linear Flow",
+    "icon": "M 20 50 L 80 50 M 65 35 L 80 50 L 65 65 M 15 25 L 15 75 M 85 25 L 85 75",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Start",
+        "x": 100,
+        "y": 200,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-process",
+        "text": "Step 1: Ingest Data",
+        "x": 280,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "Step 2: Transform Data",
+        "x": 480,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Step 3: Save Output",
+        "x": 680,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-terminator",
+        "text": "End",
+        "x": 870,
+        "y": 200,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 120,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      }
+    ]
+  },
+  {
+    "id": "tpl-decision-flow",
+    "name": "Decision-Based Flow",
+    "category": "Basic",
+    "description": "Conditional branching workflow showing binary decision logic and reconvergence.",
+    "badge": "Branching",
+    "icon": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 50 50 L 85 50 M 50 85 L 50 95",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Start",
+        "x": 100,
+        "y": 220,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-process",
+        "text": "Evaluate Condition",
+        "x": 280,
+        "y": 220,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "Criteria Met?",
+        "x": 480,
+        "y": 220,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 100
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Branch A (Action)",
+        "x": 680,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-process",
+        "text": "Branch B (Alternative)",
+        "x": 680,
+        "y": 320,
+        "fill": "#fff7ed",
+        "stroke": "#f97316",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-process",
+        "text": "Consolidate Results",
+        "x": 880,
+        "y": 220,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "End",
+        "x": 1070,
+        "y": 220,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 120,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Yes"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "No"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      },
+      {
+        "from": "n6",
+        "to": "n7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-login-auth",
+    "name": "Login Authentication Flow",
+    "category": "Security & Auth",
+    "description": "User credential submission, validation, DB lookup, bcrypt verification, and JWT issuance.",
+    "badge": "Authentication",
+    "icon": "M 50 20 A 15 15 0 1 1 49.9 20 Z M 30 75 C 30 55 70 55 70 75 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-manual-input",
+        "text": "Enter Credentials",
+        "x": 100,
+        "y": 220,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-process",
+        "text": "Validate Format",
+        "x": 280,
+        "y": 220,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-data-database",
+        "text": "Query User DB",
+        "x": 460,
+        "y": 220,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 110,
+        "height": 95
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-decision",
+        "text": "Password Match?",
+        "x": 640,
+        "y": 220,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 95
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-process",
+        "text": "Issue JWT Session",
+        "x": 840,
+        "y": 130,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-adv-failure",
+        "text": "Rate Limit & Error",
+        "x": 840,
+        "y": 310,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "Redirect Dashboard",
+        "x": 1040,
+        "y": 130,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 140,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5",
+        "label": "Valid"
+      },
+      {
+        "from": "n4",
+        "to": "n6",
+        "label": "Invalid"
+      },
+      {
+        "from": "n5",
+        "to": "n7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-user-registration",
+    "name": "User Registration Flow",
+    "category": "Security & Auth",
+    "description": "Signup validation, duplicate detection, password hashing, DB persist, and email confirmation.",
+    "badge": "Onboarding",
+    "icon": "M 40 30 A 12 12 0 1 1 39.9 30 Z M 20 70 C 20 54 60 54 60 70 Z M 70 35 L 70 55 M 60 45 L 80 45",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Submit Signup",
+        "x": 100,
+        "y": 200,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-process",
+        "text": "Sanitize & Validate",
+        "x": 270,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "User Exists?",
+        "x": 460,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Hash Password",
+        "x": 640,
+        "y": 120,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-process",
+        "text": "Show 'Email Taken'",
+        "x": 640,
+        "y": 290,
+        "fill": "#fff1f2",
+        "stroke": "#f43f5e",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-data-database",
+        "text": "Insert User Record",
+        "x": 820,
+        "y": 120,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-message",
+        "text": "Send Activation Email",
+        "x": 1000,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 140,
+        "height": 70
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "No"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "Yes"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n6",
+        "to": "n7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-payment-processing",
+    "name": "Payment Processing Flow",
+    "category": "Business & Orders",
+    "description": "Cart checkout, payment intent creation, 3D secure authentication, capture, and receipt generation.",
+    "badge": "E-Commerce",
+    "icon": "M 15 25 L 85 25 L 85 75 L 15 75 Z M 15 40 L 85 40 M 25 58 L 45 58",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Initiate Checkout",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-adv-api-call",
+        "text": "Create Payment Intent",
+        "x": 280,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "Authorized?",
+        "x": 480,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Capture Charge",
+        "x": 660,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-adv-failure",
+        "text": "Decline Notice",
+        "x": 660,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 120,
+        "height": 70
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-document",
+        "text": "Invoice & Receipt",
+        "x": 840,
+        "y": 120,
+        "fill": "#f8fafc",
+        "stroke": "#475569",
+        "width": 130,
+        "height": 80
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "Order Confirmed",
+        "x": 1020,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 130,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Pass"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "Fail"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n6",
+        "to": "n7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-order-processing",
+    "name": "Order Processing Flow",
+    "category": "Business & Orders",
+    "description": "Inventory check, backorder handling, picking, packing, dispatch, and carrier tracking.",
+    "badge": "Fulfillment",
+    "icon": "M 20 30 L 80 30 L 80 80 L 20 80 Z M 15 20 L 85 20 L 85 30 L 15 30 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Order Placed",
+        "x": 100,
+        "y": 200,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-data-database",
+        "text": "Inventory Check",
+        "x": 280,
+        "y": 200,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "In Stock?",
+        "x": 460,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 110,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Pick & Pack Items",
+        "x": 640,
+        "y": 120,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-process",
+        "text": "Backorder Notice",
+        "x": 640,
+        "y": 290,
+        "fill": "#fff7ed",
+        "stroke": "#f97316",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-process",
+        "text": "Carrier Handover",
+        "x": 830,
+        "y": 120,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "Tracking Dispatched",
+        "x": 1010,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 140,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Yes"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "No"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n6",
+        "to": "n7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-approval-workflow",
+    "name": "Approval Workflow",
+    "category": "Operations",
+    "description": "Multi-tier approval pipeline across team lead, finance verification, and disbursement.",
+    "badge": "Governance",
+    "icon": "M 50 15 L 85 75 L 15 75 Z M 40 50 L 48 58 L 62 42",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Submit Request",
+        "x": 100,
+        "y": 200,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "bpmn-user-task",
+        "text": "Manager Review",
+        "x": 280,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#475569",
+        "width": 130,
+        "height": 70
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "Manager Approved?",
+        "x": 470,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "bpmn-user-task",
+        "text": "Finance Signoff",
+        "x": 670,
+        "y": 120,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 70
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-adv-rejection",
+        "text": "Reject Notice",
+        "x": 670,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 120,
+        "height": 70
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-process",
+        "text": "Disburse Funds",
+        "x": 860,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "Closed & Archived",
+        "x": 1040,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 130,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Approved"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "Rejected"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n6",
+        "to": "n7"
+      }
+    ]
+  },
+  {
+    "id": "tpl-error-handling",
+    "name": "Error Handling Workflow",
+    "category": "Engineering & DevOps",
+    "description": "Try/catch, transient detection, exponential backoff retries, and SRE pager escalation.",
+    "badge": "Resilience",
+    "icon": "M 50 18 A 32 32 0 1 1 49.9 18 Z M 52 30 L 40 50 L 52 50 L 46 70 L 62 48 L 50 48 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Execute Task",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-decision",
+        "text": "Error Caught?",
+        "x": 280,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "Transient Network?",
+        "x": 480,
+        "y": 290,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Exponential Backoff",
+        "x": 700,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "eng-alert",
+        "text": "PagerDuty SRE Alert",
+        "x": 700,
+        "y": 350,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 80
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "Success Finish",
+        "x": 480,
+        "y": 100,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n6",
+        "label": "No Error"
+      },
+      {
+        "from": "n2",
+        "to": "n3",
+        "label": "Caught"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Retryable"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "Fatal"
+      },
+      {
+        "from": "n4",
+        "to": "n1"
+      }
+    ]
+  },
+  {
+    "id": "tpl-exception-handling",
+    "name": "Exception Handling Flow",
+    "category": "Engineering & DevOps",
+    "description": "Incoming request interception, status code mapping (400/404/500), and sanitized JSON responses.",
+    "badge": "API Architecture",
+    "icon": "M 50 18 L 80 30 L 80 55 C 80 72 50 85 50 85 C 50 85 20 72 20 55 L 20 30 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Incoming Request",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-process",
+        "text": "Route Controller",
+        "x": 280,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "Exception Occurs?",
+        "x": 460,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-adv-error-handler",
+        "text": "Global Exception Handler",
+        "x": 660,
+        "y": 290,
+        "fill": "#fff1f2",
+        "stroke": "#f43f5e",
+        "width": 140,
+        "height": 80
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-process",
+        "text": "Format Sanitized JSON",
+        "x": 860,
+        "y": 290,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "Emit 200 OK Response",
+        "x": 660,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 140,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n6",
+        "label": "Normal"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Exception"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      }
+    ]
+  },
+  {
+    "id": "tpl-api-request",
+    "name": "API Request Flow",
+    "category": "Engineering & DevOps",
+    "description": "Full lifecycle: gateway, rate limiting, JWT validation, business logic, DB queries, and serialization.",
+    "badge": "Microservices",
+    "icon": "M 30 35 L 20 50 L 30 65 M 70 35 L 80 50 L 70 65 M 55 30 L 45 70",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "HTTP Client",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-adv-external-system",
+        "text": "API Gateway",
+        "x": 270,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 130,
+        "height": 70
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "JWT Valid?",
+        "x": 450,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 110,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Business Service",
+        "x": 630,
+        "y": 120,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-data-database",
+        "text": "PostgreSQL DB",
+        "x": 820,
+        "y": 120,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "200 OK JSON",
+        "x": 1000,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-failure",
+        "text": "401 Unauthorized",
+        "x": 630,
+        "y": 280,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 70
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Valid"
+      },
+      {
+        "from": "n3",
+        "to": "n7",
+        "label": "Invalid"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-cicd-pipeline",
+    "name": "CI/CD Pipeline Flow",
+    "category": "Engineering & DevOps",
+    "description": "Git triggers, linting, automated unit test suites, Docker image compilation, and production deploy.",
+    "badge": "DevOps",
+    "icon": "M 50 15 C 65 25 70 50 65 70 L 50 62 L 35 70 C 30 50 35 25 50 15 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Git Push (main)",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "eng-build",
+        "text": "Run Linter & Build",
+        "x": 280,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n3",
+        "shapeId": "eng-unit-testing",
+        "text": "Unit & Integration Tests",
+        "x": 470,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 80
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-decision",
+        "text": "Tests Green?",
+        "x": 670,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n5",
+        "shapeId": "eng-deployment",
+        "text": "Staging Canary",
+        "x": 860,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 80
+      },
+      {
+        "id": "n6",
+        "shapeId": "eng-production",
+        "text": "Production Zero-Downtime",
+        "x": 1050,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 150,
+        "height": 80
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-failure",
+        "text": "Notify Build Broken",
+        "x": 860,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 140,
+        "height": 70
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5",
+        "label": "Pass"
+      },
+      {
+        "from": "n4",
+        "to": "n7",
+        "label": "Fail"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-sdlc-flow",
+    "name": "Software Development Lifecycle",
+    "category": "Engineering & DevOps",
+    "description": "Complete agile product cycle: requirements, design wireframing, sprint development, QA, and release.",
+    "badge": "Agile SDLC",
+    "icon": "M 32 35 L 18 50 L 32 65 M 68 35 L 82 50 L 68 65 M 56 28 L 44 72",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "eng-requirement",
+        "text": "Requirements & User Stories",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 75
+      },
+      {
+        "id": "n2",
+        "shapeId": "eng-design",
+        "text": "System Architecture",
+        "x": 280,
+        "y": 200,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n3",
+        "shapeId": "eng-development",
+        "text": "Sprint Development",
+        "x": 460,
+        "y": 200,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n4",
+        "shapeId": "eng-code-review",
+        "text": "PR Code Review",
+        "x": 640,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n5",
+        "shapeId": "eng-unit-testing",
+        "text": "QA & UAT Testing",
+        "x": 820,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n6",
+        "shapeId": "eng-release",
+        "text": "Release & Monitor",
+        "x": 1000,
+        "y": 200,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 130,
+        "height": 75
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-data-processing",
+    "name": "Data Processing Flow",
+    "category": "Data & Analytics",
+    "description": "Stream ingestion, schema validation, window aggregation, and time-series persistence.",
+    "badge": "Streaming",
+    "icon": "M 20 28 A 30 9 0 1 1 80 28 M 20 48 A 30 9 0 0 0 80 48 M 20 68 A 30 9 0 0 0 80 68",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Raw IoT Telemetry",
+        "x": 100,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-adv-signal",
+        "text": "Kafka Event Bus",
+        "x": 280,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "Validate & Sanitize",
+        "x": 460,
+        "y": 200,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Window Aggregation",
+        "x": 640,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-data-database",
+        "text": "ClickHouse Timeseries",
+        "x": 830,
+        "y": 200,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "Realtime Dashboard",
+        "x": 1010,
+        "y": 200,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 140,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-etl-workflow",
+    "name": "ETL Workflow",
+    "category": "Data & Analytics",
+    "description": "Extract from operational stores, S3 staging lake, dbt transformation, quality checks, and Snowflake loading.",
+    "badge": "Data Warehouse",
+    "icon": "M 20 25 A 30 12 0 1 1 80 25 M 20 75 A 30 12 0 0 0 80 75",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-data-database",
+        "text": "Production DBs",
+        "x": 100,
+        "y": 200,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-data-cloud-storage",
+        "text": "S3 Bronze Lake",
+        "x": 280,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 80
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "dbt & Spark Transform",
+        "x": 470,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-decision",
+        "text": "Data Quality OK?",
+        "x": 670,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-data-database",
+        "text": "Snowflake Warehouse",
+        "x": 860,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-display",
+        "text": "BI PowerBI / Looker",
+        "x": 1050,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-warning",
+        "text": "Quarantine Alert",
+        "x": 860,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 75
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5",
+        "label": "Pass"
+      },
+      {
+        "from": "n4",
+        "to": "n7",
+        "label": "Fail"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-customer-support",
+    "name": "Customer Support Workflow",
+    "category": "Operations",
+    "description": "Incoming tickets, AI triage, automated solutions, tier escalation, and customer satisfaction surveys.",
+    "badge": "Service Desk",
+    "icon": "M 15 25 L 85 25 L 85 65 L 50 65 L 35 78 L 35 65 L 15 65 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-adv-message",
+        "text": "Customer Ticket",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 70
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-process",
+        "text": "AI Triage & Category",
+        "x": 280,
+        "y": 200,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-decision",
+        "text": "Known Solution?",
+        "x": 480,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Instant Bot Reply",
+        "x": 680,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "bpmn-user-task",
+        "text": "Agent Investigation",
+        "x": 680,
+        "y": 290,
+        "fill": "#f8fafc",
+        "stroke": "#475569",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "Resolved & CSAT",
+        "x": 880,
+        "y": 200,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 130,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4",
+        "label": "Yes"
+      },
+      {
+        "from": "n3",
+        "to": "n5",
+        "label": "No"
+      },
+      {
+        "from": "n4",
+        "to": "n6"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-manufacturing-process",
+    "name": "Manufacturing Process Flow",
+    "category": "Operations",
+    "description": "Material intake, CNC machining, component assembly, tolerance QA, and shipping packaging.",
+    "badge": "Industrial",
+    "icon": "M 15 80 L 15 45 L 38 60 L 38 45 L 62 60 L 62 30 L 85 30 L 85 80 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Material Intake",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "eng-quality-check",
+        "text": "Raw Material QA",
+        "x": 270,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "CNC Fabrication",
+        "x": 450,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-process",
+        "text": "Final Assembly",
+        "x": 630,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 130,
+        "height": 65
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-decision",
+        "text": "Tolerances Met?",
+        "x": 810,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "Warehouse Pack",
+        "x": 1000,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-failure",
+        "text": "Scrap & Rework",
+        "x": 1000,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 70
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      },
+      {
+        "from": "n5",
+        "to": "n6",
+        "label": "Pass"
+      },
+      {
+        "from": "n5",
+        "to": "n7",
+        "label": "Fail"
+      }
+    ]
+  },
+  {
+    "id": "tpl-quality-inspection",
+    "name": "Quality Inspection Flow",
+    "category": "Operations",
+    "description": "Sample selection, caliper dimension tests, 6-sigma limits, QA certification stamp, and quarantine.",
+    "badge": "Quality Assurance",
+    "icon": "M 50 15 L 85 50 L 50 85 L 15 50 Z M 38 50 L 46 58 L 62 42",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Batch Arrived",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-adv-validation",
+        "text": "Statistical Sample",
+        "x": 280,
+        "y": 200,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "Laser Measurement",
+        "x": 470,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-decision",
+        "text": "Within Bounds?",
+        "x": 670,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 120,
+        "height": 90
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-adv-approval",
+        "text": "QA Cert Stamp",
+        "x": 860,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-terminator",
+        "text": "Stock Approved",
+        "x": 1040,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 130,
+        "height": 60
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-warning",
+        "text": "Quarantine Lock",
+        "x": 860,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 75
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5",
+        "label": "Pass"
+      },
+      {
+        "from": "n4",
+        "to": "n7",
+        "label": "Fail"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-inventory-management",
+    "name": "Inventory Management Flow",
+    "category": "Operations",
+    "description": "Stock threshold monitoring, automated PO generation, vendor receipt, barcode scanning, and ERP sync.",
+    "badge": "Supply Chain",
+    "icon": "M 20 20 L 80 20 L 80 80 L 20 80 Z M 20 35 L 80 35 M 40 20 L 40 80",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Stock Threshold Check",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-basic-decision",
+        "text": "Below Minimum?",
+        "x": 290,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "Generate PO",
+        "x": 480,
+        "y": 120,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 120,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-adv-message",
+        "text": "Dispatch to Supplier",
+        "x": 650,
+        "y": 120,
+        "fill": "#f8fafc",
+        "stroke": "#64748b",
+        "width": 140,
+        "height": 70
+      },
+      {
+        "id": "n5",
+        "shapeId": "fc-basic-process",
+        "text": "Barcode Scan Intake",
+        "x": 840,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-data-database",
+        "text": "ERP Inventory Sync",
+        "x": 1030,
+        "y": 120,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "Adequate Stock",
+        "x": 480,
+        "y": 290,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 120,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3",
+        "label": "Low"
+      },
+      {
+        "from": "n2",
+        "to": "n7",
+        "label": "OK"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-incident-management",
+    "name": "Incident Management Flow",
+    "category": "Engineering & DevOps",
+    "description": "P1 alert detection, on-call paging, command war room, hotfix mitigation, and blameless postmortem.",
+    "badge": "SRE Incident",
+    "icon": "M 30 75 L 70 75 L 64 45 C 64 32 36 32 36 45 Z M 50 15 L 50 25",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "eng-incident",
+        "text": "P1 Outage Detected",
+        "x": 100,
+        "y": 200,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 80
+      },
+      {
+        "id": "n2",
+        "shapeId": "eng-alert",
+        "text": "Page On-Call Team",
+        "x": 280,
+        "y": 200,
+        "fill": "#fff1f2",
+        "stroke": "#f43f5e",
+        "width": 130,
+        "height": 80
+      },
+      {
+        "id": "n3",
+        "shapeId": "fc-basic-process",
+        "text": "Open Incident Bridge",
+        "x": 460,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 65
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-decision",
+        "text": "Mitigation Found?",
+        "x": 650,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n5",
+        "shapeId": "eng-rollback",
+        "text": "Rollback or Patch",
+        "x": 840,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n6",
+        "shapeId": "fc-basic-document",
+        "text": "Blameless Postmortem",
+        "x": 1020,
+        "y": 120,
+        "fill": "#f8fafc",
+        "stroke": "#475569",
+        "width": 140,
+        "height": 80
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-adv-warning",
+        "text": "Escalate Executive",
+        "x": 840,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 75
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5",
+        "label": "Yes"
+      },
+      {
+        "from": "n4",
+        "to": "n7",
+        "label": "No"
+      },
+      {
+        "from": "n5",
+        "to": "n6"
+      }
+    ]
+  },
+  {
+    "id": "tpl-deployment-workflow",
+    "name": "Deployment Workflow",
+    "category": "Engineering & DevOps",
+    "description": "Pre-flight checks, DB migrations, Blue/Green canary deployment, ingress cutover, and old cluster teardown.",
+    "badge": "Infrastructure",
+    "icon": "M 50 15 L 85 35 L 85 75 L 50 95 L 15 75 L 15 35 Z",
+    "nodes": [
+      {
+        "id": "n1",
+        "shapeId": "fc-basic-terminator",
+        "text": "Trigger Release",
+        "x": 100,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 120,
+        "height": 60
+      },
+      {
+        "id": "n2",
+        "shapeId": "fc-data-database",
+        "text": "Execute DB Migrations",
+        "x": 270,
+        "y": 200,
+        "fill": "#f5f3ff",
+        "stroke": "#8b5cf6",
+        "width": 140,
+        "height": 85
+      },
+      {
+        "id": "n3",
+        "shapeId": "eng-deployment",
+        "text": "Spin Up Green Cluster",
+        "x": 460,
+        "y": 200,
+        "fill": "#eff6ff",
+        "stroke": "#3b82f6",
+        "width": 140,
+        "height": 80
+      },
+      {
+        "id": "n4",
+        "shapeId": "fc-basic-decision",
+        "text": "Health Probes 200?",
+        "x": 660,
+        "y": 200,
+        "fill": "#fefce8",
+        "stroke": "#eab308",
+        "width": 130,
+        "height": 90
+      },
+      {
+        "id": "n5",
+        "shapeId": "eng-production",
+        "text": "Cutover 100% Ingress",
+        "x": 860,
+        "y": 120,
+        "fill": "#ecfdf5",
+        "stroke": "#10b981",
+        "width": 140,
+        "height": 75
+      },
+      {
+        "id": "n6",
+        "shapeId": "eng-rollback",
+        "text": "Abort & Revert Blue",
+        "x": 860,
+        "y": 290,
+        "fill": "#fef2f2",
+        "stroke": "#ef4444",
+        "width": 130,
+        "height": 75
+      },
+      {
+        "id": "n7",
+        "shapeId": "fc-basic-terminator",
+        "text": "Release Confirmed",
+        "x": 1050,
+        "y": 120,
+        "fill": "#f0fdf4",
+        "stroke": "#22c55e",
+        "width": 130,
+        "height": 60
+      }
+    ],
+    "connections": [
+      {
+        "from": "n1",
+        "to": "n2"
+      },
+      {
+        "from": "n2",
+        "to": "n3"
+      },
+      {
+        "from": "n3",
+        "to": "n4"
+      },
+      {
+        "from": "n4",
+        "to": "n5",
+        "label": "Pass"
+      },
+      {
+        "from": "n4",
+        "to": "n6",
+        "label": "Fail"
+      },
+      {
+        "from": "n5",
+        "to": "n7"
+      }
+    ]
+  }
+]
