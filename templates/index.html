@@ -377,12 +377,29 @@
                 <span class="autosave-dot"></span>
                 <span class="autosave-text">Saved</span>
             </div>
+
+            <!-- 1. Minimize Top Toolbar Button -->
+            <button type="button" id="btn-minimize-top-bar" class="top-bar-action-btn btn-minimize-panel" title="Minimize Top Toolbar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="18 15 12 9 6 15"/>
+                </svg>
+                <span>Hide</span>
+            </button>
         </div>
     </div>
 
     <!-- Left Navigation Sidebar Dock (7 buttons) -->
     <nav id="left-sidebar" class="sidebar-dock" aria-label="Sidebar Navigation">
         <div class="sidebar-buttons">
+            <!-- 2. Minimize Left Sidebar Button -->
+            <button type="button" id="btn-minimize-left-sidebar" class="sidebar-btn sidebar-minimize-btn" title="Minimize Sidebar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                <span class="sidebar-btn-label">Hide</span>
+            </button>
+            <div class="sidebar-sep"></div>
+
             <button id="btn-sidebar-shapes" class="sidebar-btn" data-panel="shapes" title="Shapes Library">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="7" height="7"/>
@@ -956,6 +973,42 @@
                 <path d="m3 3 7 18 3-7 7-3L3 3z"/>
             </svg>
             <span class="fs-btn-label">Select</span>
+        </button>
+
+        <div class="fs-bar-sep"></div>
+
+        <!-- 3. Minimize Presenter Dock Button -->
+        <button type="button" id="fs-btn-minimize-dock" class="fs-bar-btn fs-btn-minimize" title="Minimize Drawing Dock">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Three Floating Restore Buttons (Shown When Panels are Minimized) -->
+    <div id="panel-restore-buttons" class="panel-restore-container">
+        <!-- 1. Restore Top Toolbar Button -->
+        <button type="button" id="btn-restore-top-bar" class="panel-restore-btn restore-top-bar hidden" title="Restore Top Toolbar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            <span>Toolbar</span>
+        </button>
+
+        <!-- 2. Restore Left Sidebar Button -->
+        <button type="button" id="btn-restore-left-sidebar" class="panel-restore-btn restore-left-sidebar hidden" title="Restore Left Sidebar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span>Sidebar</span>
+        </button>
+
+        <!-- 3. Restore Bottom Dock Button -->
+        <button type="button" id="btn-restore-bottom-dock" class="panel-restore-btn restore-bottom-dock hidden" title="Restore Drawing Dock">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            <span>Draw</span>
         </button>
     </div>
 

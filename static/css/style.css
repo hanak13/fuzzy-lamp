@@ -3063,3 +3063,133 @@ kbd {
     border-color: #fca5a5;
     color: #dc2626;
 }
+
+/* ==========================================================================
+   Panel Minimize & Three Floating Restore Buttons System
+   ========================================================================== */
+
+.top-bar-container {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+}
+
+.top-bar-container.minimized-top-bar {
+    transform: translateY(-90px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.sidebar-dock {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+}
+
+.sidebar-dock.minimized-sidebar {
+    transform: translateX(-95px) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.fullscreen-presenter-bar.minimized-dock {
+    transform: scale(0.85);
+    opacity: 0 !important;
+    pointer-events: none !important;
+    display: none !important;
+}
+
+.sidebar-sep {
+    width: 28px;
+    height: 1px;
+    background: var(--toolbar-border);
+    margin: 3px 0 5px 0;
+}
+
+.sidebar-minimize-btn {
+    color: var(--text-muted);
+}
+
+.sidebar-minimize-btn:hover {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.btn-minimize-panel:hover {
+    color: #ef4444 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.fs-btn-minimize:hover {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Three Floating Restore Buttons */
+.panel-restore-btn {
+    position: fixed;
+    z-index: 10006;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 15px;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 20px;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    user-select: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeInRestoreBtn 0.2s ease-out;
+}
+
+.panel-restore-btn:hover {
+    background: #0f172a;
+    border-color: #38bdf8;
+    color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(56, 189, 248, 0.4);
+}
+
+.panel-restore-btn:active {
+    transform: translateY(0);
+}
+
+.panel-restore-btn.hidden {
+    display: none !important;
+}
+
+.restore-top-bar {
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.restore-top-bar:hover {
+    transform: translate(-50%, -2px);
+}
+
+.restore-top-bar:active {
+    transform: translate(-50%, 0);
+}
+
+.restore-left-sidebar {
+    top: 76px;
+    left: 14px;
+}
+
+.restore-bottom-dock {
+    bottom: 24px;
+    right: 28px;
+}
+
+@keyframes fadeInRestoreBtn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

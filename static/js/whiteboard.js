@@ -3376,6 +3376,93 @@ document.addEventListener('DOMContentLoaded', () => {
     initMovablePresenterBar();
 
     // -------------------------------------------------------------------------
+    // Panel Minimize & Three Floating Restore Buttons System
+    // (Top Header Toolbar, Left Sidebar, Bottom Presenter/Drawing Dock)
+    // -------------------------------------------------------------------------
+    function initPanelMinimizeSystem() {
+        // 1. Top Bar Elements
+        const btnMinimizeTopBar = document.getElementById('btn-minimize-top-bar');
+        const btnRestoreTopBar = document.getElementById('btn-restore-top-bar');
+        const topBarContainer = document.querySelector('.top-bar-container');
+
+        // 2. Left Sidebar Elements
+        const btnMinimizeLeftSidebar = document.getElementById('btn-minimize-left-sidebar');
+        const btnRestoreLeftSidebar = document.getElementById('btn-restore-left-sidebar');
+        const leftSidebarNav = document.getElementById('left-sidebar');
+
+        // 3. Bottom Presenter / Drawing Dock Elements
+        const fsBtnMinimizeDock = document.getElementById('fs-btn-minimize-dock');
+        const btnRestoreBottomDock = document.getElementById('btn-restore-bottom-dock');
+
+        // Top Toolbar Minimize & Restore
+        if (btnMinimizeTopBar && topBarContainer && btnRestoreTopBar) {
+            btnMinimizeTopBar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                topBarContainer.classList.add('minimized-top-bar');
+                btnRestoreTopBar.classList.remove('hidden');
+                if (typeof showToast === 'function') showToast('Top toolbar minimized');
+            });
+
+            btnRestoreTopBar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                topBarContainer.classList.remove('minimized-top-bar');
+                btnRestoreTopBar.classList.add('hidden');
+            });
+        }
+
+        // Left Sidebar Minimize & Restore
+        if (btnMinimizeLeftSidebar && leftSidebarNav && btnRestoreLeftSidebar) {
+            btnMinimizeLeftSidebar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                leftSidebarNav.classList.add('minimized-sidebar');
+                if (typeof closeDrawer === 'function') closeDrawer();
+                btnRestoreLeftSidebar.classList.remove('hidden');
+                if (typeof showToast === 'function') showToast('Sidebar minimized');
+            });
+
+            btnRestoreLeftSidebar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                leftSidebarNav.classList.remove('minimized-sidebar');
+                btnRestoreLeftSidebar.classList.add('hidden');
+            });
+        }
+
+        // Bottom Drawing Dock Minimize & Restore
+        if (fsBtnMinimizeDock && fsPresenterBar && btnRestoreBottomDock) {
+            fsBtnMinimizeDock.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+                if (fsColorPopover) fsColorPopover.classList.add('hidden');
+                fsPresenterBar.classList.add('minimized-dock');
+
+                // Place restore button at bottom-right or near dock position
+                if (fsPresenterBar.dataset.dragged === 'true' && fsPresenterBar.style.left && fsPresenterBar.style.left !== 'auto') {
+                    btnRestoreBottomDock.style.left = fsPresenterBar.style.left;
+                    btnRestoreBottomDock.style.top = fsPresenterBar.style.top;
+                    btnRestoreBottomDock.style.bottom = 'auto';
+                    btnRestoreBottomDock.style.right = 'auto';
+                } else {
+                    btnRestoreBottomDock.style.left = 'auto';
+                    btnRestoreBottomDock.style.top = 'auto';
+                    btnRestoreBottomDock.style.bottom = '24px';
+                    btnRestoreBottomDock.style.right = '28px';
+                }
+
+                btnRestoreBottomDock.classList.remove('hidden');
+                if (typeof showToast === 'function') showToast('Drawing dock minimized');
+            });
+
+            btnRestoreBottomDock.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fsPresenterBar.classList.remove('minimized-dock');
+                btnRestoreBottomDock.classList.add('hidden');
+            });
+        }
+    }
+
+    initPanelMinimizeSystem();
+
+    // -------------------------------------------------------------------------
     // 12. Freehand Brush & Eraser Finalization (path:created)
     // -------------------------------------------------------------------------
     canvas.on('path:created', (opt) => {
