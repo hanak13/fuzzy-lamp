@@ -54,3 +54,9 @@ build/
 # ── Windows helper scripts (dev only) ───────────────────
 *.bat
 *.cmd
+
+# ── Local Agent Memory (Do Not Commit) ──────────────────
+MEMORY.md
+*code_map*
+*temp_analysis*
+
