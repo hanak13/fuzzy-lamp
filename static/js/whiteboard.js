@@ -46,6 +46,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnStepBoxAdd = document.getElementById('btn-stepbox-add');
     const btnStepBoxDel = document.getElementById('btn-stepbox-del');
     const stepBoxCounterLabel = document.getElementById('stepbox-counter-label');
+    const btnStepBoxSave = document.getElementById('btn-stepbox-save');
+    const btnStepBoxPlay = document.getElementById('btn-stepbox-play');
+    const stepBoxPlayIcon = document.getElementById('stepbox-play-icon');
+    const stepBoxPlayLabel = document.getElementById('stepbox-play-label');
+    const btnStepBoxManage = document.getElementById('btn-stepbox-manage');
+    const btnStepBoxPptx = document.getElementById('btn-stepbox-pptx');
+
+    // Step Box Manager Modal Elements
+    const stepboxManagerModal = document.getElementById('stepbox-manager-modal');
+    const stepboxModalTitle = document.getElementById('stepbox-modal-title');
+    const btnCloseStepboxManager = document.getElementById('btn-close-stepbox-manager');
+    const btnStepboxManagerDone = document.getElementById('btn-stepbox-manager-done');
+    const btnStepboxManagerAdd = document.getElementById('btn-stepbox-manager-add');
+    const btnStepboxManagerPptx = document.getElementById('btn-stepbox-manager-pptx');
+    const stepboxStepsList = document.getElementById('stepbox-steps-list');
+    const stepboxManagerCountBadge = document.getElementById('stepbox-manager-count-badge');
+    const stepboxManagerActiveBadge = document.getElementById('stepbox-manager-active-badge');
 
     // Fullscreen Controls Elements
     const btnFullscreenToggle = document.getElementById('btn-fullscreen-toggle');
@@ -234,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let stepBoxStartPoint = null;
     let stepBoxPreviewRect = null;
     let activeStepBox = null;
+    let isStepBoxPlaying = false;
+    let stepBoxPlayInterval = null;
 
     // Pan state tracking
     let isPanning = false;
@@ -597,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const objs = canvas.getObjects().slice();
 
             objs.forEach(obj => {
-                if (!obj || obj.isSlideFrame || obj.isGridLine || obj === stepBoxPreviewRect || obj === connectorPreviewLine) return;
+                if (!obj || obj.isSlideFrame || obj.isStepBox || obj.isGridLine || obj === stepBoxPreviewRect || obj === connectorPreviewLine) return;
 
                 const bound = obj.getBoundingRect(true, true);
                 // Bounding box overlap filter
@@ -2606,7 +2625,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('slide-page-fullscreen');
             if (slideFsIconExpand) slideFsIconExpand.style.display = 'none';
             if (slideFsIconCompress) slideFsIconCompress.style.display = 'inline-block';
-            if (slideFsBtnLabel) slideFsBtnLabel.textContent = 'Exit View';
+            if (slideFsBtnLabel) slideFsBtnLabel.textContent = 'Exit Fullscreen';
 
             canvas.setWidth(window.innerWidth);
             canvas.setHeight(window.innerHeight);
@@ -3777,7 +3796,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const path = opt.path;
         if (!path) return;
 
-        if (typeof findStepBoxContaining === 'function') {
+        if (currentMode !== 'eraser' && typeof findStepBoxContaining === 'function') {
             const parentBox = findStepBoxContaining(path);
             if (parentBox) {
                 path.stepBoxOwnerId = parentBox.stepBoxId;
@@ -5410,12 +5429,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    function saveStepBoxCurrentStep(box) {
+    function saveStepBoxCurrentStep(box, showNotification = false) {
         if (!box || !box.isStepBox || !box.stepBoxSteps) return;
         const curIdx = box.stepBoxCurrentStep || 0;
         if (curIdx < 0 || curIdx >= box.stepBoxSteps.length) return;
 
-        const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox && !o.isArrowHead);
+        // Auto-associate any unowned objects currently within this step box
+        canvas.forEachObject(o => {
+            if (!o.isStepBox && !o.isArrowHead && !o.isSlideFrame && !o.isGridLine && o.globalCompositeOperation !== 'destination-out') {
+                const parent = findStepBoxContaining(o);
+                if (parent && parent.stepBoxId === box.stepBoxId) {
+                    o.stepBoxOwnerId = box.stepBoxId;
+                }
+            }
+        });
+
+        const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox && !o.isArrowHead && o.globalCompositeOperation !== 'destination-out');
         const serialized = owned.map(o => {
             const json = o.toJSON(EXTRA_PROPS);
             json.relLeft = o.left - box.left;
@@ -5424,6 +5453,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         box.stepBoxSteps[curIdx].objects = serialized;
+        if (showNotification) {
+            const curStepObj = box.stepBoxSteps[curIdx];
+            const name = (curStepObj && curStepObj.name) ? curStepObj.name : `Step ${curIdx + 1}`;
+            showToast(`Saved ${name} (${owned.length} item${owned.length === 1 ? '' : 's'})`);
+        }
     }
 
     function loadStepBoxStep(box, targetIdx) {
@@ -5498,29 +5532,84 @@ document.addEventListener('DOMContentLoaded', () => {
         box.dirty = true;
         canvas.requestRenderAll();
         updateStepBoxFloatingControls(box);
+        if (stepboxManagerModal && !stepboxManagerModal.classList.contains('hidden')) {
+            renderStepBoxManagerList(box);
+        }
         saveState();
         showToast(`Created Step ${newIdx + 1} of ${box.stepBoxSteps.length} (copy of Step ${curIdx + 1})`);
     }
 
-    function deleteStepBoxStep(box) {
+    function duplicateStepBoxStep(box, stepIdx) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        saveStepBoxCurrentStep(box);
+
+        const targetIdx = (stepIdx !== undefined) ? stepIdx : (box.stepBoxCurrentStep || 0);
+        if (targetIdx < 0 || targetIdx >= box.stepBoxSteps.length) return;
+
+        const srcStep = box.stepBoxSteps[targetIdx];
+        const copiedObjects = JSON.parse(JSON.stringify(srcStep.objects || []));
+        const newStep = {
+            id: 'step_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            name: `${srcStep.name || `Step ${targetIdx + 1}`} (Copy)`,
+            objects: copiedObjects
+        };
+
+        box.stepBoxSteps.splice(targetIdx + 1, 0, newStep);
+        loadStepBoxStep(box, targetIdx + 1);
+        if (stepboxManagerModal && !stepboxManagerModal.classList.contains('hidden')) {
+            renderStepBoxManagerList(box);
+        }
+        saveState();
+        showToast(`Duplicated ${srcStep.name || `Step ${targetIdx + 1}`}`);
+    }
+
+    function moveStepBoxStep(box, fromIdx, toIdx) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        if (fromIdx < 0 || fromIdx >= box.stepBoxSteps.length || toIdx < 0 || toIdx >= box.stepBoxSteps.length || fromIdx === toIdx) return;
+        saveStepBoxCurrentStep(box);
+
+        const activeIdx = box.stepBoxCurrentStep || 0;
+        const [movedStep] = box.stepBoxSteps.splice(fromIdx, 1);
+        box.stepBoxSteps.splice(toIdx, 0, movedStep);
+
+        if (activeIdx === fromIdx) {
+            box.stepBoxCurrentStep = toIdx;
+        } else if (fromIdx < activeIdx && toIdx >= activeIdx) {
+            box.stepBoxCurrentStep--;
+        } else if (fromIdx > activeIdx && toIdx <= activeIdx) {
+            box.stepBoxCurrentStep++;
+        }
+
+        box.dirty = true;
+        canvas.requestRenderAll();
+        updateStepBoxFloatingControls(box);
+        if (stepboxManagerModal && !stepboxManagerModal.classList.contains('hidden')) {
+            renderStepBoxManagerList(box);
+        }
+        saveState();
+    }
+
+    function deleteStepBoxStep(box, stepIdx) {
         if (!box || !box.isStepBox || !box.stepBoxSteps) return;
         if (box.stepBoxSteps.length <= 1) {
             showToast('A Step Box must always have at least one step');
             return;
         }
 
-        const curIdx = box.stepBoxCurrentStep || 0;
+        const curIdx = (stepIdx !== undefined) ? stepIdx : (box.stepBoxCurrentStep || 0);
         const stepNum = curIdx + 1;
         if (!confirm(`Are you sure you want to delete Step ${stepNum} of ${box.stepBoxSteps.length}?`)) {
             return;
         }
 
-        // Remove canvas objects of the deleted step
-        const currentOwned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox);
-        currentOwned.forEach(o => canvas.remove(o));
+        // If deleting the active step, remove current canvas objects
+        if (curIdx === (box.stepBoxCurrentStep || 0)) {
+            const currentOwned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox);
+            currentOwned.forEach(o => canvas.remove(o));
+        }
 
         box.stepBoxSteps.splice(curIdx, 1);
-        box.stepBoxCurrentStep = Math.max(0, Math.min(curIdx, box.stepBoxSteps.length - 1));
+        box.stepBoxCurrentStep = Math.max(0, Math.min(box.stepBoxCurrentStep || 0, box.stepBoxSteps.length - 1));
 
         // Load new active step
         const targetStep = box.stepBoxSteps[box.stepBoxCurrentStep];
@@ -5544,6 +5633,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 box.dirty = true;
                 canvas.requestRenderAll();
                 updateStepBoxFloatingControls(box);
+                if (stepboxManagerModal && !stepboxManagerModal.classList.contains('hidden')) {
+                    renderStepBoxManagerList(box);
+                }
                 saveState();
                 showToast(`Deleted step. Now on Step ${box.stepBoxCurrentStep + 1} of ${box.stepBoxSteps.length}`);
             });
@@ -5551,8 +5643,296 @@ document.addEventListener('DOMContentLoaded', () => {
             box.dirty = true;
             canvas.requestRenderAll();
             updateStepBoxFloatingControls(box);
+            if (stepboxManagerModal && !stepboxManagerModal.classList.contains('hidden')) {
+                renderStepBoxManagerList(box);
+            }
             saveState();
             showToast(`Deleted step. Now on Step ${box.stepBoxCurrentStep + 1} of ${box.stepBoxSteps.length}`);
+        }
+    }
+
+    function toggleStepBoxPlay(box) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        if (box.stepBoxSteps.length <= 1) {
+            showToast('Add more steps to play slideshow');
+            return;
+        }
+
+        if (isStepBoxPlaying) {
+            stopStepBoxPlay();
+            showToast('Playback paused');
+            return;
+        }
+
+        saveStepBoxCurrentStep(box);
+        isStepBoxPlaying = true;
+        if (btnStepBoxPlay) {
+            btnStepBoxPlay.classList.add('active');
+        }
+        if (stepBoxPlayLabel) {
+            stepBoxPlayLabel.textContent = 'Pause';
+        }
+        showToast('Playing step presentation (1.8s auto-cycle)...');
+
+        stepBoxPlayInterval = setInterval(() => {
+            if (!activeStepBox || !canvas.contains(activeStepBox) || !isStepBoxPlaying) {
+                stopStepBoxPlay();
+                return;
+            }
+            const nextIdx = ((activeStepBox.stepBoxCurrentStep || 0) + 1) % activeStepBox.stepBoxSteps.length;
+            loadStepBoxStep(activeStepBox, nextIdx);
+        }, 1800);
+    }
+
+    function stopStepBoxPlay() {
+        if (stepBoxPlayInterval) {
+            clearInterval(stepBoxPlayInterval);
+            stepBoxPlayInterval = null;
+        }
+        isStepBoxPlaying = false;
+        if (btnStepBoxPlay) {
+            btnStepBoxPlay.classList.remove('active');
+        }
+        if (stepBoxPlayLabel) {
+            stepBoxPlayLabel.textContent = 'Play';
+        }
+    }
+
+    function openStepBoxManager(box) {
+        if (!stepboxManagerModal) return;
+        if (!box || !box.isStepBox) {
+            const boxes = canvas.getObjects().filter(o => o.isStepBox);
+            if (boxes.length > 0) box = boxes[boxes.length - 1];
+            else return;
+        }
+        activeStepBox = box;
+        saveStepBoxCurrentStep(box);
+        if (stepboxModalTitle) {
+            stepboxModalTitle.textContent = `${box.stepBoxName || 'Step Box'} - Step Manager`;
+        }
+        renderStepBoxManagerList(box);
+        stepboxManagerModal.classList.remove('hidden');
+        stepboxManagerModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeStepBoxManager() {
+        if (!stepboxManagerModal) return;
+        stepboxManagerModal.classList.add('hidden');
+        stepboxManagerModal.setAttribute('aria-hidden', 'true');
+        if (activeStepBox && canvas.contains(activeStepBox)) {
+            updateStepBoxFloatingControls(activeStepBox);
+        }
+    }
+
+    function renderStepBoxManagerList(box) {
+        if (!stepboxStepsList || !box || !box.isStepBox) return;
+        stepboxStepsList.innerHTML = '';
+
+        const steps = box.stepBoxSteps || [];
+        const curIdx = box.stepBoxCurrentStep || 0;
+
+        if (stepboxManagerCountBadge) {
+            stepboxManagerCountBadge.textContent = `Total Steps: ${steps.length}`;
+        }
+        if (stepboxManagerActiveBadge) {
+            const curStepObj = steps[curIdx];
+            const curName = (curStepObj && curStepObj.name) ? curStepObj.name : `Step ${curIdx + 1}`;
+            stepboxManagerActiveBadge.textContent = `Active: ${curName}`;
+        }
+
+        steps.forEach((step, idx) => {
+            const card = document.createElement('div');
+            card.className = `stepbox-step-card ${idx === curIdx ? 'active' : ''}`;
+
+            const itemCount = Array.isArray(step.objects) ? step.objects.length : 0;
+            const stepName = step.name || `Step ${idx + 1}`;
+
+            card.innerHTML = `
+                <div class="stepbox-step-card-left">
+                    <span class="stepbox-step-num">#${idx + 1}</span>
+                    <input type="text" class="stepbox-step-input" value="${stepName.replace(/"/g, '&quot;')}" placeholder="Step name..." title="Click to rename step" />
+                    <span class="stepbox-step-meta">${itemCount} item${itemCount === 1 ? '' : 's'}</span>
+                </div>
+                <div class="stepbox-step-actions">
+                    <button type="button" class="stepbox-action-icon-btn btn-step-jump" title="Switch to this step">
+                        <span>${idx === curIdx ? '✓ Current' : 'Activate'}</span>
+                    </button>
+                    <button type="button" class="stepbox-action-icon-btn btn-step-up" title="Move Up" ${idx === 0 ? 'disabled' : ''}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    </button>
+                    <button type="button" class="stepbox-action-icon-btn btn-step-down" title="Move Down" ${idx === steps.length - 1 ? 'disabled' : ''}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <button type="button" class="stepbox-action-icon-btn btn-step-dup" title="Duplicate Step">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button type="button" class="stepbox-action-icon-btn btn-step-delete" title="Delete Step" ${steps.length <= 1 ? 'disabled' : ''}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                    </button>
+                </div>
+            `;
+
+            // Rename listener
+            const nameInput = card.querySelector('.stepbox-step-input');
+            if (nameInput) {
+                const handleRename = () => {
+                    const newName = nameInput.value.trim() || `Step ${idx + 1}`;
+                    step.name = newName;
+                    box.dirty = true;
+                    canvas.requestRenderAll();
+                    updateStepBoxFloatingControls(box);
+                    if (stepboxManagerActiveBadge && idx === box.stepBoxCurrentStep) {
+                        stepboxManagerActiveBadge.textContent = `Active: ${newName}`;
+                    }
+                    saveState();
+                };
+                nameInput.addEventListener('change', handleRename);
+                nameInput.addEventListener('blur', handleRename);
+                nameInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.target.blur();
+                    }
+                });
+            }
+
+            // Jump / Activate listener
+            const jumpBtn = card.querySelector('.btn-step-jump');
+            if (jumpBtn) {
+                jumpBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (idx !== box.stepBoxCurrentStep) {
+                        loadStepBoxStep(box, idx);
+                        renderStepBoxManagerList(box);
+                    }
+                });
+            }
+
+            // Up / Down listeners
+            const upBtn = card.querySelector('.btn-step-up');
+            if (upBtn) {
+                upBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    moveStepBoxStep(box, idx, idx - 1);
+                });
+            }
+            const downBtn = card.querySelector('.btn-step-down');
+            if (downBtn) {
+                downBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    moveStepBoxStep(box, idx, idx + 1);
+                });
+            }
+
+            // Duplicate listener
+            const dupBtn = card.querySelector('.btn-step-dup');
+            if (dupBtn) {
+                dupBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    duplicateStepBoxStep(box, idx);
+                });
+            }
+
+            // Delete listener
+            const delBtn = card.querySelector('.btn-step-delete');
+            if (delBtn) {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteStepBoxStep(box, idx);
+                });
+            }
+
+            stepboxStepsList.appendChild(card);
+        });
+    }
+
+    async function exportStepBoxAsPPTX(box) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps || box.stepBoxSteps.length === 0) {
+            showToast('No steps to export in this Step Box');
+            return;
+        }
+
+        saveStepBoxCurrentStep(box);
+        const originalStep = box.stepBoxCurrentStep || 0;
+        const boxTitle = box.stepBoxName || 'Step Box Presentation';
+        const totalSteps = box.stepBoxSteps.length;
+
+        showToast(`Preparing presentation (${totalSteps} slide${totalSteps > 1 ? 's' : ''})...`);
+
+        const prevVpt = canvas.viewportTransform.slice();
+        const slides = [];
+
+        try {
+            const bw = box.width * (box.scaleX || 1);
+            const bh = box.height * (box.scaleY || 1);
+            const bx = box.left;
+            const by = box.top;
+
+            for (let i = 0; i < totalSteps; i++) {
+                await new Promise(resolve => {
+                    loadStepBoxStep(box, i);
+                    setTimeout(resolve, 80);
+                });
+
+                const stepObj = box.stepBoxSteps[i];
+                const stepTitle = (stepObj && stepObj.name) ? stepObj.name : `Step ${i + 1}`;
+
+                // Crop and capture this step box area
+                const dataUrl = canvas.toDataURL({
+                    format: 'png',
+                    left: bx,
+                    top: by,
+                    width: bw,
+                    height: bh,
+                    multiplier: 2
+                });
+
+                slides.push({
+                    image_data: dataUrl,
+                    title: stepTitle,
+                    step_num: i + 1
+                });
+            }
+
+            // Restore original active step
+            await new Promise(resolve => {
+                loadStepBoxStep(box, originalStep);
+                setTimeout(resolve, 80);
+            });
+            canvas.setViewportTransform(prevVpt);
+            canvas.requestRenderAll();
+
+            // Send to backend /api/export/pptx
+            const res = await fetch('/api/export/pptx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: boxTitle,
+                    aspect_ratio: '16:9',
+                    slides: slides
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error(`Server returned HTTP ${res.status}`);
+            }
+
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeName = boxTitle.toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'step_box_presentation';
+            a.download = `${safeName}.pptx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+            showToast(`Exported "${a.download}" (${slides.length} slide${slides.length > 1 ? 's' : ''})!`);
+        } catch (err) {
+            console.error('PPTX export error:', err);
+            canvas.setViewportTransform(prevVpt);
+            canvas.requestRenderAll();
+            showToast('Failed to export PPTX');
         }
     }
 
@@ -5604,6 +5984,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnStepBoxDel) {
             btnStepBoxDel.disabled = (totalSteps <= 1);
         }
+        if (btnStepBoxPlay) {
+            btnStepBoxPlay.disabled = (totalSteps <= 1);
+        }
 
         box.setCoords();
         const aCoords = box.aCoords || {
@@ -5632,7 +6015,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const screenBottomY = rect.top + maxY;
 
         stepBoxFloatingBar.style.display = 'flex';
-        const barWidth = stepBoxFloatingBar.offsetWidth || 270;
+        const barWidth = stepBoxFloatingBar.offsetWidth || 440;
         const posX = Math.max(16, Math.min(window.innerWidth - barWidth - 16, screenCenterX - barWidth / 2));
         const posY = Math.min(window.innerHeight - 52, screenBottomY + 8);
 
@@ -5804,6 +6187,164 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    if (btnStepBoxSave) {
+        btnStepBoxSave.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                saveStepBoxCurrentStep(activeStepBox, true);
+            }
+        });
+    }
+
+    if (btnStepBoxPlay) {
+        btnStepBoxPlay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                toggleStepBoxPlay(activeStepBox);
+            }
+        });
+    }
+
+    if (btnStepBoxManage) {
+        btnStepBoxManage.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                openStepBoxManager(activeStepBox);
+            }
+        });
+    }
+
+    if (btnStepBoxPptx) {
+        btnStepBoxPptx.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                exportStepBoxAsPPTX(activeStepBox);
+            }
+        });
+    }
+
+    if (btnCloseStepboxManager) {
+        btnCloseStepboxManager.addEventListener('click', closeStepBoxManager);
+    }
+    if (btnStepboxManagerDone) {
+        btnStepboxManagerDone.addEventListener('click', closeStepBoxManager);
+    }
+    if (btnStepboxManagerAdd) {
+        btnStepboxManagerAdd.addEventListener('click', () => {
+            if (activeStepBox) {
+                addStepBoxStep(activeStepBox);
+            }
+        });
+    }
+    if (btnStepboxManagerPptx) {
+        btnStepboxManagerPptx.addEventListener('click', () => {
+            if (activeStepBox) {
+                exportStepBoxAsPPTX(activeStepBox);
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Protected Overlays: Step Box & Slide Frame (Immune to Eraser / destination-out)
+    // -------------------------------------------------------------------------
+    function renderStepBoxOverlays(ctx) {
+        const stepBoxes = canvas.getObjects().filter(o => o.isStepBox && !o._deleted);
+        if (!stepBoxes.length) return;
+
+        stepBoxes.forEach(box => {
+            if (!box.visible) return;
+            ctx.save();
+            const m = box.calcTransformMatrix();
+            ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+            const w = box.width;
+            const h = box.height;
+            const rx = box.rx || 6;
+            const ry = box.ry || 6;
+            const x = -w / 2;
+            const y = -h / 2;
+
+            // Draw crisp dashed border
+            ctx.save();
+            ctx.strokeStyle = box.stroke || '#6366f1';
+            ctx.lineWidth = box.strokeWidth || 2;
+            if (ctx.setLineDash) {
+                ctx.setLineDash(box.strokeDashArray || [6, 4]);
+            }
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(x, y, w, h, [rx, ry, rx, ry]);
+            } else {
+                ctx.rect(x, y, w, h);
+            }
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw Step Box badge (top-left)
+            const curStep = (box.stepBoxCurrentStep !== undefined) ? box.stepBoxCurrentStep + 1 : 1;
+            const totalSteps = (box.stepBoxSteps && box.stepBoxSteps.length) ? box.stepBoxSteps.length : 1;
+            const curStepObj = (box.stepBoxSteps && box.stepBoxSteps[box.stepBoxCurrentStep]);
+            const stepName = (curStepObj && curStepObj.name) ? curStepObj.name : `Step ${curStep}`;
+            const boxName = box.stepBoxName || 'Step Box';
+            const label = `${boxName} • ${stepName} (${curStep}/${totalSteps})`;
+
+            ctx.font = 'bold 11px system-ui, -apple-system, sans-serif';
+            const textWidth = ctx.measureText(label).width;
+            const badgeW = textWidth + 16;
+            const badgeH = 22;
+            const bx = -w / 2 + 6;
+            const by = -h / 2 + 6;
+
+            ctx.fillStyle = '#4f46e5';
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(bx, by, badgeW, badgeH, 5);
+            } else {
+                ctx.rect(bx, by, badgeW, badgeH);
+            }
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, bx + 8, by + badgeH / 2);
+
+            ctx.restore();
+        });
+    }
+
+    function renderSlideFrameOverlays(ctx) {
+        if (currentFrameRatio === 'infinite' || !slideFrameRect || !slideFrameRect.visible) return;
+        ctx.save();
+        const m = slideFrameRect.calcTransformMatrix();
+        ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+        const w = slideFrameRect.width;
+        const h = slideFrameRect.height;
+        const x = -w / 2;
+        const y = -h / 2;
+
+        ctx.strokeStyle = slideFrameRect.stroke || '#94a3b8';
+        ctx.lineWidth = slideFrameRect.strokeWidth || 2;
+        if (ctx.setLineDash) ctx.setLineDash([]);
+        ctx.strokeRect(x, y, w, h);
+
+        ctx.restore();
+    }
+
+    canvas.on('after:render', (opt) => {
+        const ctx = (opt && opt.ctx) ? opt.ctx : canvas.getContext();
+        if (!ctx) return;
+        const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+        ctx.save();
+        ctx.transform(vpt[0], vpt[1], vpt[2], vpt[3], vpt[4], vpt[5]);
+
+        renderStepBoxOverlays(ctx);
+        renderSlideFrameOverlays(ctx);
+
+        ctx.restore();
+    });
 
     // -------------------------------------------------------------------------
     // 17. Multi-Board System & Right Sidebar Controller
@@ -7443,6 +7984,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (key === 'Escape') {
+            if (typeof closeStepBoxManager === 'function') closeStepBoxManager();
             closeShortcutsModal();
             closeDrawer();
             const activeObj = canvas.getActiveObject();
@@ -7701,7 +8243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     canvas.on('object:added', (opt) => {
         const addedObj = opt.target;
-        if (addedObj && !addedObj.isStepBox && !addedObj.isArrowHead && !addedObj.stepBoxOwnerId) {
+        if (addedObj && !addedObj.isStepBox && !addedObj.isArrowHead && !addedObj.stepBoxOwnerId && currentMode !== 'eraser' && addedObj.globalCompositeOperation !== 'destination-out') {
             if (typeof findStepBoxContaining === 'function') {
                 const parentBox = findStepBoxContaining(addedObj);
                 if (parentBox) {

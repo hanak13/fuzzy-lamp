@@ -905,6 +905,7 @@
         </button>
         <button type="button" id="btn-del-slide" class="slide-banner-btn slide-banner-btn-del" title="Delete current slide">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            <span>Delete</span>
         </button>
 
         <div class="slide-banner-divider"></div>
@@ -1212,6 +1213,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Step Box Step Manager Modal -->
+    <div id="stepbox-manager-modal" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-card stepbox-manager-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">📦</span>
+                    <div>
+                        <h3 id="stepbox-modal-title">Step Box Manager</h3>
+                        <div class="modal-hint" id="stepbox-modal-hint">Manage, rename, reorder steps, or download as presentation</div>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-stepbox-manager" class="modal-close-btn" title="Close (Escape)">&times;</button>
+            </div>
+            <div class="modal-body stepbox-manager-body">
+                <div class="stepbox-manager-toolbar">
+                    <div class="stepbox-manager-toolbar-info">
+                        <span id="stepbox-manager-count-badge" class="stepbox-badge-label">Total Steps: 1</span>
+                        <span id="stepbox-manager-active-badge" class="stepbox-badge-active">Active: Step 1</span>
+                    </div>
+                    <div class="stepbox-manager-toolbar-actions">
+                        <button type="button" id="btn-stepbox-manager-add" class="btn action-btn stepbox-manager-btn-add">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>+ Add Step</span>
+                        </button>
+                        <button type="button" id="btn-stepbox-manager-pptx" class="btn action-btn btn-export-pptx-action">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M10 7h3a2 2 0 0 1 0 4h-3v-4z"/></svg>
+                            <span>Download PPTX</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="stepbox-steps-list" class="stepbox-steps-list">
+                    <!-- Populated dynamically with step cards -->
+                </div>
+            </div>
+            <div class="modal-footer stepbox-manager-footer">
+                <button type="button" id="btn-stepbox-manager-done" class="btn modal-btn modal-btn-primary">Done</button>
+            </div>
+        </div>
+    </div>
     <div id="toast" class="toast-notification hidden"></div>
 
     <!-- Step Box Floating Controls (Positioned directly under selected Step Box) -->
@@ -1224,6 +1265,24 @@
         <button type="button" class="stepbox-ctrl-btn" id="btn-stepbox-next" title="Next Step (Next ▶)">
             <span>Next</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="stepbox-divider"></div>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-save" id="btn-stepbox-save" title="Save Step (Snapshot current objects into this step)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Save</span>
+        </button>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-play" id="btn-stepbox-play" title="Auto-Play Steps (Slideshow presentation)">
+            <svg id="stepbox-play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            <span id="stepbox-play-label">Play</span>
+        </button>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-manage" id="btn-stepbox-manage" title="Step Manager (View, rename, reorder, duplicate steps)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span>Steps</span>
+        </button>
+        <div class="stepbox-divider"></div>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-pptx" id="btn-stepbox-pptx" title="Download as PowerPoint (.pptx) - Every slide is one step">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M10 7h3a2 2 0 0 1 0 4h-3v-4z"/></svg>
+            <span>PPTX</span>
         </button>
         <div class="stepbox-divider"></div>
         <button type="button" class="stepbox-ctrl-btn stepbox-btn-add" id="btn-stepbox-add" title="Add Step (creates a new step copying current contents)">

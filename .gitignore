@@ -1,11 +1,56 @@
-# Batch scripts
-*.bat
-*.cmd
-
-# Python & SQLite
+# ── Python ──────────────────────────────────────────────
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
 *.pyc
+*.pycache
+
+# Virtual environments
 .venv/
 venv/
+env/
+ENV/
+
+# ── SQLite database ─────────────────────────────────────
+# The database is auto-created by db.py on first run.
+# Never commit it — it may contain user data.
 *.db
 *.sqlite3
+*.sqlite
+
+# ── User-uploaded stickers ──────────────────────────────
+# Default stickers (tracked). User-uploaded ones are not.
+# If you add stickers locally, they will be ignored.
+# To share new default stickers, explicitly git add them.
+stickers/*.png
+stickers/*.gif
+# SVGs shipped with the repo are explicitly tracked:
+# stickers/fire_flame.svg, gold_star.svg, etc.
+# User-uploaded SVGs that are not in git will be ignored:
+# (Adjust this rule if you want to track everything)
+
+# ── OS artefacts ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Build / dist ────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+
+# ── Env files ───────────────────────────────────────────
+.env
+.env.*
+
+# ── Windows helper scripts (dev only) ───────────────────
+*.bat
+*.cmd
