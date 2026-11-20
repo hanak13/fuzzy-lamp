@@ -3,16 +3,22 @@ Whiteboard Web App - FastAPI Backend
 Phase 7: SQLite Boards Storage, Boards List Page & Auto-Save
 """
 
+import base64
+import io
 import os
 import re
 import time
 from typing import List, Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pptx import Presentation
+from pptx.util import Inches
 from pydantic import BaseModel
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas as pdf_canvas
 
 import db
 
@@ -53,6 +59,18 @@ class BoardUpdate(BaseModel):
 
 class BoardRename(BaseModel):
     name: str
+
+
+class SlideExportItem(BaseModel):
+    image_data: str
+    title: Optional[str] = None
+    step_num: Optional[int] = None
+
+
+class PresentationExportRequest(BaseModel):
+    title: Optional[str] = "Presentation"
+    aspect_ratio: Optional[str] = "16:9"
+    slides: List[SlideExportItem]
 
 
 def sanitize_filename(filename: str) -> str:
@@ -270,6 +288,107 @@ async def delete_sticker(filename: str):
         return {"success": True, "filename": safe_name}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# -----------------------------------------------------------------------------
+# Fixed Width Slide / Document Presentation Exports (PPTX & PDF)
+# -----------------------------------------------------------------------------
+@app.post("/api/export/pptx")
+async def export_pptx(payload: PresentationExportRequest):
+    """
+    Generate and stream a PowerPoint presentation (.pptx) from slide image captures.
+    """
+    prs = Presentation()
+
+    aspect = (payload.aspect_ratio or "16:9").lower()
+    if aspect == "4:3":
+        prs.slide_width = Inches(10)
+        prs.slide_height = Inches(7.5)
+    elif aspect == "a4":
+        prs.slide_width = Inches(8.27)
+        prs.slide_height = Inches(11.69)
+    else:  # Default 16:9 Widescreen
+        prs.slide_width = Inches(13.333)
+        prs.slide_height = Inches(7.5)
+
+    blank_layout = prs.slide_layouts[6]
+
+    for item in payload.slides:
+        slide = prs.slides.add_slide(blank_layout)
+        data = item.image_data
+        if "," in data:
+            data = data.split(",", 1)[1]
+        try:
+            img_bytes = base64.b64decode(data)
+            img_stream = io.BytesIO(img_bytes)
+            slide.shapes.add_picture(
+                img_stream,
+                left=0,
+                top=0,
+                width=prs.slide_width,
+                height=prs.slide_height
+            )
+        except Exception as e:
+            print(f"Error embedding slide image in PPTX: {e}")
+
+    out = io.BytesIO()
+    prs.save(out)
+    out.seek(0)
+
+    clean_title = re.sub(r'[^a-zA-Z0-9_\-]', '_', payload.title or "presentation")
+    filename = f"{clean_title}.pptx"
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"'
+    }
+    return Response(
+        content=out.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        headers=headers
+    )
+
+
+@app.post("/api/export/pdf")
+async def export_pdf(payload: PresentationExportRequest):
+    """
+    Generate and stream a PDF document (.pdf) from slide image captures.
+    """
+    out = io.BytesIO()
+    aspect = (payload.aspect_ratio or "16:9").lower()
+    if aspect == "4:3":
+        page_width, page_height = 720.0, 540.0  # 10 x 7.5 inches in points
+    elif aspect == "a4":
+        page_width, page_height = 595.28, 841.89  # Standard A4 portrait in points
+    else:  # 16:9 Widescreen landscape (960 x 540 points)
+        page_width, page_height = 960.0, 540.0
+
+    c = pdf_canvas.Canvas(out, pagesize=(page_width, page_height))
+
+    for item in payload.slides:
+        data = item.image_data
+        if "," in data:
+            data = data.split(",", 1)[1]
+        try:
+            img_bytes = base64.b64decode(data)
+            img_stream = io.BytesIO(img_bytes)
+            img_reader = ImageReader(img_stream)
+            c.drawImage(img_reader, 0, 0, width=page_width, height=page_height)
+            c.showPage()
+        except Exception as e:
+            print(f"Error embedding page in PDF: {e}")
+
+    c.save()
+    out.seek(0)
+
+    clean_title = re.sub(r'[^a-zA-Z0-9_\-]', '_', payload.title or "document")
+    filename = f"{clean_title}.pdf"
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"'
+    }
+    return Response(
+        content=out.getvalue(),
+        media_type="application/pdf",
+        headers=headers
+    )
 
 
 if __name__ == "__main__":

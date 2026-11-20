@@ -4,28 +4,31 @@ An offline-first, open-source collaborative whiteboard web app built with **Pyth
 
 ---
 
-## Current Status: Phase 5 & UI Refinement Completed
+## Current Status: Phase 8 - Step Box Feature Completed
 
-Phases 1 through 5 provide a comprehensive offline whiteboard web application:
-- **FastAPI backend** running on `http://localhost:8000`.
+Phases 1 through 8 provide a comprehensive offline whiteboard web application:
+- **FastAPI backend** running on `http://localhost:8000` with **SQLite database persistence** (`boards.db`) for all boards and auto-saving every 3 seconds.
 - **Offline Fabric.js** loaded locally from `static/vendor/fabric.min.js` (no CDN links).
 - **Full-screen interactive canvas** with automatic window resizing and synced grid.
-- **Fixed Top-Left App Brand (Does not move)**:
-  - "✏️ Whiteboard" badge is permanently anchored at `top: 14px; left: 14px`, cleanly positioned above the sidebar dock.
-  - Decoupled from the floating toolbar so it never shifts or moves horizontally.
-- **Top Toolbar (Cleaned & Streamlined)**:
-  - Mode tools: **Select (`V`)**, **Pan (`H`)**, **Pen (`P`)**, **Highlighter (`K`)**, **Eraser (`E`)**, **Text (`T`)**, **Line (`L`)**, **Arrow (`A`)**.
-  - Notes and Shapes buttons were moved into the left sidebar dock for a clean, distraction-free header.
-  - Active object property inspector (Stroke Color, Fill Color with No-Fill toggle, Size, Font formatting, Delete, Undo/Redo).
-- **Left Navigation Sidebar Dock & Hidden Flyout Drawer**:
-  - Docked primary left navigation dock with quick-access buttons:
-    1. **Shapes**: Opens the Shapes Library with search, category filtering chips, and over **280+ engineering, flowchart, architecture, and general shapes**.
-    2. **Notes (Sticky Note)**: Opens the Sticky Notes panel with one-click pastel color cards (Yellow, Pink, Green, Blue) and instant canvas placement mode (`S` or `N`).
-    3. **Stickers**: Staged for upcoming sticker packs, emojis, and badges.
-    4. **Templates**: Flowcharts, mind maps, and whiteboard layouts.
-    5. **Media**: Image uploads and media assets.
-    6. **Icons**: UI symbols and diagram graphics.
-    7. **Layers**: Canvas object hierarchy and ordering.
+- **Fixed Top-Left App Brand**: "✏️ Whiteboard" badge anchored at `top: 14px; left: 14px`.
+- **Top Toolbar**: Select (`V`), Pan (`H`), Pen (`P`), Highlighter (`K`), Eraser (`E`), Text (`T`), Line (`L`), Arrow (`A`), plus color, size, font, undo/redo controls.
+- **Left Navigation Sidebar Dock & Panels**:
+  1. **Shapes**: Over 280+ engineering, flowchart, UML, architecture, circuit, and logic gate shapes.
+  2. **Notes (Sticky Note)**: Quick pastel notes (`S` or `N`).
+  3. **Stickers**: Shared stickers gallery with local upload (PNG, SVG, GIF) and drag-and-drop onto canvas.
+  4. **Templates**: Flowchart, mind map, and wireframe layouts.
+  5. **Media**: Image uploads and media assets.
+  6. **Icons**: UI symbols and diagram graphics.
+  7. **Layers**: Canvas object hierarchy and ordering.
+  8. **Step Box**: Scoped multi-step sequential diagrams inside container boxes.
+- **Phase 8: Step Box Feature**:
+  - **Sidebar Activation**: Click the Step Box icon in the left dock, then click and drag on the canvas to draw a dashed container box with a live header label.
+  - **Scoped Multi-Step Sequencing**: Each Step Box maintains its own ordered list of steps (`Step 1 / N`). Objects inside the box belong to the box; objects outside are strictly untouched.
+  - **Floating Controls**: Automatically hover under the selected Step Box with `◀ Back`, `Step X / Y`, `Next ▶`, `+` (Add Step), and `🗑` (Delete Step).
+  - **Copy-on-Add (`+`)**: Clicking `+` captures the current step snapshot and duplicates it into a new step so you can build incrementally.
+  - **Step Isolation & Switching**: `◀ Back` and `Next ▶` automatically save changes in the current step and restore the target step's contents relative to the box's coordinates.
+  - **Transform Tracking**: Moving or resizing the Step Box moves and scales its nested contents simultaneously.
+  - **SQLite Auto-Save & Zero Migration**: Persisted in the board's JSON data in SQLite; legacy boards without Step Boxes load with zero errors.
   - **Hidden by Default**: The drawer stays tucked away and slides out only when the user selects a sidebar button. Clicking the active button again or the close button immediately dismisses the drawer to preserve maximum canvas workspace.
   - **Search & Shape Library**: Real-time filtering by shape name or category across 280+ shapes.
   - **Comprehensive Domain Categories**:
@@ -218,3 +221,111 @@ white-board/
 
 6. **Offline Verification**:
    - Turn off your network connection or inspect DevTools Network tab. No external requests are made; all assets (Fabric.js, CSS, JS) load locally from `static/`.
+
+---
+
+## How to Test Phase 8 (Step Box Feature)
+
+1. **Create a Step Box**:
+   - Locate the **Step Box icon** in the left sidebar dock (below Layers).
+   - Click it; the cursor switches to a crosshair.
+   - Click and drag on the canvas to draw a box of any desired size (e.g. 500x350px).
+   - Alternatively, a single click creates a default 360x240px Step Box.
+   - Notice the dashed indigo border, semi-transparent background, and top-left badge displaying `Step Box 1 (Step 1/1)`.
+
+2. **Floating Controls & Step Creation**:
+   - With the Step Box selected, note the floating control bar directly underneath it: `◀ Back`, `Step 1 / 1`, `Next ▶`, `+` (Add Step), and `🗑` (Delete Step).
+   - `◀ Back` and `Next ▶` are properly disabled when at the start/end bounds.
+   - Draw or place objects inside the box (e.g. a Process rectangle, a Sticky Note, or freehand drawing).
+   - Draw another object completely outside the box to test isolation.
+
+3. **Incremental Step Building (`+`)**:
+   - Click the `+` button in the floating bar.
+   - The label updates to `Step 2 / 2`.
+   - The contents from Step 1 are duplicated into Step 2 so you can build incrementally on top of previous work.
+   - Add new elements inside the box (e.g. a Decision diamond and connector arrow).
+
+4. **Navigating Steps (`◀ Back` & `Next ▶`)**:
+   - Click `◀ Back`.
+   - The box smoothly switches back to `Step 1 / 2`: only the initial elements are displayed, and any edits made to Step 2 are saved.
+   - Click `Next ▶`.
+   - The box advances back to `Step 2 / 2` with all additions restored.
+   - Notice that objects outside the Step Box are completely unaffected.
+
+5. **Moving & Resizing the Step Box**:
+   - In Select mode (`V`), drag the Step Box to a new location on the canvas. All internal objects move with it in unison.
+   - Resize the box using corner handles; internal objects scale proportionally with the box.
+   - Switch between steps after moving; all steps render at their updated relative positions.
+
+6. **Deleting Steps & Boxes**:
+   - With multiple steps, click the `🗑` button on the floating bar.
+   - Confirm the prompt; the active step is removed and the box navigates to the adjacent step.
+   - (A Step Box always retains at least one step; the delete button disables if only 1 step remains).
+   - Select the Step Box and press `Delete` / `Backspace`; both the box and its scoped contents are removed.
+
+7. **Persistence & Auto-Save**:
+   - Draw inside a Step Box and wait 3 seconds (or click Save). The auto-save indicator shows "Saved".
+   - Refresh the page (`F5`).
+   - The Step Box, its steps, current step position, and all scoped objects are restored from SQLite with 100% fidelity.
+
+8. **Download / Export Options (PPTX, PDF, PNG, SVG, JSON)**:
+   - In the top-right bar, click the **Download** button.
+   - Choose **Export as Presentation (.pptx)**: Generates a real Microsoft PowerPoint presentation file (`.pptx`) formatted for 16:9 widescreen or 4:3 presentation slides. If you have a Step Box with multiple steps, each step is exported as an individual slide!
+   - Choose **Export as PDF Document (.pdf)**: Generates a high-quality multi-page or single-page PDF document.
+   - Choose **Export as PNG**: 2x high-resolution snapshot of your drawing.
+   - Choose **Export as SVG**: Crisp vector diagram file.
+   - Choose **Download Board (.json)**: Complete board backup.
+
+9. **Fixed Width / Presentation Slide Mode (Separate Entity, Page Fullscreen & Exit Save/Discard)**:
+   - In the top-right header, click the **Canvas Frame** selector (defaults to **Canvas: Infinite**).
+   - Select **16:9 Slide (1920 × 1080)**, **4:3 Slide (1024 × 768)**, or **A4 Document (1240 × 1754)**.
+   - **Separate Entity Architecture (Infinite Board vs. Slide Deck)**:
+     - The Infinite Whiteboard and the Slide Deck operate as independent entities on each board.
+     - When switching into Slide Mode, your infinite whiteboard objects are safely stashed, and the active slide presentation is loaded onto the slide card.
+     - You can copy objects (`Ctrl+C`) on the Infinite Board and paste them (`Ctrl+V`) directly into the Slide Deck (and vice versa); pasted objects automatically center inside the slide and receive slide clipping.
+   - **Slide Page Fullscreen (Theater View - Covers Whole Chrome Page)**:
+     - Click **Page Fullscreen** in the slide banner.
+     - It expands the canvas to 100vw × 100vh of the Chrome tab (without triggering browser-level OS fullscreen), cleanly hiding all toolbars, left/right sidebars, and zoom widgets.
+     - The slide auto-scales to fit the browser viewport with a cinematic dark background (`#020617`).
+     - A floating top banner provides quick access to `◀ Prev`, `Slide X / Y`, `Next ▶`, `+ New Slide`, and `Exit View` (or press `Escape`).
+     - **Movable Floating Presenter / Drawing Dock**:
+       - Features a drag handle grip to freely drag and reposition the dock anywhere across the board.
+       - Provides immediate drawing controls: **Pen**, **Eraser** (with **Brush** & **⭕ Circle** toggle buttons), live **Size Stepper & Slider** (`[−]` `Size` `[+]` `[──●]`), **Paint** (Highlighter), **Color** (Palette swatches & Custom Picker), and **Select**.
+       - Consolidates freehand drawing tools so the top tab toolbar remains clean and focused on structural tools (Select, Pan, Text, Lines, Connectors, Shapes).
+       - Dynamically switches size control between writing stroke size (1–64px) and eraser size (6–150px).
+       - Popovers automatically adjust placement to prevent going off-screen when dragged near browser boundaries.
+
+11. **Advanced Eraser System (Size Controls & Circle / Bound Shape Area Erase)**:
+   - **Eraser Size Increase / Decrease**:
+     - Adjust brush size dynamically via the `−` and `+` buttons, size slider (8px to 120px), or keyboard shortcuts:
+       - Press **`[`** to decrease eraser size.
+       - Press **`]`** to increase eraser size.
+     - **Dynamic Circular Cursor Preview**: A circular cursor shows the exact diameter of the eraser following your mouse.
+   - **Circle / Bound Shape Area Erase**:
+     - Switch to **⭕ Circle / Area Erase** (via the toolbar pill, fullscreen eraser popover, or press **`E`** to toggle).
+     - Drag to draw a circle, lasso loop, or any enclosed boundary around what you want to erase.
+     - Upon release, the enclosed area is immediately erased—raster strokes, pen ink, and highlighters inside the boundary are cut out, and any enclosed shapes, text boxes, sticky notes, or stickers are deleted.
+   - **Slide Boundary Clipping (Outside Strokes Erased)**:
+     - When drawing lines or freehand strokes across the slide edge, the portion drawn inside the slide is retained, while the portion lying outside is cleanly clipped/erased using Fabric.js clip paths.
+     - Shapes, sticky notes, and stickers are constrained within slide bounds.
+   - **Exit Confirmation Modal (Save vs. Don't Save / Delete Slides)**:
+     - When clicking **✕ Exit Slide Mode** or selecting **Canvas: Infinite**, a modal dialog prompts:
+       - **Save & Return to Infinite**: Saves current slides to `boardSlides` in SQLite, clears slide objects from canvas, and restores all infinite whiteboard objects.
+       - **Don't Save (Delete Slides)**: Clears and deletes the slide content, resetting slides and returning to the infinite whiteboard.
+       - **Cancel**: Closes the dialog and stays in slide presentation mode.
+   - **Multi-Slide Deck Navigation**:
+     - `◀ Prev`: Navigate to previous slide (`PageUp` or `Alt + ArrowLeft`).
+     - `Slide X / Y`: Live counter badge displaying active slide index and total slides.
+     - `Next ▶`: Navigate to next slide (`PageDown` or `Alt + ArrowRight`).
+     - `+ New Slide`: Adds a new slide to the deck.
+     - `🗑`: Deletes the current slide (with confirmation).
+     - `Fit Slide`: Centers and fits the active slide to the screen.
+   - **Multi-Slide PPTX & PDF Export**:
+     - Click **Download** > **Export as Presentation (.pptx)**: Generates a genuine Microsoft PowerPoint presentation file where each slide is exported.
+     - Click **Download** > **Export as PDF Document (.pdf)**: Generates a publication-grade multi-page PDF document matching slide dimensions.
+   - **SQLite Persistence & Auto-Save**:
+     - Infinite whiteboard objects and slide presentations are auto-saved to SQLite (`boards.db`) every 3 seconds. Older boards load without errors.
+
+10. **Fullscreen Mode**:
+   - Click the **Fullscreen** button in the top-right header (or in the bottom-right zoom widget, or press `F11`).
+   - The whiteboard expands to fill the display; click **Exit** or press `Escape` / `F11` to exit.

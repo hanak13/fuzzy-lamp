@@ -47,21 +47,22 @@
                 </svg>
                 <span>Pan (H)</span>
             </button>
-            <button id="btn-pen" class="btn tool-btn" title="Freehand Pen (P)">
+            <!-- Pen, Highlighter, and Eraser are permanently located in the movable floating dock -->
+            <button id="btn-pen" class="btn tool-btn" style="display: none !important;" title="Freehand Pen (P)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                     <path d="m15 5 4 4"/>
                 </svg>
                 <span>Pen (P)</span>
             </button>
-            <button id="btn-highlighter" class="btn tool-btn" title="Highlighter (K)">
+            <button id="btn-highlighter" class="btn tool-btn" style="display: none !important;" title="Highlighter (K)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m9 11-6 6v3h3l6-6"/>
                     <path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/>
                 </svg>
                 <span>Highlighter</span>
             </button>
-            <button id="btn-eraser" class="btn tool-btn" title="Eraser (E)">
+            <button id="btn-eraser" class="btn tool-btn" style="display: none !important;" title="Eraser (E)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
                     <path d="M22 21H7"/>
@@ -151,16 +152,35 @@
                 </div>
             </div>
 
-            <div id="prop-size-group" class="prop-item" title="Stroke / Eraser Width">
+            <!-- Writing / Stroke Size Stepper & Slider ("That Size Thing" for writing) -->
+            <div id="prop-size-group" class="prop-item" title="Writing / Stroke Size ([ to decrease, ] to increase)">
                 <span class="prop-label">Size</span>
-                <select id="select-stroke-size" class="prop-select">
-                    <option value="2">2px</option>
-                    <option value="4" selected>4px</option>
-                    <option value="8">8px</option>
-                    <option value="16">16px</option>
-                    <option value="24">24px</option>
-                    <option value="36">36px</option>
-                </select>
+                <div class="stroke-size-stepper">
+                    <button type="button" id="btn-stroke-size-dec" class="size-step-btn" title="Decrease Stroke Size ([)">−</button>
+                    <span id="stroke-size-val" class="stroke-size-val">4px</span>
+                    <button type="button" id="btn-stroke-size-inc" class="size-step-btn" title="Increase Stroke Size (])">+</button>
+                    <input type="range" id="slider-stroke-size" min="1" max="64" value="4" step="1" class="size-range-slider" title="Drag to adjust writing size">
+                </div>
+            </div>
+
+            <!-- Eraser Mode & Size Controls (Permanently removed from top bar; located in the bottom movable dock) -->
+            <div id="prop-eraser-group" class="prop-item-group" style="display: none !important;">
+                <div class="prop-item" title="Eraser Mode">
+                    <span class="prop-label">Erase Mode</span>
+                    <div class="eraser-mode-pills">
+                        <button type="button" id="btn-eraser-mode-brush" class="prop-pill active" title="Stroke Brush: Drag over lines to erase">Stroke Brush</button>
+                        <button type="button" id="btn-eraser-mode-area" class="prop-pill" title="Circle / Bound Shape Erase: Draw a circle or enclosed shape around any portion to erase it">⭕ Circle / Area</button>
+                    </div>
+                </div>
+                <div class="prop-item" id="prop-eraser-size-item" title="Eraser Size ([ to decrease, ] to increase)">
+                    <span class="prop-label">Eraser Size</span>
+                    <div class="eraser-size-stepper">
+                        <button type="button" id="btn-eraser-size-dec" class="size-step-btn" title="Decrease Size ([)">−</button>
+                        <span id="eraser-size-val" class="eraser-size-val">30px</span>
+                        <button type="button" id="btn-eraser-size-inc" class="size-step-btn" title="Increase Size (])">+</button>
+                        <input type="range" id="slider-eraser-size" min="8" max="120" value="30" step="2" class="size-range-slider" title="Drag to adjust size">
+                    </div>
+                </div>
             </div>
 
             <!-- Text Controls: Font Size, Bold, Italic -->
@@ -239,8 +259,120 @@
         </div>
     </header>
 
-        <!-- Top Bar Right: Auto-Save Status Indicator -->
+        <!-- Top Bar Right: Frame Mode, Download, Fullscreen & Auto-Save Status Indicator -->
         <div class="top-bar-right">
+            <!-- Canvas Frame / Fixed Width Mode Selector -->
+            <div class="frame-mode-container">
+                <button type="button" id="btn-frame-mode" class="top-bar-action-btn" title="Switch Canvas Mode (Infinite / Fixed Width 16:9 Slide)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <span id="frame-mode-label">Canvas: Infinite</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div id="frame-mode-dropdown" class="frame-dropdown-menu hidden">
+                    <button type="button" class="frame-menu-item active" data-ratio="infinite">
+                        <span class="frame-item-badge">♾️</span>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">Infinite Canvas</span>
+                            <span class="menu-item-sub">Default freeform whiteboard</span>
+                        </div>
+                    </button>
+                    <div class="frame-menu-divider"></div>
+                    <button type="button" class="frame-menu-item" data-ratio="16:9">
+                        <span class="frame-item-badge">16:9</span>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">16:9 Slide (1920 × 1080)</span>
+                            <span class="menu-item-sub">Standard PPTX & PDF Presentation</span>
+                        </div>
+                    </button>
+                    <button type="button" class="frame-menu-item" data-ratio="4:3">
+                        <span class="frame-item-badge">4:3</span>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">4:3 Slide (1024 × 768)</span>
+                            <span class="menu-item-sub">Classic presentation ratio</span>
+                        </div>
+                    </button>
+                    <button type="button" class="frame-menu-item" data-ratio="a4">
+                        <span class="frame-item-badge">A4</span>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">A4 Document (1240 × 1754)</span>
+                            <span class="menu-item-sub">Printable document for PDF</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Download Button & Dropdown Menu -->
+            <div class="download-menu-container">
+                <button type="button" id="btn-download-menu" class="top-bar-action-btn btn-primary-action" title="Download & Export (PPTX, PDF, PNG, SVG, JSON)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span>Download</span>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div id="download-dropdown" class="download-dropdown-menu hidden">
+                    <button type="button" class="download-menu-item" id="btn-download-pptx">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h20v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3z"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="M9 7h4a2 2 0 0 1 0 4H9V7z"/></svg>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">Export as Presentation (.pptx)</span>
+                            <span class="menu-item-sub">Microsoft PowerPoint / Google Slides</span>
+                        </div>
+                    </button>
+                    <button type="button" class="download-menu-item" id="btn-download-pdf">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">Export as PDF Document (.pdf)</span>
+                            <span class="menu-item-sub">Printable document & presentation deck</span>
+                        </div>
+                    </button>
+                    <div class="download-menu-divider"></div>
+                    <button type="button" class="download-menu-item" id="btn-download-png">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">Export as PNG</span>
+                            <span class="menu-item-sub">High-resolution image (2x)</span>
+                        </div>
+                    </button>
+                    <button type="button" class="download-menu-item" id="btn-download-svg">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">Export as SVG</span>
+                            <span class="menu-item-sub">Scalable vector graphics</span>
+                        </div>
+                    </button>
+                    <div class="download-menu-divider"></div>
+                    <button type="button" class="download-menu-item" id="btn-download-json">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <div class="menu-item-text">
+                            <span class="menu-item-title">Download Board (.json)</span>
+                            <span class="menu-item-sub">Full board backup file</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fullscreen Toggle Button -->
+            <button type="button" id="btn-fullscreen-toggle" class="top-bar-action-btn" title="Toggle Fullscreen (F11)">
+                <svg id="fullscreen-icon-expand" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+                <svg id="fullscreen-icon-compress" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                </svg>
+                <span id="fullscreen-btn-label">Fullscreen</span>
+            </button>
+
+            <!-- Auto-Save Status Indicator -->
             <div id="autosave-status" class="autosave-indicator" title="Changes auto-saved to SQLite database">
                 <span class="autosave-dot"></span>
                 <span class="autosave-text">Saved</span>
@@ -314,6 +446,13 @@
                     <polyline points="2 12 12 17 22 12"/>
                 </svg>
                 <span class="sidebar-btn-label">Layers</span>
+            </button>
+            <button id="btn-sidebar-stepbox" class="sidebar-btn" data-panel="stepbox" title="Step Box (Drag to create a multi-step sequence area)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="3" stroke-dasharray="3 2.5"/>
+                    <path d="M7 16h3v-4h4V8h3"/>
+                </svg>
+                <span class="sidebar-btn-label">Step Box</span>
             </button>
         </div>
     </nav>
@@ -680,6 +819,149 @@
         <canvas id="whiteboard-canvas"></canvas>
     </main>
 
+    <!-- Slide Frame Banner & Presenter Controls (Appears when in Fixed Width / Slide Mode) -->
+    <div id="slide-frame-banner" class="slide-frame-banner hidden">
+        <span class="slide-frame-icon">🖥️</span>
+        <span id="slide-frame-title" class="slide-frame-title">16:9 Slide</span>
+
+        <div class="slide-banner-divider"></div>
+
+        <!-- Multi-Slide Navigation Controls -->
+        <button type="button" id="btn-prev-slide" class="slide-banner-btn" title="Previous Slide (◀)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Prev</span>
+        </button>
+        <span id="slide-counter-badge" class="slide-counter-badge">Slide 1 / 1</span>
+        <button type="button" id="btn-next-slide" class="slide-banner-btn" title="Next Slide (Next Slide ▶)">
+            <span>Next</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button type="button" id="btn-add-slide" class="slide-banner-btn slide-banner-btn-add" title="Add New Slide (+)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>+ New Slide</span>
+        </button>
+        <button type="button" id="btn-del-slide" class="slide-banner-btn slide-banner-btn-del" title="Delete current slide">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+
+        <div class="slide-banner-divider"></div>
+
+        <button type="button" id="btn-slide-fullscreen" class="slide-banner-btn" title="Cover whole Chrome page (Theater View)">
+            <svg id="slide-fs-icon-expand" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+            <svg id="slide-fs-icon-compress" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: none;">
+                <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+            <span id="slide-fs-btn-label">Page Fullscreen</span>
+        </button>
+        <button type="button" id="btn-fit-slide" class="slide-banner-btn" title="Fit slide to window">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span>Fit Slide</span>
+        </button>
+        <button type="button" id="btn-exit-slide-mode" class="slide-banner-btn slide-banner-btn-exit" title="Exit Slide Mode">
+            <span>&times; Exit Slide Mode</span>
+        </button>
+    </div>
+
+    <!-- Floating Movable Presenter / Drawing Dock -->
+    <div id="fullscreen-presenter-bar" class="fullscreen-presenter-bar" aria-label="Movable Presenter Drawing Controls">
+        <!-- Drag Handle Grip -->
+        <div id="fs-presenter-drag-handle" class="fs-drag-handle" title="Drag to move toolbar anywhere on the board">
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
+                <circle cx="2.5" cy="2.5" r="1.5"/>
+                <circle cx="7.5" cy="2.5" r="1.5"/>
+                <circle cx="2.5" cy="8" r="1.5"/>
+                <circle cx="7.5" cy="8" r="1.5"/>
+                <circle cx="2.5" cy="13.5" r="1.5"/>
+                <circle cx="7.5" cy="13.5" r="1.5"/>
+            </svg>
+        </div>
+
+        <!-- Pen Tool -->
+        <button type="button" id="fs-btn-pen" class="fs-bar-btn" title="Pen Tool (Draw Freehand)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            <span class="fs-btn-label">Pen</span>
+        </button>
+
+        <!-- Eraser Tool -->
+        <button type="button" id="fs-btn-eraser" class="fs-bar-btn" title="Eraser Tool (E to toggle Brush vs Circle)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
+                <path d="M22 21H7"/>
+                <path d="m5 11 9 9"/>
+            </svg>
+            <span class="fs-btn-label">Eraser</span>
+        </button>
+
+        <!-- Eraser Mode Buttons (Visible when Eraser is selected) -->
+        <div id="fs-eraser-mode-group" class="fs-eraser-mode-group" style="display: none;">
+            <button type="button" id="fs-sub-eraser-brush" class="fs-mode-btn active" title="Stroke Brush: Drag over lines to erase">Brush</button>
+            <button type="button" id="fs-sub-eraser-area" class="fs-mode-btn" title="Circle / Bound Shape Erase: Circle items to erase them">⭕ Circle</button>
+        </div>
+
+        <div class="fs-bar-sep"></div>
+
+        <!-- Live Size Stepper & Slider in Bottom-Right Dock -->
+        <div class="fs-size-group" title="Adjust Size ([ to decrease, ] to increase)">
+            <button type="button" id="fs-btn-size-dec" class="fs-step-btn" title="Decrease Size ([)">−</button>
+            <span id="fs-size-display" class="fs-size-val">4px</span>
+            <button type="button" id="fs-btn-size-inc" class="fs-step-btn" title="Increase Size (])">+</button>
+            <input type="range" id="fs-size-slider" min="1" max="64" value="4" class="fs-size-slider" title="Drag to adjust size">
+        </div>
+
+        <!-- Paint / Highlighter Tool -->
+        <button type="button" id="fs-btn-paint" class="fs-bar-btn" title="Paint / Highlighter Tool">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z"/>
+                <path d="m5 2 5 5"/>
+                <path d="M2 13h15"/>
+                <path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4Z"/>
+            </svg>
+            <span class="fs-btn-label">Paint</span>
+        </button>
+
+        <!-- Color Palette Tool with Popover -->
+        <div class="fs-tool-container">
+            <button type="button" id="fs-btn-color" class="fs-bar-btn fs-color-btn" title="Drawing Color Palette">
+                <span id="fs-color-preview-circle" class="fs-color-circle" style="background-color: #1e293b;"></span>
+                <span class="fs-btn-label">Color</span>
+            </button>
+            <!-- Color Swatches Popover -->
+            <div id="fs-color-popover" class="fs-popover hidden">
+                <div class="fs-popover-header">Pen / Paint Color</div>
+                <div class="fs-swatches-grid">
+                    <button type="button" class="fs-color-swatch active" data-color="#1e293b" style="background: #1e293b;" title="Slate (#1e293b)"></button>
+                    <button type="button" class="fs-color-swatch" data-color="#ef4444" style="background: #ef4444;" title="Red (#ef4444)"></button>
+                    <button type="button" class="fs-color-swatch" data-color="#2563eb" style="background: #2563eb;" title="Blue (#2563eb)"></button>
+                    <button type="button" class="fs-color-swatch" data-color="#10b981" style="background: #10b981;" title="Green (#10b981)"></button>
+                    <button type="button" class="fs-color-swatch" data-color="#f59e0b" style="background: #f59e0b;" title="Amber / Yellow (#f59e0b)"></button>
+                    <button type="button" class="fs-color-swatch" data-color="#8b5cf6" style="background: #8b5cf6;" title="Purple (#8b5cf6)"></button>
+                    <button type="button" class="fs-color-swatch" data-color="#ffffff" style="background: #ffffff; border: 1px solid #cbd5e1;" title="White (#ffffff)"></button>
+                    <label for="fs-color-input" class="fs-color-swatch-custom" title="Custom Color Picker">
+                        <input type="color" id="fs-color-input" value="#1e293b">
+                        <span>🎨</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="fs-bar-sep"></div>
+
+        <!-- Select / Pointer Tool -->
+        <button type="button" id="fs-btn-select" class="fs-bar-btn" title="Select / Move Tool (V)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 3 7 18 3-7 7-3L3 3z"/>
+            </svg>
+            <span class="fs-btn-label">Select</span>
+        </button>
+    </div>
+
+    <!-- Circular Eraser Cursor Preview -->
+    <div id="eraser-cursor-preview" class="eraser-cursor-preview" aria-hidden="true"></div>
+
     <!-- Bottom-right Zoom Widget -->
     <div id="zoom-widget">
         <button id="btn-zoom-out" class="zoom-btn" title="Zoom Out (-)">
@@ -695,6 +977,11 @@
             </svg>
         </button>
         <button id="btn-reset-view" class="zoom-btn text-btn" title="Reset View & Zoom (Ctrl+0)">Reset</button>
+        <button id="btn-zoom-fullscreen" class="zoom-btn" title="Toggle Fullscreen (F11)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+        </button>
         <button id="btn-shortcuts-toggle" class="zoom-btn" title="All Keyboard Shortcuts (? or Ctrl+/ or F1)">
             <span style="font-weight: 700; font-size: 13px;">?</span>
         </button>
@@ -791,8 +1078,63 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Exit Slide Mode Confirmation Modal -->
+    <div id="modal-exit-slide" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-card modal-card-confirm">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">🖥️</span>
+                    <div>
+                        <h3>Exit Slide Mode</h3>
+                        <div class="modal-hint">Infinite Whiteboard and Slide Presentations are separate entities</div>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-exit-slide" class="modal-close-btn" title="Cancel (Escape)">&times;</button>
+            </div>
+            <div class="modal-body modal-confirm-body">
+                <p class="modal-confirm-text">
+                    Do you want to save your slide presentation before returning to the Infinite Whiteboard?
+                </p>
+                <div class="modal-confirm-details">
+                    <div class="confirm-detail-item">
+                        <span class="confirm-detail-bullet">💾</span>
+                        <div><strong>Save & Return to Infinite:</strong> Keeps your slides safely stored for PPTX/PDF export and future editing.</div>
+                    </div>
+                    <div class="confirm-detail-item">
+                        <span class="confirm-detail-bullet">🗑️</span>
+                        <div><strong>Don't Save (Delete Slides):</strong> Discards and deletes the slide content, returning to a clean infinite whiteboard.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer modal-confirm-footer">
+                <button type="button" id="btn-slide-cancel-exit" class="btn modal-btn modal-btn-secondary">Cancel</button>
+                <button type="button" id="btn-slide-discard-exit" class="btn modal-btn modal-btn-danger">Don't Save (Delete Slides)</button>
+                <button type="button" id="btn-slide-save-exit" class="btn modal-btn modal-btn-primary">Save & Return to Infinite</button>
+            </div>
+        </div>
+    </div>
     <div id="toast" class="toast-notification hidden"></div>
+
+    <!-- Step Box Floating Controls (Positioned directly under selected Step Box) -->
+    <div id="stepbox-floating-bar" class="stepbox-floating-controls" style="display: none;">
+        <button type="button" class="stepbox-ctrl-btn" id="btn-stepbox-prev" title="Previous Step (◀ Prev)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Prev</span>
+        </button>
+        <span class="stepbox-badge-label" id="stepbox-counter-label">Step 1 / 1</span>
+        <button type="button" class="stepbox-ctrl-btn" id="btn-stepbox-next" title="Next Step (Next ▶)">
+            <span>Next</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="stepbox-divider"></div>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-add" id="btn-stepbox-add" title="Add Step (creates a new step copying current contents)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add Step</span>
+        </button>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-delete" id="btn-stepbox-del" title="Delete current step">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+    </div>
 
     <!-- Right-click Context Menu (Merge, Save to My Shapes, Ungroup, etc.) -->
     <div id="context-menu" class="context-menu hidden">

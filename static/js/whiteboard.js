@@ -34,9 +34,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnText = document.getElementById('btn-text');
     const btnSticky = document.getElementById('btn-sticky') || document.getElementById('btn-sidebar-notes');
     const btnSidebarNotes = document.getElementById('btn-sidebar-notes');
+    const btnSidebarStepbox = document.getElementById('btn-sidebar-stepbox');
     const btnLine = document.getElementById('btn-line');
     const btnArrow = document.getElementById('btn-arrow');
     const btnToggleShapes = document.getElementById('btn-toggle-shapes');
+
+    // Step Box Floating Controls Elements
+    const stepBoxFloatingBar = document.getElementById('stepbox-floating-bar');
+    const btnStepBoxPrev = document.getElementById('btn-stepbox-prev');
+    const btnStepBoxNext = document.getElementById('btn-stepbox-next');
+    const btnStepBoxAdd = document.getElementById('btn-stepbox-add');
+    const btnStepBoxDel = document.getElementById('btn-stepbox-del');
+    const stepBoxCounterLabel = document.getElementById('stepbox-counter-label');
+
+    // Fullscreen Controls Elements
+    const btnFullscreenToggle = document.getElementById('btn-fullscreen-toggle');
+    const btnZoomFullscreen = document.getElementById('btn-zoom-fullscreen');
+    const fullscreenIconExpand = document.getElementById('fullscreen-icon-expand');
+    const fullscreenIconCompress = document.getElementById('fullscreen-icon-compress');
+    const fullscreenBtnLabel = document.getElementById('fullscreen-btn-label');
+
+    // Canvas Frame / Fixed Width Mode Elements
+    const btnFrameMode = document.getElementById('btn-frame-mode');
+    const frameModeDropdown = document.getElementById('frame-mode-dropdown');
+    const frameModeLabel = document.getElementById('frame-mode-label');
+    const slideFrameBanner = document.getElementById('slide-frame-banner');
+    const slideFrameTitle = document.getElementById('slide-frame-title');
+    const btnFitSlide = document.getElementById('btn-fit-slide');
+    const btnExitSlideMode = document.getElementById('btn-exit-slide-mode');
+    const frameMenuItems = document.querySelectorAll('.frame-menu-item');
+    const btnPrevSlide = document.getElementById('btn-prev-slide');
+    const btnNextSlide = document.getElementById('btn-next-slide');
+    const btnAddSlide = document.getElementById('btn-add-slide');
+    const btnDelSlide = document.getElementById('btn-del-slide');
+    const slideCounterBadge = document.getElementById('slide-counter-badge');
+    const btnSlideFullscreen = document.getElementById('btn-slide-fullscreen');
+    const slideFsIconExpand = document.getElementById('slide-fs-icon-expand');
+    const slideFsIconCompress = document.getElementById('slide-fs-icon-compress');
+    const slideFsBtnLabel = document.getElementById('slide-fs-btn-label');
+
+    // Exit Slide Confirmation Modal Elements
+    const modalExitSlide = document.getElementById('modal-exit-slide');
+    const btnCloseExitSlide = document.getElementById('btn-close-exit-slide');
+    const btnSlideCancelExit = document.getElementById('btn-slide-cancel-exit');
+    const btnSlideDiscardExit = document.getElementById('btn-slide-discard-exit');
+    const btnSlideSaveExit = document.getElementById('btn-slide-save-exit');
+
+    // Download / Export Menu Elements
+    const btnDownloadMenu = document.getElementById('btn-download-menu');
+    const downloadDropdown = document.getElementById('download-dropdown');
+    const btnDownloadPptx = document.getElementById('btn-download-pptx');
+    const btnDownloadPdf = document.getElementById('btn-download-pdf');
+    const btnDownloadPng = document.getElementById('btn-download-png');
+    const btnDownloadSvg = document.getElementById('btn-download-svg');
+    const btnDownloadJson = document.getElementById('btn-download-json');
 
     // Sidebar & Drawer Elements
     const sidebarBtns = document.querySelectorAll('.sidebar-btn');
@@ -58,6 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fillColorPreview = document.getElementById('fill-color-preview');
     const btnFillNone = document.getElementById('btn-fill-none');
     const selectStrokeSize = document.getElementById('select-stroke-size');
+    const btnStrokeSizeDec = document.getElementById('btn-stroke-size-dec');
+    const btnStrokeSizeInc = document.getElementById('btn-stroke-size-inc');
+    const strokeSizeVal = document.getElementById('stroke-size-val');
+    const sliderStrokeSize = document.getElementById('slider-stroke-size');
     const selectFontSize = document.getElementById('select-font-size');
     const btnBold = document.getElementById('btn-bold');
     const btnItalic = document.getElementById('btn-italic');
@@ -68,8 +123,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const propLineGroup = document.getElementById('prop-line-group');
     const propFillGroup = document.getElementById('prop-fill-group');
     const propTextGroup = document.getElementById('prop-text-group');
+    const propSizeGroup = document.getElementById('prop-size-group');
     const selectLinePattern = document.getElementById('select-line-pattern');
     const selectArrowHead = document.getElementById('select-arrow-head');
+
+    // Eraser Specific Properties & Controls
+    const propEraserGroup = document.getElementById('prop-eraser-group');
+    const btnEraserModeBrush = document.getElementById('btn-eraser-mode-brush');
+    const btnEraserModeArea = document.getElementById('btn-eraser-mode-area');
+    const btnEraserSizeDec = document.getElementById('btn-eraser-size-dec');
+    const btnEraserSizeInc = document.getElementById('btn-eraser-size-inc');
+    const eraserSizeVal = document.getElementById('eraser-size-val');
+    const sliderEraserSize = document.getElementById('slider-eraser-size');
+
+    // Fullscreen Presenter Controls Elements (Bottom Right)
+    const fsPresenterBar = document.getElementById('fullscreen-presenter-bar');
+    const fsBtnPen = document.getElementById('fs-btn-pen');
+    const fsBtnPaint = document.getElementById('fs-btn-paint');
+    const fsBtnEraser = document.getElementById('fs-btn-eraser');
+    const fsEraserPopover = document.getElementById('fs-eraser-popover');
+    const fsEraserModeGroup = document.getElementById('fs-eraser-mode-group');
+    const fsSubEraserBrush = document.getElementById('fs-sub-eraser-brush');
+    const fsSubEraserArea = document.getElementById('fs-sub-eraser-area');
+    const fsBtnEraserDec = document.getElementById('fs-btn-eraser-dec');
+    const fsBtnEraserInc = document.getElementById('fs-btn-eraser-inc');
+    const fsEraserSizeDisplay = document.getElementById('fs-eraser-size-display');
+    const fsBtnSizeDec = document.getElementById('fs-btn-size-dec');
+    const fsBtnSizeInc = document.getElementById('fs-btn-size-inc');
+    const fsSizeDisplay = document.getElementById('fs-size-display');
+    const fsSizeSlider = document.getElementById('fs-size-slider');
+    const fsBtnColor = document.getElementById('fs-btn-color');
+    const fsColorPreviewCircle = document.getElementById('fs-color-preview-circle');
+    const fsColorPopover = document.getElementById('fs-color-popover');
+    const fsColorSwatches = document.querySelectorAll('.fs-color-swatch');
+    const fsColorInput = document.getElementById('fs-color-input');
+    const fsBtnSelect = document.getElementById('fs-btn-select');
+    const eraserCursorPreview = document.getElementById('eraser-cursor-preview');
 
     // Category Navigation Elements
     const btnCatPrev = document.getElementById('btn-cat-prev');
@@ -130,6 +219,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let currentStickyColor = 'yellow';
 
+    // Stroke / Writing State Variables
+    let strokeSize = 4;
+
+    // Eraser State Variables
+    let eraserSize = 30;
+    let eraserSubMode = 'brush'; // 'brush' or 'area'
+    let isErasingArea = false;
+    let areaErasePoints = [];
+    let areaErasePreview = null;
+
+    // Step Box State Variables
+    let isDrawingStepBox = false;
+    let stepBoxStartPoint = null;
+    let stepBoxPreviewRect = null;
+    let activeStepBox = null;
+
     // Pan state tracking
     let isPanning = false;
     let isSpacePressed = false;
@@ -187,7 +292,17 @@ document.addEventListener('DOMContentLoaded', () => {
         'isFreeLine',
         'subTargetCheck',
         'isSticker',
-        'stickerUrl'
+        'stickerUrl',
+        'isStepBox',
+        'stepBoxId',
+        'stepBoxName',
+        'stepBoxSteps',
+        'stepBoxCurrentStep',
+        'stepBoxOwnerId',
+        'relLeft',
+        'relTop',
+        'isSlideFrame',
+        'slideFrameRatio'
     ];
 
     // -------------------------------------------------------------------------
@@ -229,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
         }
 
-        const baseSize = parseInt(selectStrokeSize.value, 10) || 4;
+        const baseSize = strokeSize || 4;
 
         if (currentMode === 'pen') {
             canvas.isDrawingMode = true;
@@ -245,15 +360,342 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.freeDrawingBrush.strokeLineCap = 'round';
             canvas.freeDrawingBrush.strokeLineJoin = 'round';
         } else if (currentMode === 'eraser') {
-            canvas.isDrawingMode = true;
-            const eraserWidth = Math.max(16, baseSize * 3.5);
-            canvas.freeDrawingBrush.color = 'rgba(235, 238, 242, 0.85)';
-            canvas.freeDrawingBrush.width = eraserWidth;
-            canvas.freeDrawingBrush.strokeLineCap = 'round';
-            canvas.freeDrawingBrush.strokeLineJoin = 'round';
+            if (eraserSubMode === 'brush') {
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingBrush.color = 'rgba(235, 238, 242, 0.85)';
+                canvas.freeDrawingBrush.width = eraserSize;
+                canvas.freeDrawingBrush.strokeLineCap = 'round';
+                canvas.freeDrawingBrush.strokeLineJoin = 'round';
+            } else {
+                canvas.isDrawingMode = false;
+            }
         } else {
             canvas.isDrawingMode = false;
         }
+    }
+
+    function setStrokeSize(newSize) {
+        strokeSize = Math.max(1, Math.min(64, Math.round(newSize)));
+        if (strokeSizeVal) strokeSizeVal.textContent = strokeSize + 'px';
+        if (sliderStrokeSize) sliderStrokeSize.value = strokeSize;
+
+        if (currentMode !== 'eraser') {
+            if (fsSizeDisplay) fsSizeDisplay.textContent = strokeSize + 'px';
+            if (fsSizeSlider) {
+                fsSizeSlider.min = '1';
+                fsSizeSlider.max = '64';
+                fsSizeSlider.value = strokeSize;
+            }
+        }
+
+        if (currentMode === 'pen' || currentMode === 'highlighter') {
+            updateBrushSettings();
+        }
+
+        const activeObj = canvas.getActiveObject();
+        if (activeObj && currentMode === 'select') {
+            if (activeObj.isShapeGroup) {
+                const shape = activeObj.getObjects().find(o => o.type !== 'textbox' && o.type !== 'i-text');
+                if (shape) {
+                    shape.set('strokeWidth', strokeSize);
+                    canvas.renderAll();
+                    saveState();
+                }
+            } else if (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line') {
+                activeObj.set('strokeWidth', strokeSize);
+                if (activeObj.arrowHead) {
+                    activeObj.arrowHead.set({
+                        width: Math.max(12, strokeSize * 5),
+                        height: Math.max(12, strokeSize * 5)
+                    });
+                }
+                if (activeObj.startArrowHead) {
+                    activeObj.startArrowHead.set({
+                        width: Math.max(12, strokeSize * 5),
+                        height: Math.max(12, strokeSize * 5)
+                    });
+                }
+                canvas.renderAll();
+                saveState();
+            } else if (!activeObj.isSlideFrame && !activeObj.isGridLine && (activeObj.type === 'rect' || activeObj.type === 'circle' || activeObj.type === 'triangle' || activeObj.type === 'polygon' || activeObj.type === 'path')) {
+                activeObj.set('strokeWidth', strokeSize);
+                canvas.renderAll();
+                saveState();
+            }
+        }
+    }
+
+    function setEraserSize(newSize) {
+        eraserSize = Math.max(6, Math.min(150, Math.round(newSize)));
+        if (eraserSizeVal) eraserSizeVal.textContent = eraserSize + 'px';
+        if (sliderEraserSize) sliderEraserSize.value = eraserSize;
+
+        if (currentMode === 'eraser') {
+            if (fsSizeDisplay) fsSizeDisplay.textContent = eraserSize + 'px';
+            if (fsSizeSlider) {
+                fsSizeSlider.min = '6';
+                fsSizeSlider.max = '150';
+                fsSizeSlider.value = eraserSize;
+            }
+        }
+
+        if (currentMode === 'eraser' && eraserSubMode === 'brush' && canvas.freeDrawingBrush) {
+            canvas.freeDrawingBrush.width = eraserSize;
+        }
+
+        if (eraserCursorPreview && currentMode === 'eraser' && eraserSubMode === 'brush') {
+            const zoom = canvas.getZoom();
+            const diameter = Math.max(8, eraserSize * zoom);
+            eraserCursorPreview.style.width = diameter + 'px';
+            eraserCursorPreview.style.height = diameter + 'px';
+        }
+    }
+
+    function setEraserSubMode(subMode) {
+        eraserSubMode = (subMode === 'area') ? 'area' : 'brush';
+
+        if (btnEraserModeBrush) btnEraserModeBrush.classList.toggle('active', eraserSubMode === 'brush');
+        if (btnEraserModeArea) btnEraserModeArea.classList.toggle('active', eraserSubMode === 'area');
+        if (fsSubEraserBrush) fsSubEraserBrush.classList.toggle('active', eraserSubMode === 'brush');
+        if (fsSubEraserArea) fsSubEraserArea.classList.toggle('active', eraserSubMode === 'area');
+
+        if (currentMode === 'eraser') {
+            if (eraserSubMode === 'brush') {
+                canvas.isDrawingMode = true;
+                updateBrushSettings();
+                canvas.defaultCursor = 'crosshair';
+                showToast(`Brush Eraser (${eraserSize}px)`);
+            } else {
+                canvas.isDrawingMode = false;
+                canvas.defaultCursor = 'crosshair';
+                if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
+                showToast('Circle / Area Erase: Circle or draw a boundary around what to erase');
+            }
+        }
+    }
+
+    function updateActiveDrawingColor(newColor) {
+        currentColor = newColor;
+        if (colorPicker) colorPicker.value = newColor;
+        if (colorPreview) colorPreview.style.backgroundColor = newColor;
+        if (fsColorPreviewCircle) fsColorPreviewCircle.style.backgroundColor = newColor;
+        if (fsColorInput) fsColorInput.value = newColor;
+
+        if (fsColorSwatches) {
+            fsColorSwatches.forEach(sw => {
+                sw.classList.toggle('active', sw.getAttribute('data-color') === newColor);
+            });
+        }
+
+        if (currentMode === 'pen' || currentMode === 'highlighter') {
+            updateBrushSettings();
+        }
+
+        const activeObj = canvas.getActiveObject();
+        if (activeObj && currentMode === 'select') {
+            if (activeObj.type === 'activeSelection') {
+                activeObj.forEachObject(o => {
+                    if (o.type === 'i-text' || o.type === 'textbox') o.set('fill', newColor);
+                    else o.set('stroke', newColor);
+                });
+            } else {
+                if (activeObj.type === 'i-text' || activeObj.type === 'textbox') activeObj.set('fill', newColor);
+                else activeObj.set('stroke', newColor);
+            }
+            canvas.requestRenderAll();
+            saveState();
+        }
+    }
+
+    function isPointInPolygon(point, vs) {
+        const x = point.x, y = point.y;
+        let inside = false;
+        for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+            const xi = vs[i].x, yi = vs[i].y;
+            const xj = vs[j].x, yj = vs[j].y;
+            const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
+    // -------------------------------------------------------------------------
+    // Fabric.js Object-Level Inverted Erasing Extension (Partial Object Erasing)
+    // -------------------------------------------------------------------------
+    (function setupFabricErasing() {
+        if (typeof fabric === 'undefined' || !fabric.Object) return;
+
+        const origDrawClipPath = fabric.Object.prototype._drawClipPath;
+        fabric.Object.prototype._drawClipPath = function(ctx, clipPath) {
+            if (origDrawClipPath) {
+                origDrawClipPath.call(this, ctx, clipPath);
+            }
+            if (this.eraseClipPaths && this.eraseClipPaths.length > 0) {
+                for (let i = 0; i < this.eraseClipPaths.length; i++) {
+                    const ep = this.eraseClipPaths[i];
+                    if (ep) {
+                        ep.canvas = this.canvas;
+                        ep.shouldCache();
+                        ep._transformDone = true;
+                        ep.renderCache({ forClipping: true });
+                        this.drawClipPathOnCache(ctx, ep);
+                    }
+                }
+            }
+        };
+
+        const origNeedsItsOwnCache = fabric.Object.prototype.needsItsOwnCache;
+        fabric.Object.prototype.needsItsOwnCache = function() {
+            const orig = origNeedsItsOwnCache ? origNeedsItsOwnCache.call(this) : false;
+            return orig || !!this.clipPath || (!!this.eraseClipPaths && this.eraseClipPaths.length > 0);
+        };
+
+        const origIsCacheDirty = fabric.Object.prototype.isCacheDirty;
+        fabric.Object.prototype.isCacheDirty = function(skipCanvas) {
+            if (this.eraseClipPaths && this.eraseClipPaths.length > 0) {
+                for (let i = 0; i < this.eraseClipPaths.length; i++) {
+                    if (this.eraseClipPaths[i] && this.eraseClipPaths[i].absolutePositioned) return true;
+                }
+            }
+            return origIsCacheDirty ? origIsCacheDirty.call(this, skipCanvas) : false;
+        };
+    })();
+
+    function applyErasePolygonToObject(obj, polyPoints) {
+        if (!obj.eraseClipPaths) {
+            obj.eraseClipPaths = [];
+        }
+        const ep = new fabric.Polygon(polyPoints.map(pt => ({ x: pt.x, y: pt.y })), {
+            absolutePositioned: true,
+            inverted: true
+        });
+        obj.eraseClipPaths.push(ep);
+        obj.objectCaching = true;
+        obj.dirty = true;
+    }
+
+    function finalizeAreaErase() {
+        if (!isErasingArea) return;
+        isErasingArea = false;
+        if (areaErasePreview) {
+            canvas.remove(areaErasePreview);
+            areaErasePreview = null;
+        }
+        if (areaErasePoints.length >= 3) {
+            const poly = areaErasePoints;
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for (let i = 0; i < poly.length; i++) {
+                if (poly[i].x < minX) minX = poly[i].x;
+                if (poly[i].x > maxX) maxX = poly[i].x;
+                if (poly[i].y < minY) minY = poly[i].y;
+                if (poly[i].y > maxY) maxY = poly[i].y;
+            }
+
+            let removedCount = 0;
+            let partialCount = 0;
+            const objs = canvas.getObjects().slice();
+
+            objs.forEach(obj => {
+                if (!obj || obj.isSlideFrame || obj.isGridLine || obj === stepBoxPreviewRect || obj === connectorPreviewLine) return;
+
+                const bound = obj.getBoundingRect(true, true);
+                // Bounding box overlap filter
+                if (bound.left > maxX || bound.left + bound.width < minX ||
+                    bound.top > maxY || bound.top + bound.height < minY) {
+                    return;
+                }
+
+                // Sample points from the object to test containment
+                let samplePoints = [];
+
+                if (obj.type === 'path' && Array.isArray(obj.path)) {
+                    // Freehand pen / paint stroke: sample coordinates along the path
+                    const matrix = obj.calcTransformMatrix ? obj.calcTransformMatrix() : null;
+                    const pathLen = obj.path.length;
+                    const step = Math.max(1, Math.floor(pathLen / 40));
+                    for (let p = 0; p < pathLen; p += step) {
+                        const cmd = obj.path[p];
+                        if (cmd && cmd.length >= 3) {
+                            const rawPt = { x: cmd[cmd.length - 2], y: cmd[cmd.length - 1] };
+                            const pt = matrix ? fabric.util.transformPoint(rawPt, matrix) : rawPt;
+                            samplePoints.push(pt);
+                        }
+                    }
+                } else if (obj.type === 'line' || obj.isConnector || obj.isFreeLine) {
+                    // Line object: sample 15 points along the segment
+                    const x1 = obj.x1, y1 = obj.y1, x2 = obj.x2, y2 = obj.y2;
+                    for (let t = 0; t <= 1; t += 0.08) {
+                        samplePoints.push({ x: x1 + t * (x2 - x1), y: y1 + t * (y2 - y1) });
+                    }
+                } else {
+                    // Shapes, Text, Sticky Notes, Stickers: sample 9 points (corners, midpoints, center)
+                    samplePoints = [
+                        { x: bound.left, y: bound.top },
+                        { x: bound.left + bound.width, y: bound.top },
+                        { x: bound.left, y: bound.top + bound.height },
+                        { x: bound.left + bound.width, y: bound.top + bound.height },
+                        { x: bound.left + bound.width / 2, y: bound.top },
+                        { x: bound.left + bound.width / 2, y: bound.top + bound.height },
+                        { x: bound.left, y: bound.top + bound.height / 2 },
+                        { x: bound.left + bound.width, y: bound.top + bound.height / 2 },
+                        { x: bound.left + bound.width / 2, y: bound.top + bound.height / 2 }
+                    ];
+                }
+
+                if (samplePoints.length === 0) return;
+
+                let insideCount = 0;
+                for (let i = 0; i < samplePoints.length; i++) {
+                    if (isPointInPolygon(samplePoints[i], poly)) {
+                        insideCount++;
+                    }
+                }
+
+                // Also check if any polygon vertex cuts through inside the object
+                let polyInsideObj = false;
+                if (insideCount === 0 && typeof obj.containsPoint === 'function') {
+                    for (let v = 0; v < poly.length; v += 3) {
+                        if (obj.containsPoint(poly[v])) {
+                            polyInsideObj = true;
+                            break;
+                        }
+                    }
+                }
+
+                // If no points inside and no polygon vertices cut through, object is untouched
+                if (insideCount === 0 && !polyInsideObj) return;
+
+                // Test if 100% of the object is inside the circle:
+                // All sample points must be inside AND the object bounding box must be within the circle boundary
+                const isEntirelyInside = (insideCount === samplePoints.length) &&
+                    (bound.left >= minX - 4 && bound.left + bound.width <= maxX + 4 &&
+                     bound.top >= minY - 4 && bound.top + bound.height <= maxY + 4);
+
+                if (isEntirelyInside) {
+                    // User circled the entire object: remove it completely
+                    canvas.remove(obj);
+                    removedCount++;
+                } else {
+                    // User circled ONLY A PORTION of the object:
+                    // DO NOT remove the whole object! Erase only the circled portion!
+                    applyErasePolygonToObject(obj, poly);
+                    partialCount++;
+                }
+            });
+
+            if (removedCount > 0 || partialCount > 0) {
+                canvas.requestRenderAll();
+                saveState();
+                if (partialCount > 0) {
+                    showToast(`Erased circled portion (${partialCount} object${partialCount > 1 ? 's' : ''})`);
+                } else {
+                    showToast(`Erased ${removedCount} object${removedCount > 1 ? 's' : ''}`);
+                }
+            } else {
+                canvas.requestRenderAll();
+            }
+        }
+        areaErasePoints = [];
     }
 
     // -------------------------------------------------------------------------
@@ -574,10 +1016,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addShapeToCanvas(shapeDef, x, y) {
         const vpt = canvas.viewportTransform;
-        const targetX = (x !== undefined) ? x : (-vpt[4] + canvas.getWidth() / 2) / canvas.getZoom();
-        const targetY = (y !== undefined) ? y : (-vpt[5] + canvas.getHeight() / 2) / canvas.getZoom();
+        let targetX = (x !== undefined) ? x : (-vpt[4] + canvas.getWidth() / 2) / canvas.getZoom();
+        let targetY = (y !== undefined) ? y : (-vpt[5] + canvas.getHeight() / 2) / canvas.getZoom();
 
-        const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
+        if (x === undefined && currentFrameRatio !== 'infinite' && slideFrameRect) {
+            targetX = slideFrameRect.left + slideFrameRect.width / 2;
+            targetY = slideFrameRect.top + slideFrameRect.height / 2;
+        }
+
+        const strokeWidth = strokeSize || 2;
         const fill = currentFillColor || 'transparent';
         const stroke = currentColor || '#334155';
 
@@ -616,6 +1063,7 @@ document.addEventListener('DOMContentLoaded', () => {
         group.connectedLines = [];
 
         canvas.add(group);
+        if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(group);
         setMode('select');
         canvas.setActiveObject(group);
         canvas.renderAll();
@@ -770,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createFreeformLine(p1, p2, isArrow = false) {
-        const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
+        const strokeWidth = strokeSize || 2;
         const strokeColor = currentColor || '#1e293b';
         const dashArray = getDashArrayForPattern(currentLinePattern);
         const arrowStyle = isArrow ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle) : (currentArrowHeadStyle === 'none' ? 'none' : 'none');
@@ -788,6 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         canvas.add(line);
+        if (typeof applySlideClip === 'function') applySlideClip(line);
 
         if (arrowStyle !== 'none') {
             applyArrowheadStyleToLine(line, arrowStyle);
@@ -805,7 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toObj.shapeUid = toObj.shapeUid || generateUid();
 
         const pair = getBestAnchorPair(fromObj, toObj);
-        const strokeWidth = parseInt(selectStrokeSize.value, 10) || 2;
+        const strokeWidth = strokeSize || 2;
         const strokeColor = currentColor || '#1e293b';
         const dashArray = getDashArrayForPattern(currentLinePattern);
         const arrowStyle = hasArrow ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle) : 'none';
@@ -832,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toObj.connectedLines.push(line);
 
         canvas.add(line);
+        if (typeof applySlideClip === 'function') applySlideClip(line);
         canvas.sendToBack(line); // Line sits behind connected shapes
 
         if (arrowStyle !== 'none') {
@@ -896,9 +1346,21 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.requestRenderAll();
     }
 
-    canvas.on('object:moving', (e) => updateConnectedLinesFor(e.target));
-    canvas.on('object:scaling', (e) => updateConnectedLinesFor(e.target));
-    canvas.on('object:modified', (e) => updateConnectedLinesFor(e.target));
+    canvas.on('object:moving', (e) => {
+        updateConnectedLinesFor(e.target);
+        if (typeof handleStepBoxMoving === 'function') handleStepBoxMoving(e.target);
+        if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(e.target);
+    });
+    canvas.on('object:scaling', (e) => {
+        updateConnectedLinesFor(e.target);
+        if (typeof handleStepBoxScaling === 'function') handleStepBoxScaling(e.target);
+        if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(e.target);
+    });
+    canvas.on('object:modified', (e) => {
+        updateConnectedLinesFor(e.target);
+        if (typeof handleStepBoxModified === 'function') handleStepBoxModified(e.target);
+        if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(e.target);
+    });
 
     // -------------------------------------------------------------------------
     // 7. Sidebar Dock & Drawer Controller
@@ -906,6 +1368,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeDrawerPanel = null;
 
     function openDrawerPanel(panelId) {
+        if (panelId === 'stepbox') {
+            closeDrawer();
+            setMode('stepbox');
+            showToast('Drag on canvas to create a Step Box');
+            return;
+        }
+
         if (!shapesPanel) return;
 
         if (!shapesPanel.classList.contains('hidden') && activeDrawerPanel === panelId) {
@@ -1503,6 +1972,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             img.connectedLines = [];
             canvas.add(img);
+            if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(img);
             setMode('select');
             canvas.setActiveObject(img);
             canvas.renderAll();
@@ -1532,6 +2002,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetY = (clientY - vpt[5]) / zoom;
 
             addStickerToCanvas(stickerUrl, targetX, targetY);
+        });
+
+        canvasContainer.addEventListener('mouseleave', () => {
+            if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
         });
     }
 
@@ -1662,6 +2136,9 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.zoomToPoint(targetPoint, clampedZoom);
         updateZoomDisplay();
         updateGrid();
+        if (activeStepBox && typeof updateStepBoxFloatingControls === 'function') {
+            updateStepBoxFloatingControls(activeStepBox);
+        }
     }
 
     canvas.on('mouse:wheel', (opt) => {
@@ -1680,10 +2157,770 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
         updateZoomDisplay();
         updateGrid();
+        if (activeStepBox && typeof updateStepBoxFloatingControls === 'function') {
+            updateStepBoxFloatingControls(activeStepBox);
+        }
     }
 
     btnResetView.addEventListener('click', resetView);
     zoomPercentageEl.addEventListener('click', resetView);
+
+    // -------------------------------------------------------------------------
+    // Fullscreen Toggle (Top Bar & Zoom Widget)
+    // -------------------------------------------------------------------------
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn('Error attempting to enable fullscreen:', err);
+                showToast('Fullscreen mode not permitted by browser');
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    if (btnFullscreenToggle) {
+        btnFullscreenToggle.addEventListener('click', toggleFullscreen);
+    }
+    if (btnZoomFullscreen) {
+        btnZoomFullscreen.addEventListener('click', toggleFullscreen);
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        const isFull = !!document.fullscreenElement;
+        if (fullscreenIconExpand && fullscreenIconCompress) {
+            fullscreenIconExpand.style.display = isFull ? 'none' : 'block';
+            fullscreenIconCompress.style.display = isFull ? 'block' : 'none';
+        }
+        if (fullscreenBtnLabel) {
+            fullscreenBtnLabel.textContent = isFull ? 'Exit' : 'Fullscreen';
+        }
+        if (btnFullscreenToggle) {
+            btnFullscreenToggle.title = isFull ? 'Exit Fullscreen (F11 / Esc)' : 'Toggle Fullscreen (F11)';
+        }
+        if (btnZoomFullscreen) {
+            btnZoomFullscreen.title = isFull ? 'Exit Fullscreen (F11 / Esc)' : 'Toggle Fullscreen (F11)';
+        }
+        showToast(isFull ? 'Entered Fullscreen' : 'Exited Fullscreen');
+    });
+
+    // -------------------------------------------------------------------------
+    // Canvas Frame / Fixed Width Mode (PPTX & PDF Slide Mode)
+    // -------------------------------------------------------------------------
+    const SLIDE_PRESETS = {
+        '16:9': {
+            width: 1920,
+            height: 1080,
+            title: '16:9 Presentation Slide (1920 × 1080)',
+            shortName: 'Slide: 16:9'
+        },
+        '4:3': {
+            width: 1024,
+            height: 768,
+            title: '4:3 Standard Slide (1024 × 768)',
+            shortName: 'Slide: 4:3'
+        },
+        'a4': {
+            width: 1240,
+            height: 1754,
+            title: 'A4 Document Page (1240 × 1754)',
+            shortName: 'Page: A4'
+        }
+    };
+
+    let currentFrameRatio = 'infinite';
+    let slideFrameRect = null;
+    let infiniteBoardObjects = [];
+    let isSlidePageFullscreen = false;
+
+    // -------------------------------------------------------------------------
+    // Multi-Slide Deck State & Navigation
+    // -------------------------------------------------------------------------
+    let boardSlides = [
+        { id: 'slide_' + Date.now(), name: 'Slide 1', objects: [] }
+    ];
+    let currentSlideIndex = 0;
+
+    function updateSlideNavigationUI() {
+        if (!slideCounterBadge) return;
+        const total = Math.max(1, boardSlides.length);
+        const cur = Math.min(total, currentSlideIndex + 1);
+        slideCounterBadge.textContent = `Slide ${cur} / ${total}`;
+
+        if (btnPrevSlide) {
+            btnPrevSlide.disabled = currentSlideIndex <= 0;
+        }
+        if (btnNextSlide) {
+            btnNextSlide.disabled = currentSlideIndex >= boardSlides.length - 1;
+        }
+        if (btnDelSlide) {
+            btnDelSlide.disabled = boardSlides.length <= 1;
+        }
+    }
+
+    function saveCurrentSlide() {
+        if (currentFrameRatio === 'infinite' || !slideFrameRect) return;
+        if (!boardSlides[currentSlideIndex]) {
+            boardSlides[currentSlideIndex] = {
+                id: 'slide_' + Date.now(),
+                name: `Slide ${currentSlideIndex + 1}`,
+                objects: []
+            };
+        }
+
+        // Save active step snapshot for all Step Boxes before serializing
+        if (typeof saveStepBoxCurrentStep === 'function') {
+            const stepBoxes = canvas.getObjects().filter(o => o.isStepBox);
+            stepBoxes.forEach(sb => saveStepBoxCurrentStep(sb));
+        }
+
+        const nonFrameObjects = canvas.getObjects().filter(o => !o.isSlideFrame);
+        boardSlides[currentSlideIndex].objects = nonFrameObjects.map(o => o.toJSON(EXTRA_PROPS));
+    }
+
+    function loadSlide(index) {
+        if (index < 0 || index >= boardSlides.length) return;
+
+        canvas.discardActiveObject();
+        if (stepBoxFloatingBar) stepBoxFloatingBar.style.display = 'none';
+        activeStepBox = null;
+
+        const toRemove = canvas.getObjects().filter(o => !o.isSlideFrame);
+        toRemove.forEach(o => canvas.remove(o));
+
+        currentSlideIndex = index;
+        const targetSlide = boardSlides[currentSlideIndex];
+
+        if (targetSlide && Array.isArray(targetSlide.objects) && targetSlide.objects.length > 0) {
+            fabric.util.enlivenObjects(targetSlide.objects, (enlivenedObjects) => {
+                enlivenedObjects.forEach(obj => {
+                    canvas.add(obj);
+                    applySlideClip(obj);
+                });
+                if (slideFrameRect) {
+                    canvas.sendToBack(slideFrameRect);
+                }
+                reconnectLoadedObjects();
+                canvas.requestRenderAll();
+                updateSlideNavigationUI();
+                saveState();
+            });
+        } else {
+            if (slideFrameRect) {
+                canvas.sendToBack(slideFrameRect);
+            }
+            canvas.requestRenderAll();
+            updateSlideNavigationUI();
+            saveState();
+        }
+    }
+
+    function addNewSlide() {
+        if (currentFrameRatio === 'infinite') return;
+        saveCurrentSlide();
+
+        const newSlide = {
+            id: 'slide_' + Date.now(),
+            name: `Slide ${boardSlides.length + 1}`,
+            objects: []
+        };
+
+        boardSlides.splice(currentSlideIndex + 1, 0, newSlide);
+        loadSlide(currentSlideIndex + 1);
+        showToast(`Created Slide ${currentSlideIndex + 1} of ${boardSlides.length}`);
+    }
+
+    function deleteCurrentSlide() {
+        if (currentFrameRatio === 'infinite') return;
+        if (boardSlides.length <= 1) {
+            showToast('Presentation must have at least one slide');
+            return;
+        }
+
+        if (!confirm(`Delete Slide ${currentSlideIndex + 1} of ${boardSlides.length}?`)) {
+            return;
+        }
+
+        boardSlides.splice(currentSlideIndex, 1);
+        if (currentSlideIndex >= boardSlides.length) {
+            currentSlideIndex = boardSlides.length - 1;
+        }
+
+        loadSlide(currentSlideIndex);
+        showToast(`Slide deleted. Now on Slide ${currentSlideIndex + 1}`);
+    }
+
+    function createSlideClipRect() {
+        if (!slideFrameRect) return null;
+        const clip = new fabric.Rect({
+            left: slideFrameRect.left,
+            top: slideFrameRect.top,
+            width: slideFrameRect.width,
+            height: slideFrameRect.height,
+            originX: 'left',
+            originY: 'top',
+            fill: '#ffffff',
+            strokeWidth: 0,
+            selectable: false,
+            evented: false,
+            absolutePositioned: true
+        });
+        clip.isSlideClip = true;
+        return clip;
+    }
+
+    function applySlideClip(obj) {
+        if (!obj || obj.isSlideFrame) return;
+
+        if (currentFrameRatio === 'infinite' || !slideFrameRect) {
+            if (obj.clipPath && obj.clipPath.isSlideClip) {
+                delete obj.clipPath;
+                obj.dirty = true;
+            }
+            return;
+        }
+
+        const clip = createSlideClipRect();
+        if (clip) {
+            obj.clipPath = clip;
+            obj.dirty = true;
+        }
+    }
+
+    // Strict boundary constraint to prevent objects from bleeding or being dragged outside slide frame
+    function constrainObjectToSlideFrame(obj) {
+        if (currentFrameRatio === 'infinite' || !slideFrameRect) return;
+        if (!obj || obj.isSlideFrame) return;
+
+        // Lines and freehand drawings are clipped by applySlideClip (outside part erased).
+        // Only prevent dragging them completely 100% off-screen so the user never loses them.
+        if (obj.type === 'path' || obj.isFreeLine || obj.isConnector) {
+            obj.setCoords();
+            const bound = obj.getBoundingRect(true, true);
+            const fLeft = slideFrameRect.left;
+            const fTop = slideFrameRect.top;
+            const fRight = fLeft + slideFrameRect.getScaledWidth();
+            const fBottom = fTop + slideFrameRect.getScaledHeight();
+
+            const minOverlap = 20;
+            let dx = 0;
+            let dy = 0;
+
+            if (bound.left + bound.width < fLeft + minOverlap) {
+                dx = (fLeft + minOverlap) - (bound.left + bound.width);
+            } else if (bound.left > fRight - minOverlap) {
+                dx = (fRight - minOverlap) - bound.left;
+            }
+
+            if (bound.top + bound.height < fTop + minOverlap) {
+                dy = (fTop + minOverlap) - (bound.top + bound.height);
+            } else if (bound.top > fBottom - minOverlap) {
+                dy = (fBottom - minOverlap) - bound.top;
+            }
+
+            if (dx !== 0 || dy !== 0) {
+                obj.left += dx;
+                obj.top += dy;
+                obj.setCoords();
+            }
+            return;
+        }
+
+        obj.setCoords();
+        const bound = obj.getBoundingRect(true, true);
+        const fLeft = slideFrameRect.left;
+        const fTop = slideFrameRect.top;
+        const fRight = fLeft + slideFrameRect.getScaledWidth();
+        const fBottom = fTop + slideFrameRect.getScaledHeight();
+
+        let dx = 0;
+        let dy = 0;
+
+        if (bound.width <= (fRight - fLeft)) {
+            if (bound.left < fLeft) {
+                dx = fLeft - bound.left;
+            } else if (bound.left + bound.width > fRight) {
+                dx = fRight - (bound.left + bound.width);
+            }
+        } else {
+            dx = fLeft - bound.left;
+        }
+
+        if (bound.height <= (fBottom - fTop)) {
+            if (bound.top < fTop) {
+                dy = fTop - bound.top;
+            } else if (bound.top + bound.height > fBottom) {
+                dy = fBottom - (bound.top + bound.height);
+            }
+        } else {
+            dy = fTop - bound.top;
+        }
+
+        if (dx !== 0 || dy !== 0) {
+            obj.left += dx;
+            obj.top += dy;
+            obj.setCoords();
+        }
+    }
+
+    function attachSlideFrameRendering(frame) {
+        if (!frame) return;
+        frame._render = function(ctx) {
+            fabric.Rect.prototype._render.call(this, ctx);
+
+            ctx.save();
+            const w = this.width;
+            const h = this.height;
+            const halfW = w / 2;
+            const halfH = h / 2;
+
+            // Subtle slide grid lines
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            const step = 48;
+            for (let x = -halfW + step; x < halfW; x += step) {
+                ctx.moveTo(x, -halfH);
+                ctx.lineTo(x, halfH);
+            }
+            for (let y = -halfH + step; y < halfH; y += step) {
+                ctx.moveTo(-halfW, y);
+                ctx.lineTo(halfW, y);
+            }
+            ctx.stroke();
+
+            // Slide top tab badge
+            const ratio = this.slideFrameRatio || '16:9';
+            const preset = SLIDE_PRESETS[ratio] || SLIDE_PRESETS['16:9'];
+            const label = preset.title;
+
+            ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+            const textWidth = ctx.measureText(label).width;
+            const tabW = textWidth + 28;
+            const tabH = 26;
+            const tabX = -halfW;
+            const tabY = -halfH - tabH;
+
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(tabX, tabY, tabW, tabH, [6, 6, 0, 0]);
+            } else {
+                ctx.rect(tabX, tabY, tabW, tabH);
+            }
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, tabX + 12, tabY + tabH / 2);
+
+            ctx.restore();
+        };
+    }
+
+    function createSlideFrame(ratio = '16:9') {
+        const preset = SLIDE_PRESETS[ratio] || SLIDE_PRESETS['16:9'];
+
+        let frame = canvas.getObjects().find(o => o.isSlideFrame);
+        if (frame) {
+            frame.set({
+                width: preset.width,
+                height: preset.height,
+                slideFrameRatio: ratio
+            });
+            attachSlideFrameRendering(frame);
+            frame.dirty = true;
+            return frame;
+        }
+
+        const activeBoard = (Array.isArray(boards) ? boards.find(b => b.id === activeBoardId) : null);
+        const bgColor = (activeBoard && (activeBoard.bg_color || activeBoard.bgColor)) ? (activeBoard.bg_color || activeBoard.bgColor) : '#ffffff';
+
+        frame = new fabric.Rect({
+            left: 100,
+            top: 100,
+            width: preset.width,
+            height: preset.height,
+            fill: bgColor || '#ffffff',
+            stroke: '#94a3b8',
+            strokeWidth: 2,
+            rx: 6,
+            ry: 6,
+            selectable: false,
+            evented: false,
+            isSlideFrame: true,
+            slideFrameRatio: ratio,
+            shadow: new fabric.Shadow({
+                color: 'rgba(15, 23, 42, 0.22)',
+                blur: 32,
+                offsetX: 0,
+                offsetY: 10
+            })
+        });
+
+        attachSlideFrameRendering(frame);
+        canvas.add(frame);
+        canvas.sendToBack(frame);
+        return frame;
+    }
+
+    function fitSlideToWindow() {
+        const frame = canvas.getObjects().find(o => o.isSlideFrame);
+        if (!frame) return;
+
+        const isFs = document.body.classList.contains('slide-page-fullscreen');
+        const padX = isFs ? 30 : 100;
+        const padY = isFs ? 80 : 140;
+        const zoomX = (canvas.getWidth() - padX) / frame.width;
+        const zoomY = (canvas.getHeight() - padY) / frame.height;
+        const newZoom = Math.max(0.12, Math.min(3.0, Math.min(zoomX, zoomY)));
+
+        canvas.setZoom(newZoom);
+        const center = frame.getCenterPoint();
+        canvas.viewportTransform[4] = canvas.getWidth() / 2 - center.x * newZoom;
+        canvas.viewportTransform[5] = canvas.getHeight() / 2 - center.y * newZoom;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        if (activeStepBox && typeof updateStepBoxFloatingControls === 'function') {
+            updateStepBoxFloatingControls(activeStepBox);
+        }
+    }
+
+    function toggleSlidePageFullscreen(forceState) {
+        if (forceState !== undefined) {
+            isSlidePageFullscreen = !!forceState;
+        } else {
+            isSlidePageFullscreen = !isSlidePageFullscreen;
+        }
+
+        if (isSlidePageFullscreen) {
+            document.body.classList.add('slide-page-fullscreen');
+            if (slideFsIconExpand) slideFsIconExpand.style.display = 'none';
+            if (slideFsIconCompress) slideFsIconCompress.style.display = 'inline-block';
+            if (slideFsBtnLabel) slideFsBtnLabel.textContent = 'Exit View';
+
+            canvas.setWidth(window.innerWidth);
+            canvas.setHeight(window.innerHeight);
+            canvas.renderAll();
+            updateGrid();
+            fitSlideToWindow();
+            showToast('Page Fullscreen View (Press Esc to exit)');
+        } else {
+            document.body.classList.remove('slide-page-fullscreen');
+            if (slideFsIconExpand) slideFsIconExpand.style.display = 'inline-block';
+            if (slideFsIconCompress) slideFsIconCompress.style.display = 'none';
+            if (slideFsBtnLabel) slideFsBtnLabel.textContent = 'Page Fullscreen';
+
+            canvas.setWidth(window.innerWidth);
+            canvas.setHeight(window.innerHeight);
+            canvas.renderAll();
+            updateGrid();
+            fitSlideToWindow();
+            showToast('Exited Fullscreen View');
+        }
+    }
+
+    function openExitSlideModal() {
+        if (modalExitSlide) {
+            modalExitSlide.classList.remove('hidden');
+            modalExitSlide.setAttribute('aria-hidden', 'false');
+        }
+    }
+
+    function closeExitSlideModal() {
+        if (modalExitSlide) {
+            modalExitSlide.classList.add('hidden');
+            modalExitSlide.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    function executeExitSlideMode(shouldSave) {
+        if (shouldSave) {
+            saveCurrentSlide();
+            showToast('Saved slide presentation to board');
+        } else {
+            // Discard/delete the slide content
+            boardSlides = [
+                { id: 'slide_' + Date.now(), name: 'Slide 1', objects: [] }
+            ];
+            currentSlideIndex = 0;
+            showToast('Discarded slide deck content');
+        }
+
+        if (isSlidePageFullscreen) {
+            toggleSlidePageFullscreen(false);
+        }
+
+        // Clean up canvas slide mode
+        currentFrameRatio = 'infinite';
+        document.body.classList.remove('slide-mode-active');
+        if (slideFrameBanner) slideFrameBanner.classList.add('hidden');
+        if (frameModeLabel) frameModeLabel.textContent = 'Canvas: Infinite';
+        if (frameMenuItems) {
+            frameMenuItems.forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-ratio') === 'infinite');
+            });
+        }
+
+        // Remove all current slide objects and slide frame from canvas
+        canvas.discardActiveObject();
+        if (stepBoxFloatingBar) stepBoxFloatingBar.style.display = 'none';
+        activeStepBox = null;
+
+        const allCanvasObjs = canvas.getObjects().slice();
+        allCanvasObjs.forEach(o => canvas.remove(o));
+        slideFrameRect = null;
+
+        // Restore Infinite Board objects
+        if (Array.isArray(infiniteBoardObjects) && infiniteBoardObjects.length > 0) {
+            fabric.util.enlivenObjects(infiniteBoardObjects, (enlivenedObjects) => {
+                enlivenedObjects.forEach(obj => {
+                    if (obj.clipPath && obj.clipPath.isSlideClip) {
+                        delete obj.clipPath;
+                        obj.dirty = true;
+                    }
+                    canvas.add(obj);
+                });
+                reconnectLoadedObjects();
+                canvas.requestRenderAll();
+                updateSelectionUI();
+                saveState();
+                saveActiveBoardToServer(true);
+            });
+        } else {
+            canvas.requestRenderAll();
+            updateSelectionUI();
+            saveState();
+            saveActiveBoardToServer(true);
+        }
+
+        closeExitSlideModal();
+        showToast('Returned to Infinite Canvas');
+    }
+
+    function switchFrameMode(ratio) {
+        if (ratio === 'infinite') {
+            if (currentFrameRatio !== 'infinite') {
+                openExitSlideModal();
+            }
+            return;
+        }
+
+        // Switching from Infinite Canvas to a Slide Ratio
+        if (currentFrameRatio === 'infinite') {
+            // 1. Snapshot current infinite board objects
+            const nonFrameObjects = canvas.getObjects().filter(o => !o.isSlideFrame);
+            infiniteBoardObjects = nonFrameObjects.map(o => o.toJSON(EXTRA_PROPS));
+
+            // 2. Clear canvas of infinite board objects
+            canvas.discardActiveObject();
+            if (stepBoxFloatingBar) stepBoxFloatingBar.style.display = 'none';
+            activeStepBox = null;
+            const toRemove = canvas.getObjects().slice();
+            toRemove.forEach(o => canvas.remove(o));
+
+            currentFrameRatio = ratio;
+            document.body.classList.add('slide-mode-active');
+            const preset = SLIDE_PRESETS[ratio] || SLIDE_PRESETS['16:9'];
+            if (slideFrameBanner) {
+                slideFrameBanner.classList.remove('hidden');
+                if (slideFrameTitle) slideFrameTitle.textContent = preset.title;
+            }
+            if (frameModeLabel) {
+                frameModeLabel.textContent = preset.shortName;
+            }
+            if (frameMenuItems) {
+                frameMenuItems.forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-ratio') === ratio);
+                });
+            }
+
+            // 3. Create slide frame rect
+            slideFrameRect = createSlideFrame(ratio);
+            canvas.sendToBack(slideFrameRect);
+
+            // 4. Load active slide
+            if (!boardSlides || boardSlides.length === 0) {
+                boardSlides = [
+                    { id: 'slide_' + Date.now(), name: 'Slide 1', objects: [] }
+                ];
+                currentSlideIndex = 0;
+            }
+            loadSlide(currentSlideIndex);
+            fitSlideToWindow();
+            showToast(`Switched to ${preset.title}`);
+        } else {
+            // Already in slide mode, just switching slide aspect ratio (e.g. 16:9 -> 4:3)
+            currentFrameRatio = ratio;
+            const preset = SLIDE_PRESETS[ratio] || SLIDE_PRESETS['16:9'];
+            if (frameModeLabel) frameModeLabel.textContent = preset.shortName;
+            if (slideFrameTitle) slideFrameTitle.textContent = preset.title;
+            if (frameMenuItems) {
+                frameMenuItems.forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-ratio') === ratio);
+                });
+            }
+            slideFrameRect = createSlideFrame(ratio);
+            canvas.sendToBack(slideFrameRect);
+            // Reapply clipping with new frame bounds
+            canvas.forEachObject(o => {
+                if (!o.isSlideFrame) applySlideClip(o);
+            });
+            fitSlideToWindow();
+            showToast(`Aspect ratio set to ${preset.title}`);
+        }
+
+        canvas.requestRenderAll();
+        saveState();
+    }
+
+    if (btnPrevSlide) {
+        btnPrevSlide.addEventListener('click', () => {
+            if (currentSlideIndex > 0) {
+                saveCurrentSlide();
+                loadSlide(currentSlideIndex - 1);
+            }
+        });
+    }
+
+    if (btnNextSlide) {
+        btnNextSlide.addEventListener('click', () => {
+            if (currentSlideIndex < boardSlides.length - 1) {
+                saveCurrentSlide();
+                loadSlide(currentSlideIndex + 1);
+            }
+        });
+    }
+
+    if (btnAddSlide) {
+        btnAddSlide.addEventListener('click', addNewSlide);
+    }
+
+    if (btnDelSlide) {
+        btnDelSlide.addEventListener('click', deleteCurrentSlide);
+    }
+
+    if (btnSlideFullscreen) {
+        btnSlideFullscreen.addEventListener('click', () => {
+            toggleSlidePageFullscreen();
+        });
+    }
+
+    if (btnExitSlideMode) {
+        btnExitSlideMode.addEventListener('click', () => {
+            if (currentFrameRatio !== 'infinite') {
+                openExitSlideModal();
+            }
+        });
+    }
+
+    if (btnSlideSaveExit) {
+        btnSlideSaveExit.addEventListener('click', () => {
+            executeExitSlideMode(true);
+        });
+    }
+
+    if (btnSlideDiscardExit) {
+        btnSlideDiscardExit.addEventListener('click', () => {
+            executeExitSlideMode(false);
+        });
+    }
+
+    if (btnSlideCancelExit) {
+        btnSlideCancelExit.addEventListener('click', () => {
+            closeExitSlideModal();
+        });
+    }
+
+    if (btnCloseExitSlide) {
+        btnCloseExitSlide.addEventListener('click', () => {
+            closeExitSlideModal();
+        });
+    }
+
+    if (btnFrameMode) {
+        btnFrameMode.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (frameModeDropdown) {
+                frameModeDropdown.classList.toggle('hidden');
+            }
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (frameModeDropdown && !frameModeDropdown.classList.contains('hidden')) {
+            if (!e.target.closest('.frame-mode-container')) {
+                frameModeDropdown.classList.add('hidden');
+            }
+        }
+    });
+
+    if (frameMenuItems) {
+        frameMenuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const ratio = item.getAttribute('data-ratio');
+                if (frameModeDropdown) frameModeDropdown.classList.add('hidden');
+                switchFrameMode(ratio);
+            });
+        });
+    }
+
+    if (btnFitSlide) {
+        btnFitSlide.addEventListener('click', fitSlideToWindow);
+    }
+
+    // -------------------------------------------------------------------------
+    // Download / Export Menu Handlers
+    // -------------------------------------------------------------------------
+    if (btnDownloadMenu) {
+        btnDownloadMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (downloadDropdown) {
+                downloadDropdown.classList.toggle('hidden');
+            }
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (downloadDropdown && !downloadDropdown.classList.contains('hidden')) {
+            if (!e.target.closest('.download-menu-container')) {
+                downloadDropdown.classList.add('hidden');
+            }
+        }
+    });
+
+    if (btnDownloadPptx) {
+        btnDownloadPptx.addEventListener('click', () => {
+            exportAsPPTX();
+        });
+    }
+    if (btnDownloadPdf) {
+        btnDownloadPdf.addEventListener('click', () => {
+            exportAsPDF();
+        });
+    }
+    if (btnDownloadPng) {
+        btnDownloadPng.addEventListener('click', () => {
+            exportCanvasAsPNG();
+        });
+    }
+    if (btnDownloadSvg) {
+        btnDownloadSvg.addEventListener('click', () => {
+            exportCanvasAsSVG();
+        });
+    }
+    if (btnDownloadJson) {
+        btnDownloadJson.addEventListener('click', () => {
+            if (downloadDropdown) downloadDropdown.classList.add('hidden');
+            if (activeBoardId) {
+                downloadBoard(activeBoardId);
+            }
+        });
+    }
 
     // -------------------------------------------------------------------------
     // 11. Mode Management
@@ -1706,6 +2943,40 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(toolButtons).forEach(([key, btn]) => {
             if (btn) btn.classList.toggle('active', key === mode);
         });
+
+        if (btnSidebarStepbox) {
+            btnSidebarStepbox.classList.toggle('active', mode === 'stepbox');
+        }
+
+        if (fsBtnPen) fsBtnPen.classList.toggle('active', mode === 'pen');
+        if (fsBtnPaint) fsBtnPaint.classList.toggle('active', mode === 'highlighter');
+        if (fsBtnEraser) fsBtnEraser.classList.toggle('active', mode === 'eraser');
+        if (fsBtnSelect) fsBtnSelect.classList.toggle('active', mode === 'select');
+
+        if (mode !== 'eraser') {
+            if (propEraserGroup) propEraserGroup.style.display = 'none';
+            if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
+            if (propSizeGroup && (mode === 'pen' || mode === 'highlighter' || mode === 'line' || mode === 'arrow' || mode === 'select')) {
+                propSizeGroup.style.display = 'inline-flex';
+            }
+            if (fsEraserModeGroup) fsEraserModeGroup.style.display = 'none';
+            if (fsSizeDisplay) fsSizeDisplay.textContent = strokeSize + 'px';
+            if (fsSizeSlider) {
+                fsSizeSlider.min = '1';
+                fsSizeSlider.max = '64';
+                fsSizeSlider.value = strokeSize;
+            }
+        } else {
+            if (propEraserGroup) propEraserGroup.style.display = 'none';
+            if (propSizeGroup) propSizeGroup.style.display = 'none';
+            if (fsEraserModeGroup) fsEraserModeGroup.style.display = 'flex';
+            if (fsSizeDisplay) fsSizeDisplay.textContent = eraserSize + 'px';
+            if (fsSizeSlider) {
+                fsSizeSlider.min = '6';
+                fsSizeSlider.max = '150';
+                fsSizeSlider.value = eraserSize;
+            }
+        }
 
         if (mode === 'select') {
             canvas.isDrawingMode = false;
@@ -1761,12 +3032,13 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.forEachObject(obj => {
                 obj.selectable = false;
                 obj.evented = false;
-                obj.objectCaching = false;
             });
-            updateBrushSettings();
             if (propLineGroup) propLineGroup.style.display = 'none';
             if (propFillGroup) propFillGroup.style.display = 'none';
             if (propTextGroup) propTextGroup.style.display = 'none';
+            if (propSizeGroup) propSizeGroup.style.display = 'none';
+            if (propEraserGroup) propEraserGroup.style.display = 'none';
+            setEraserSubMode(eraserSubMode);
             canvas.renderAll();
         } else if (mode === 'text') {
             canvas.isDrawingMode = false;
@@ -1813,18 +3085,295 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentArrowHeadStyle = selectArrowHead.value;
             }
             canvas.renderAll();
+        } else if (mode === 'stepbox') {
+            canvas.isDrawingMode = false;
+            canvas.selection = false;
+            canvas.discardActiveObject();
+            canvas.defaultCursor = 'crosshair';
+            canvas.forEachObject(obj => {
+                obj.selectable = false;
+            });
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'none';
+            if (propTextGroup) propTextGroup.style.display = 'none';
+            canvas.renderAll();
         }
     }
 
-    btnSelect.addEventListener('click', () => setMode('select'));
-    btnPan.addEventListener('click', () => setMode('pan'));
-    btnPen.addEventListener('click', () => setMode('pen'));
-    btnHighlighter.addEventListener('click', () => setMode('highlighter'));
-    btnEraser.addEventListener('click', () => setMode('eraser'));
-    btnText.addEventListener('click', () => setMode('text'));
+    if (btnSelect) btnSelect.addEventListener('click', () => setMode('select'));
+    if (btnPan) btnPan.addEventListener('click', () => setMode('pan'));
+    if (btnPen) btnPen.addEventListener('click', () => setMode('pen'));
+    if (btnHighlighter) btnHighlighter.addEventListener('click', () => setMode('highlighter'));
+    if (btnEraser) btnEraser.addEventListener('click', () => setMode('eraser'));
+    if (btnText) btnText.addEventListener('click', () => setMode('text'));
     if (btnSticky && btnSticky !== btnSidebarNotes) btnSticky.addEventListener('click', () => setMode('sticky'));
     if (btnLine) btnLine.addEventListener('click', () => setMode('line'));
     if (btnArrow) btnArrow.addEventListener('click', () => setMode('arrow'));
+
+    // Fullscreen Presenter Controls Listeners (Bottom Right)
+    if (fsBtnPen) {
+        fsBtnPen.addEventListener('click', () => {
+            setMode('pen');
+            if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+            if (fsColorPopover) fsColorPopover.classList.add('hidden');
+        });
+    }
+
+    if (fsBtnPaint) {
+        fsBtnPaint.addEventListener('click', () => {
+            setMode('highlighter');
+            if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+            if (fsColorPopover) fsColorPopover.classList.add('hidden');
+        });
+    }
+
+    if (fsBtnEraser) {
+        fsBtnEraser.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (currentMode !== 'eraser') {
+                setMode('eraser');
+            } else {
+                setEraserSubMode(eraserSubMode === 'brush' ? 'area' : 'brush');
+            }
+            if (fsColorPopover) fsColorPopover.classList.add('hidden');
+            if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+        });
+    }
+
+    if (fsBtnColor) {
+        fsBtnColor.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+            if (fsColorPopover) fsColorPopover.classList.toggle('hidden');
+        });
+    }
+
+    if (fsBtnSelect) {
+        fsBtnSelect.addEventListener('click', () => {
+            setMode('select');
+            if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+            if (fsColorPopover) fsColorPopover.classList.add('hidden');
+        });
+    }
+
+    if (fsSubEraserBrush) {
+        fsSubEraserBrush.addEventListener('click', () => {
+            setEraserSubMode('brush');
+        });
+    }
+
+    if (fsSubEraserArea) {
+        fsSubEraserArea.addEventListener('click', () => {
+            setEraserSubMode('area');
+        });
+    }
+
+    if (fsBtnSizeDec) {
+        fsBtnSizeDec.addEventListener('click', () => {
+            if (currentMode === 'eraser') {
+                setEraserSize(eraserSize - 6);
+            } else {
+                setStrokeSize(strokeSize - 1);
+            }
+        });
+    }
+
+    if (fsBtnSizeInc) {
+        fsBtnSizeInc.addEventListener('click', () => {
+            if (currentMode === 'eraser') {
+                setEraserSize(eraserSize + 6);
+            } else {
+                setStrokeSize(strokeSize + 1);
+            }
+        });
+    }
+
+    if (fsSizeSlider) {
+        fsSizeSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            if (currentMode === 'eraser') {
+                setEraserSize(val);
+            } else {
+                setStrokeSize(val);
+            }
+        });
+    }
+
+    if (fsBtnEraserDec) {
+        fsBtnEraserDec.addEventListener('click', () => {
+            setEraserSize(eraserSize - 6);
+        });
+    }
+
+    if (fsBtnEraserInc) {
+        fsBtnEraserInc.addEventListener('click', () => {
+            setEraserSize(eraserSize + 6);
+        });
+    }
+
+    if (fsColorSwatches) {
+        fsColorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const col = swatch.getAttribute('data-color');
+                if (col) {
+                    updateActiveDrawingColor(col);
+                    if (fsColorPopover) fsColorPopover.classList.add('hidden');
+                    showToast(`Color: ${col}`);
+                }
+            });
+        });
+    }
+
+    if (fsColorInput) {
+        fsColorInput.addEventListener('input', (e) => {
+            updateActiveDrawingColor(e.target.value);
+        });
+        fsColorInput.addEventListener('change', (e) => {
+            updateActiveDrawingColor(e.target.value);
+            if (fsColorPopover) fsColorPopover.classList.add('hidden');
+        });
+    }
+
+    // Top Property Bar Stroke Size Listeners
+    if (btnStrokeSizeDec) btnStrokeSizeDec.addEventListener('click', () => setStrokeSize(strokeSize - 1));
+    if (btnStrokeSizeInc) btnStrokeSizeInc.addEventListener('click', () => setStrokeSize(strokeSize + 1));
+    if (sliderStrokeSize) {
+        sliderStrokeSize.addEventListener('input', (e) => {
+            setStrokeSize(parseInt(e.target.value, 10));
+        });
+    }
+
+    // Top Property Bar Eraser Controls Listeners
+    if (btnEraserModeBrush) btnEraserModeBrush.addEventListener('click', () => setEraserSubMode('brush'));
+    if (btnEraserModeArea) btnEraserModeArea.addEventListener('click', () => setEraserSubMode('area'));
+    if (btnEraserSizeDec) btnEraserSizeDec.addEventListener('click', () => setEraserSize(eraserSize - 6));
+    if (btnEraserSizeInc) btnEraserSizeInc.addEventListener('click', () => setEraserSize(eraserSize + 6));
+    if (sliderEraserSize) {
+        sliderEraserSize.addEventListener('input', (e) => {
+            setEraserSize(parseInt(e.target.value, 10));
+        });
+    }
+
+    // Dismiss fullscreen popovers when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.fs-tool-container')) {
+            if (fsEraserPopover) fsEraserPopover.classList.add('hidden');
+            if (fsColorPopover) fsColorPopover.classList.add('hidden');
+        }
+    });
+
+    // -------------------------------------------------------------------------
+    // Movable Floating Presenter / Tool Dock (Draggable anywhere on canvas)
+    // -------------------------------------------------------------------------
+    function initMovablePresenterBar() {
+        if (!fsPresenterBar) return;
+        const dragHandle = document.getElementById('fs-presenter-drag-handle');
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let initialLeft = 0;
+        let initialTop = 0;
+
+        function updatePopoverPlacement(topPos) {
+            if (topPos < 220) {
+                fsPresenterBar.classList.add('popover-bottom');
+            } else {
+                fsPresenterBar.classList.remove('popover-bottom');
+            }
+        }
+
+        function onPointerDown(e) {
+            // Only primary mouse button or touch/stylus
+            if (e.button !== undefined && e.button !== 0) return;
+
+            // Do not drag if user clicked interactive buttons/inputs/swatches
+            if (!e.target.closest('#fs-presenter-drag-handle') &&
+                e.target.closest('button, input, select, .fs-popover, .fs-swatches-grid')) {
+                return;
+            }
+
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            const rect = fsPresenterBar.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            fsPresenterBar.style.position = 'fixed';
+            fsPresenterBar.style.bottom = 'auto';
+            fsPresenterBar.style.right = 'auto';
+            fsPresenterBar.style.left = initialLeft + 'px';
+            fsPresenterBar.style.top = initialTop + 'px';
+            fsPresenterBar.dataset.dragged = 'true';
+            fsPresenterBar.classList.add('is-dragging');
+
+            updatePopoverPlacement(initialTop);
+
+            window.addEventListener('pointermove', onPointerMove, { passive: false });
+            window.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('pointercancel', onPointerUp);
+
+            e.preventDefault();
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            let newLeft = initialLeft + deltaX;
+            let newTop = initialTop + deltaY;
+
+            const barWidth = fsPresenterBar.offsetWidth || 340;
+            const barHeight = fsPresenterBar.offsetHeight || 50;
+            const maxLeft = window.innerWidth - barWidth - 10;
+            const maxTop = window.innerHeight - barHeight - 10;
+
+            newLeft = Math.max(10, Math.min(maxLeft, newLeft));
+            newTop = Math.max(10, Math.min(maxTop, newTop));
+
+            fsPresenterBar.style.left = newLeft + 'px';
+            fsPresenterBar.style.top = newTop + 'px';
+
+            updatePopoverPlacement(newTop);
+
+            e.preventDefault();
+        }
+
+        function onPointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            fsPresenterBar.classList.remove('is-dragging');
+
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            window.removeEventListener('pointercancel', onPointerUp);
+        }
+
+        if (dragHandle) {
+            dragHandle.addEventListener('pointerdown', onPointerDown);
+        }
+        fsPresenterBar.addEventListener('pointerdown', onPointerDown);
+
+        window.addEventListener('resize', () => {
+            if (fsPresenterBar.dataset.dragged === 'true' && fsPresenterBar.style.left) {
+                const rect = fsPresenterBar.getBoundingClientRect();
+                const maxLeft = window.innerWidth - rect.width - 10;
+                const maxTop = window.innerHeight - rect.height - 10;
+                if (rect.left > maxLeft) fsPresenterBar.style.left = Math.max(10, maxLeft) + 'px';
+                if (rect.top > maxTop) {
+                    const clampedTop = Math.max(10, maxTop);
+                    fsPresenterBar.style.top = clampedTop + 'px';
+                    updatePopoverPlacement(clampedTop);
+                }
+            }
+        });
+    }
+
+    initMovablePresenterBar();
 
     // -------------------------------------------------------------------------
     // 12. Freehand Brush & Eraser Finalization (path:created)
@@ -1832,6 +3381,37 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.on('path:created', (opt) => {
         const path = opt.path;
         if (!path) return;
+
+        if (typeof findStepBoxContaining === 'function') {
+            const parentBox = findStepBoxContaining(path);
+            if (parentBox) {
+                path.stepBoxOwnerId = parentBox.stepBoxId;
+                activeStepBox = parentBox;
+                if (typeof updateStepBoxFloatingControls === 'function') {
+                    updateStepBoxFloatingControls(parentBox);
+                }
+            }
+        }
+
+        if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+            path.setCoords();
+            const bound = path.getBoundingRect(true, true);
+            const fLeft = slideFrameRect.left;
+            const fTop = slideFrameRect.top;
+            const fRight = fLeft + slideFrameRect.getScaledWidth();
+            const fBottom = fTop + slideFrameRect.getScaledHeight();
+
+            // If stroke is completely outside the slide frame (no overlap at all), remove it
+            if (bound.left >= fRight || bound.left + bound.width <= fLeft || bound.top >= fBottom || bound.top + bound.height <= fTop) {
+                canvas.remove(path);
+                canvas.requestRenderAll();
+                return;
+            }
+
+            // Keep the part of the line drawn inside the slide; erase the part outside the slide!
+            applySlideClip(path);
+            canvas.requestRenderAll();
+        }
 
         if (currentMode === 'eraser') {
             path.set({
@@ -1905,6 +3485,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Area / Circle Bound Shape Eraser
+        if (currentMode === 'eraser' && eraserSubMode === 'area' && !shouldPan && !isRightClick) {
+            isErasingArea = true;
+            const pointer = canvas.getPointer(opt.e);
+            areaErasePoints = [{ x: pointer.x, y: pointer.y }];
+            areaErasePreview = new fabric.Polygon([...areaErasePoints, { x: pointer.x + 1, y: pointer.y + 1 }], {
+                fill: 'rgba(239, 68, 68, 0.16)',
+                stroke: '#ef4444',
+                strokeWidth: 2,
+                strokeDashArray: [5, 4],
+                selectable: false,
+                evented: false
+            });
+            canvas.add(areaErasePreview);
+            return;
+        }
+
         // Alt + Drag: Duplicate while dragging (Select mode)
         if (evt.altKey && opt.target && currentMode === 'select' && !opt.target.isConnector && !opt.target.isArrowHead) {
             opt.target.clone((cloned) => {
@@ -1916,6 +3513,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveState();
                 showToast('Duplicated with Alt+Drag');
             }, EXTRA_PROPS);
+        }
+
+        // Step Box Tool: Drag to create a Step Box
+        if (currentMode === 'stepbox' && !shouldPan && !isRightClick) {
+            isDrawingStepBox = true;
+            const pointer = canvas.getPointer(opt.e);
+            stepBoxStartPoint = { x: pointer.x, y: pointer.y };
+            stepBoxPreviewRect = new fabric.Rect({
+                left: pointer.x,
+                top: pointer.y,
+                width: 0,
+                height: 0,
+                fill: 'rgba(99, 102, 241, 0.05)',
+                stroke: '#6366f1',
+                strokeWidth: 2,
+                strokeDashArray: [6, 4],
+                rx: 6,
+                ry: 6,
+                selectable: false,
+                evented: false
+            });
+            canvas.add(stepBoxPreviewRect);
+            return;
+        }
+
+        // Check if clicking on or inside a Step Box
+        const clickPointer = canvas.getPointer(opt.e);
+        let clickedBox = (opt.target && opt.target.isStepBox) ? opt.target : null;
+        if (!clickedBox && opt.target && opt.target.stepBoxOwnerId) {
+            clickedBox = canvas.getObjects().find(o => o.isStepBox && o.stepBoxId === opt.target.stepBoxOwnerId);
+        }
+        if (!clickedBox && typeof findStepBoxAtPoint === 'function') {
+            clickedBox = findStepBoxAtPoint(clickPointer.x, clickPointer.y);
+        }
+        if (clickedBox) {
+            activeStepBox = clickedBox;
+            clickedBox._lastMovingLeft = clickedBox.left;
+            clickedBox._lastMovingTop = clickedBox.top;
+            if (typeof updateStepBoxFloatingControls === 'function') {
+                updateStepBoxFloatingControls(clickedBox);
+            }
         }
 
         // Connector Line / Arrow: start connecting
@@ -1934,7 +3572,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             connectorPreviewLine = new fabric.Line([connectorStartPoint.x, connectorStartPoint.y, pointer.x, pointer.y], {
                 stroke: currentColor || '#1e293b',
-                strokeWidth: parseInt(selectStrokeSize.value, 10) || 2,
+                strokeWidth: strokeSize || 2,
                 strokeDashArray: getDashArrayForPattern(currentLinePattern) || [4, 4],
                 selectable: false,
                 evented: false
@@ -1945,10 +3583,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Sticky Note Tool: click places note
         if (currentMode === 'sticky') {
-            const pointer = canvas.getPointer(opt.e);
+            let pointer = canvas.getPointer(opt.e);
+            if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+                const fLeft = slideFrameRect.left;
+                const fTop = slideFrameRect.top;
+                const fRight = fLeft + slideFrameRect.getScaledWidth();
+                const fBottom = fTop + slideFrameRect.getScaledHeight();
+                if (pointer.x < fLeft || pointer.x > fRight - 150 || pointer.y < fTop || pointer.y > fBottom - 150) {
+                    showToast('Please place sticky notes inside the slide frame');
+                    return;
+                }
+            }
             const { group, text } = createStickyNote(pointer.x, pointer.y, currentStickyColor, 'Type note...');
 
             canvas.add(group);
+            if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(group);
             canvas.renderAll();
             saveState();
 
@@ -1959,6 +3608,7 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.renderAll();
 
             text.on('editing:exited', () => {
+                if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(group);
                 canvas.setActiveObject(group);
                 canvas.renderAll();
                 saveState();
@@ -1974,7 +3624,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const pointer = canvas.getPointer(opt.e);
+            let pointer = canvas.getPointer(opt.e);
+            if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+                const fLeft = slideFrameRect.left;
+                const fTop = slideFrameRect.top;
+                const fRight = fLeft + slideFrameRect.getScaledWidth();
+                const fBottom = fTop + slideFrameRect.getScaledHeight();
+                if (pointer.x < fLeft || pointer.x > fRight - 60 || pointer.y < fTop || pointer.y > fBottom - 30) {
+                    showToast('Please place text inside the slide frame');
+                    return;
+                }
+            }
             const fontSize = parseInt(selectFontSize.value, 10) || 24;
 
             const textObj = new fabric.IText('Type here', {
@@ -1990,6 +3650,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             canvas.add(textObj);
+            if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(textObj);
             canvas.setActiveObject(textObj);
             textObj.enterEditing();
             textObj.selectAll();
@@ -2000,6 +3661,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     canvas.remove(textObj);
                     canvas.renderAll();
                 } else {
+                    if (typeof constrainObjectToSlideFrame === 'function') constrainObjectToSlideFrame(textObj);
+                    canvas.renderAll();
                     saveState();
                 }
             });
@@ -2045,7 +3708,59 @@ document.addEventListener('DOMContentLoaded', () => {
             lastPosY = evt.clientY;
 
             updateGrid();
+            if (activeStepBox) {
+                updateStepBoxFloatingControls(activeStepBox);
+            }
             return;
+        }
+
+        if (isDrawingStepBox && stepBoxPreviewRect && stepBoxStartPoint) {
+            const pointer = canvas.getPointer(opt.e);
+            const left = Math.min(stepBoxStartPoint.x, pointer.x);
+            const top = Math.min(stepBoxStartPoint.y, pointer.y);
+            const width = Math.abs(pointer.x - stepBoxStartPoint.x);
+            const height = Math.abs(pointer.y - stepBoxStartPoint.y);
+            stepBoxPreviewRect.set({ left, top, width, height });
+            stepBoxPreviewRect.setCoords();
+            canvas.requestRenderAll();
+            return;
+        }
+
+        if (isErasingArea && areaErasePreview && areaErasePoints.length > 0) {
+            const pointer = canvas.getPointer(opt.e);
+            const lastPt = areaErasePoints[areaErasePoints.length - 1];
+            const dist = Math.hypot(pointer.x - lastPt.x, pointer.y - lastPt.y);
+            if (dist > 3) {
+                areaErasePoints.push({ x: pointer.x, y: pointer.y });
+                canvas.remove(areaErasePreview);
+                areaErasePreview = new fabric.Polygon([...areaErasePoints], {
+                    fill: 'rgba(239, 68, 68, 0.16)',
+                    stroke: '#ef4444',
+                    strokeWidth: 2,
+                    strokeDashArray: [5, 4],
+                    selectable: false,
+                    evented: false,
+                    objectCaching: false
+                });
+                canvas.add(areaErasePreview);
+                canvas.requestRenderAll();
+            }
+            return;
+        }
+
+        if (currentMode === 'eraser' && eraserSubMode === 'brush' && eraserCursorPreview) {
+            const evt = opt.e;
+            if (evt) {
+                const zoom = canvas.getZoom();
+                const diameter = Math.max(8, eraserSize * zoom);
+                eraserCursorPreview.style.width = diameter + 'px';
+                eraserCursorPreview.style.height = diameter + 'px';
+                eraserCursorPreview.style.left = evt.clientX + 'px';
+                eraserCursorPreview.style.top = evt.clientY + 'px';
+                eraserCursorPreview.style.display = 'block';
+            }
+        } else if (eraserCursorPreview && currentMode !== 'eraser') {
+            eraserCursorPreview.style.display = 'none';
         }
 
         if (isConnecting && connectorPreviewLine) {
@@ -2056,11 +3771,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mouse Up: Stop panning or finalize connector
+    // Mouse Up: Stop panning, finalize area erase or connector
     function handleMouseUp(opt) {
         if (isPanning) {
             isPanning = false;
             updateCursorForMode();
+        }
+
+        if (isErasingArea) {
+            finalizeAreaErase();
+            return;
+        }
+
+        if (isDrawingStepBox) {
+            isDrawingStepBox = false;
+            if (stepBoxPreviewRect) {
+                canvas.remove(stepBoxPreviewRect);
+                stepBoxPreviewRect = null;
+            }
+
+            const pointer = canvas.getPointer(opt.e);
+            let left = Math.min(stepBoxStartPoint.x, pointer.x);
+            let top = Math.min(stepBoxStartPoint.y, pointer.y);
+            let width = Math.abs(pointer.x - stepBoxStartPoint.x);
+            let height = Math.abs(pointer.y - stepBoxStartPoint.y);
+
+            if (width < 30 || height < 30) {
+                width = 360;
+                height = 240;
+                left = stepBoxStartPoint.x - width / 2;
+                top = stepBoxStartPoint.y - height / 2;
+            }
+
+            stepBoxStartPoint = null;
+            const newBox = createStepBox(left, top, width, height);
+            setMode('select');
+            canvas.setActiveObject(newBox);
+            canvas.requestRenderAll();
+            saveState();
+            showToast(`Created ${newBox.stepBoxName || 'Step Box'}`);
+            return;
         }
 
         if (isConnecting) {
@@ -2091,7 +3841,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateCursorForMode() {
         if (currentMode === 'pan' || isSpacePressed) {
             canvas.defaultCursor = 'grab';
-        } else if (currentMode === 'pen' || currentMode === 'highlighter' || currentMode === 'eraser' || currentMode === 'line' || currentMode === 'arrow') {
+        } else if (currentMode === 'pen' || currentMode === 'highlighter' || currentMode === 'eraser' || currentMode === 'line' || currentMode === 'arrow' || currentMode === 'stepbox') {
             canvas.defaultCursor = 'crosshair';
         } else if (currentMode === 'text') {
             canvas.defaultCursor = 'text';
@@ -2116,6 +3866,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             setMode('select');
         }
+        if (isDrawingStepBox) {
+            isDrawingStepBox = false;
+            if (stepBoxPreviewRect) {
+                canvas.remove(stepBoxPreviewRect);
+                stepBoxPreviewRect = null;
+            }
+            stepBoxStartPoint = null;
+            setMode('select');
+        }
+        if (isErasingArea) {
+            finalizeAreaErase();
+        }
     });
 
     // -------------------------------------------------------------------------
@@ -2139,7 +3901,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (colorPreview) colorPreview.style.backgroundColor = currentColor;
                 }
                 if (activeObj.strokeWidth) {
-                    selectStrokeSize.value = String(activeObj.strokeWidth);
+                    setStrokeSize(activeObj.strokeWidth);
                 }
                 if (selectLinePattern) {
                     const dash = activeObj.strokeDashArray;
@@ -2176,7 +3938,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (colorPreview) colorPreview.style.backgroundColor = currentColor;
                     }
                     if (shape.strokeWidth) {
-                        selectStrokeSize.value = String(shape.strokeWidth);
+                        setStrokeSize(shape.strokeWidth);
                     }
                 }
                 const textObj = activeObj.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text');
@@ -2207,18 +3969,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    canvas.on('selection:created', updateSelectionUI);
-    canvas.on('selection:updated', updateSelectionUI);
+    canvas.on('selection:created', (e) => {
+        updateSelectionUI();
+        if (typeof handleStepBoxSelection === 'function') handleStepBoxSelection(e);
+    });
+    canvas.on('selection:updated', (e) => {
+        updateSelectionUI();
+        if (typeof handleStepBoxSelection === 'function') handleStepBoxSelection(e);
+    });
     canvas.on('selection:cleared', () => {
         btnDelete.disabled = true;
         if (currentMode !== 'line' && currentMode !== 'arrow') {
             if (propLineGroup) propLineGroup.style.display = 'none';
             if (propFillGroup) propFillGroup.style.display = 'inline-flex';
         }
+        if (activeStepBox) {
+            if (typeof saveStepBoxCurrentStep === 'function') {
+                saveStepBoxCurrentStep(activeStepBox);
+            }
+            if (canvas.contains(activeStepBox) && typeof updateStepBoxFloatingControls === 'function') {
+                updateStepBoxFloatingControls(activeStepBox);
+                return;
+            }
+        }
+        const existingBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        if (existingBoxes.length > 0 && typeof updateStepBoxFloatingControls === 'function') {
+            updateStepBoxFloatingControls(existingBoxes[existingBoxes.length - 1]);
+        } else {
+            if (stepBoxFloatingBar) {
+                stepBoxFloatingBar.style.display = 'none';
+            }
+            activeStepBox = null;
+        }
     });
 
     function deleteSingleObject(obj) {
         if (!obj) return;
+        if (obj.isStepBox) {
+            const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === obj.stepBoxId && o !== obj);
+            owned.forEach(c => {
+                if (c.connectedLines) {
+                    c.connectedLines.forEach(l => canvas.remove(l));
+                }
+                canvas.remove(c);
+            });
+            if (activeStepBox && (activeStepBox === obj || activeStepBox.stepBoxId === obj.stepBoxId)) {
+                activeStepBox = null;
+            }
+        }
         if (obj.connectedLines) {
             obj.connectedLines.forEach(line => {
                 if (line.arrowHead) canvas.remove(line.arrowHead);
@@ -2244,11 +4042,45 @@ document.addEventListener('DOMContentLoaded', () => {
         activeObjs.forEach(obj => {
             deleteSingleObject(obj);
         });
+
+        // Verify remaining Step Boxes on canvas
+        const remainingBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        if (remainingBoxes.length === 0) {
+            if (stepBoxFloatingBar) {
+                stepBoxFloatingBar.style.display = 'none';
+            }
+            activeStepBox = null;
+        } else if (activeStepBox && canvas.contains(activeStepBox)) {
+            updateStepBoxFloatingControls(activeStepBox);
+        } else {
+            activeStepBox = remainingBoxes[remainingBoxes.length - 1];
+            updateStepBoxFloatingControls(activeStepBox);
+        }
+
         canvas.requestRenderAll();
         saveState();
     }
 
     btnDelete.addEventListener('click', deleteSelectedObjects);
+
+    canvas.on('object:removed', (opt) => {
+        const removed = opt ? opt.target : null;
+        if (!removed) return;
+        if (removed.isStepBox || (activeStepBox && (activeStepBox === removed || activeStepBox.stepBoxId === removed.stepBoxId))) {
+            const remaining = canvas.getObjects().filter(o => o.isStepBox && o !== removed);
+            if (remaining.length === 0) {
+                if (stepBoxFloatingBar) {
+                    stepBoxFloatingBar.style.display = 'none';
+                }
+                activeStepBox = null;
+            } else {
+                activeStepBox = remaining[remaining.length - 1];
+                if (typeof updateStepBoxFloatingControls === 'function') {
+                    updateStepBoxFloatingControls(activeStepBox);
+                }
+            }
+        }
+    });
 
     // -------------------------------------------------------------------------
     // 15. Property Handlers (Fill, Border, Stroke Size, Font Size, Bold, Italic)
@@ -2340,38 +4172,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    selectStrokeSize.addEventListener('change', () => {
-        const strokeWidth = parseInt(selectStrokeSize.value, 10);
-        const activeObj = canvas.getActiveObject();
-        if (activeObj && activeObj.isShapeGroup) {
-            const shape = activeObj.getObjects().find(o => o.type !== 'textbox' && o.type !== 'i-text');
-            if (shape) {
-                shape.set('strokeWidth', strokeWidth);
-                canvas.renderAll();
-                saveState();
-            }
-        } else if (activeObj && (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line')) {
-            activeObj.set('strokeWidth', strokeWidth);
-            if (activeObj.arrowHead) {
-                activeObj.arrowHead.set({
-                    width: Math.max(12, strokeWidth * 5),
-                    height: Math.max(12, strokeWidth * 5)
-                });
-            }
-            if (activeObj.startArrowHead) {
-                activeObj.startArrowHead.set({
-                    width: Math.max(12, strokeWidth * 5),
-                    height: Math.max(12, strokeWidth * 5)
-                });
-            }
-            canvas.renderAll();
-            saveState();
-        }
-
-        if (canvas.isDrawingMode) {
-            updateBrushSettings();
-        }
-    });
+    if (selectStrokeSize) {
+        selectStrokeSize.addEventListener('change', () => {
+            const strokeWidth = parseInt(selectStrokeSize.value, 10);
+            setStrokeSize(strokeWidth);
+        });
+    }
 
     if (selectLinePattern) {
         selectLinePattern.addEventListener('change', () => {
@@ -2523,18 +4329,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 evented: true,
             });
 
+            // If pasting into slide mode, verify position relative to slide frame
+            if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+                const sLeft = slideFrameRect.left;
+                const sTop = slideFrameRect.top;
+                const sRight = sLeft + slideFrameRect.getScaledWidth();
+                const sBottom = sTop + slideFrameRect.getScaledHeight();
+
+                clonedObj.setCoords();
+                const bound = (typeof clonedObj.getBoundingRect === 'function')
+                    ? clonedObj.getBoundingRect(true, true)
+                    : { left: clonedObj.left, top: clonedObj.top, width: clonedObj.width || 50, height: clonedObj.height || 50 };
+
+                // If completely outside the slide, place near center of the slide
+                if (bound.left > sRight || bound.left + bound.width < sLeft ||
+                    bound.top > sBottom || bound.top + bound.height < sTop) {
+                    const center = slideFrameRect.getCenterPoint();
+                    if (typeof clonedObj.setPositionByOrigin === 'function') {
+                        clonedObj.setPositionByOrigin(center, 'center', 'center');
+                    } else {
+                        clonedObj.left = sLeft + (slideFrameRect.width - bound.width) / 2;
+                        clonedObj.top = sTop + (slideFrameRect.height - bound.height) / 2;
+                    }
+                    clonedObj.setCoords();
+                }
+            }
+
+            const prepareObj = (obj) => {
+                if (obj.shapeUid) obj.shapeUid = generateUid();
+                obj.connectedLines = [];
+                if (currentFrameRatio !== 'infinite') {
+                    if (typeof applySlideClip === 'function') applySlideClip(obj);
+                } else {
+                    if (obj.clipPath && obj.clipPath.isSlideClip) {
+                        delete obj.clipPath;
+                        obj.dirty = true;
+                    }
+                }
+                canvas.add(obj);
+            };
+
             if (clonedObj.type === 'activeSelection') {
                 clonedObj.canvas = canvas;
                 clonedObj.forEachObject((obj) => {
-                    if (obj.shapeUid) obj.shapeUid = generateUid();
-                    obj.connectedLines = [];
-                    canvas.add(obj);
+                    prepareObj(obj);
                 });
                 clonedObj.setCoords();
             } else {
-                if (clonedObj.shapeUid) clonedObj.shapeUid = generateUid();
-                clonedObj.connectedLines = [];
-                canvas.add(clonedObj);
+                prepareObj(clonedObj);
             }
 
             _clipboard.top += 24;
@@ -3075,6 +4917,500 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -------------------------------------------------------------------------
+    // Phase 8: Step Box System
+    // -------------------------------------------------------------------------
+    function attachStepBoxRendering(box) {
+        if (!box) return;
+        box._render = function(ctx) {
+            fabric.Rect.prototype._render.call(this, ctx);
+
+            // Draw top-left step box label & badge
+            ctx.save();
+            const curStep = (this.stepBoxCurrentStep !== undefined) ? this.stepBoxCurrentStep + 1 : 1;
+            const totalSteps = (this.stepBoxSteps && this.stepBoxSteps.length) ? this.stepBoxSteps.length : 1;
+            const name = this.stepBoxName || 'Step Box';
+            const label = `${name} (Step ${curStep}/${totalSteps})`;
+
+            ctx.font = 'bold 11px system-ui, -apple-system, sans-serif';
+            const textWidth = ctx.measureText(label).width;
+            const badgeW = textWidth + 16;
+            const badgeH = 22;
+            const x = -this.width / 2 + 6;
+            const y = -this.height / 2 + 6;
+
+            // Background badge
+            ctx.fillStyle = '#4f46e5';
+            ctx.beginPath();
+            if (typeof ctx.roundRect === 'function') {
+                ctx.roundRect(x, y, badgeW, badgeH, 5);
+            } else {
+                ctx.rect(x, y, badgeW, badgeH);
+            }
+            ctx.fill();
+
+            // Label text
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x + 8, y + badgeH / 2);
+
+            ctx.restore();
+        };
+    }
+
+    function createStepBox(left, top, width, height, options = {}) {
+        const existingBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        const boxNum = existingBoxes.length + 1;
+        const boxId = options.stepBoxId || ('stepbox_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5));
+        const boxName = options.stepBoxName || `Step Box ${boxNum}`;
+        const initialSteps = options.stepBoxSteps || [
+            {
+                id: 'step_1',
+                name: 'Step 1',
+                objects: []
+            }
+        ];
+        const initialStepIndex = options.stepBoxCurrentStep !== undefined ? options.stepBoxCurrentStep : 0;
+
+        const box = new fabric.Rect({
+            left: Math.round(left),
+            top: Math.round(top),
+            width: Math.max(80, Math.round(width)),
+            height: Math.max(60, Math.round(height)),
+            fill: options.fill || 'rgba(99, 102, 241, 0.04)',
+            stroke: options.stroke || '#6366f1',
+            strokeWidth: options.strokeWidth || 2,
+            strokeDashArray: [6, 4],
+            rx: 6,
+            ry: 6,
+            selectable: currentMode === 'select',
+            evented: true,
+            isStepBox: true,
+            stepBoxId: boxId,
+            stepBoxName: boxName,
+            stepBoxSteps: initialSteps,
+            stepBoxCurrentStep: initialStepIndex
+        });
+
+        attachStepBoxRendering(box);
+        canvas.add(box);
+        canvas.sendToBack(box);
+
+        return box;
+    }
+
+    function findStepBoxContaining(obj) {
+        if (!obj || obj.isStepBox || obj.isArrowHead) return null;
+        const center = obj.getCenterPoint ? obj.getCenterPoint() : new fabric.Point(obj.left + (obj.width || 0) / 2, obj.top + (obj.height || 0) / 2);
+        const stepBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        for (const box of stepBoxes) {
+            const left = box.left;
+            const top = box.top;
+            const right = box.left + (box.width * (box.scaleX || 1));
+            const bottom = box.top + (box.height * (box.scaleY || 1));
+            if (center.x >= left && center.x <= right && center.y >= top && center.y <= bottom) {
+                return box;
+            }
+        }
+        return null;
+    }
+
+    function saveStepBoxCurrentStep(box) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        const curIdx = box.stepBoxCurrentStep || 0;
+        if (curIdx < 0 || curIdx >= box.stepBoxSteps.length) return;
+
+        const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox && !o.isArrowHead);
+        const serialized = owned.map(o => {
+            const json = o.toJSON(EXTRA_PROPS);
+            json.relLeft = o.left - box.left;
+            json.relTop = o.top - box.top;
+            return json;
+        });
+
+        box.stepBoxSteps[curIdx].objects = serialized;
+    }
+
+    function loadStepBoxStep(box, targetIdx) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        if (targetIdx < 0 || targetIdx >= box.stepBoxSteps.length) return;
+
+        // 1. Save current step state first
+        saveStepBoxCurrentStep(box);
+
+        // 2. Remove all canvas objects owned by this step box
+        const currentOwned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox);
+        currentOwned.forEach(o => {
+            if (o.connectedLines) {
+                o.connectedLines.forEach(l => canvas.remove(l));
+            }
+            canvas.remove(o);
+        });
+
+        // 3. Switch active step index
+        box.stepBoxCurrentStep = targetIdx;
+        const stepRecord = box.stepBoxSteps[targetIdx];
+        const objectsToLoad = (stepRecord && Array.isArray(stepRecord.objects)) ? stepRecord.objects : [];
+
+        // 4. Enliven and add new step objects
+        if (objectsToLoad.length > 0) {
+            fabric.util.enlivenObjects(objectsToLoad, (enlivenedObjects) => {
+                enlivenedObjects.forEach((obj, idx) => {
+                    const storedJson = objectsToLoad[idx];
+                    const relL = (storedJson && storedJson.relLeft !== undefined) ? storedJson.relLeft : (obj.left || 0);
+                    const relT = (storedJson && storedJson.relTop !== undefined) ? storedJson.relTop : (obj.top || 0);
+                    obj.set({
+                        left: box.left + relL,
+                        top: box.top + relT,
+                        stepBoxOwnerId: box.stepBoxId,
+                        selectable: currentMode === 'select'
+                    });
+                    obj.setCoords();
+                    canvas.add(obj);
+                });
+                box.dirty = true;
+                canvas.requestRenderAll();
+                updateStepBoxFloatingControls(box);
+                saveState();
+            });
+        } else {
+            box.dirty = true;
+            canvas.requestRenderAll();
+            updateStepBoxFloatingControls(box);
+            saveState();
+        }
+    }
+
+    function addStepBoxStep(box) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        saveStepBoxCurrentStep(box);
+
+        const curIdx = box.stepBoxCurrentStep || 0;
+        const curStep = box.stepBoxSteps[curIdx] || { objects: [] };
+        const newStepNum = box.stepBoxSteps.length + 1;
+        const copiedObjects = JSON.parse(JSON.stringify(curStep.objects || []));
+
+        const newStep = {
+            id: 'step_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            name: `Step ${newStepNum}`,
+            objects: copiedObjects
+        };
+
+        const newIdx = curIdx + 1;
+        box.stepBoxSteps.splice(newIdx, 0, newStep);
+        box.stepBoxCurrentStep = newIdx;
+
+        box.dirty = true;
+        canvas.requestRenderAll();
+        updateStepBoxFloatingControls(box);
+        saveState();
+        showToast(`Created Step ${newIdx + 1} of ${box.stepBoxSteps.length} (copy of Step ${curIdx + 1})`);
+    }
+
+    function deleteStepBoxStep(box) {
+        if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+        if (box.stepBoxSteps.length <= 1) {
+            showToast('A Step Box must always have at least one step');
+            return;
+        }
+
+        const curIdx = box.stepBoxCurrentStep || 0;
+        const stepNum = curIdx + 1;
+        if (!confirm(`Are you sure you want to delete Step ${stepNum} of ${box.stepBoxSteps.length}?`)) {
+            return;
+        }
+
+        // Remove canvas objects of the deleted step
+        const currentOwned = canvas.getObjects().filter(o => o.stepBoxOwnerId === box.stepBoxId && !o.isStepBox);
+        currentOwned.forEach(o => canvas.remove(o));
+
+        box.stepBoxSteps.splice(curIdx, 1);
+        box.stepBoxCurrentStep = Math.max(0, Math.min(curIdx, box.stepBoxSteps.length - 1));
+
+        // Load new active step
+        const targetStep = box.stepBoxSteps[box.stepBoxCurrentStep];
+        const objectsToLoad = (targetStep && Array.isArray(targetStep.objects)) ? targetStep.objects : [];
+
+        if (objectsToLoad.length > 0) {
+            fabric.util.enlivenObjects(objectsToLoad, (enlivenedObjects) => {
+                enlivenedObjects.forEach((obj, idx) => {
+                    const storedJson = objectsToLoad[idx];
+                    const relL = (storedJson && storedJson.relLeft !== undefined) ? storedJson.relLeft : (obj.left || 0);
+                    const relT = (storedJson && storedJson.relTop !== undefined) ? storedJson.relTop : (obj.top || 0);
+                    obj.set({
+                        left: box.left + relL,
+                        top: box.top + relT,
+                        stepBoxOwnerId: box.stepBoxId,
+                        selectable: currentMode === 'select'
+                    });
+                    obj.setCoords();
+                    canvas.add(obj);
+                });
+                box.dirty = true;
+                canvas.requestRenderAll();
+                updateStepBoxFloatingControls(box);
+                saveState();
+                showToast(`Deleted step. Now on Step ${box.stepBoxCurrentStep + 1} of ${box.stepBoxSteps.length}`);
+            });
+        } else {
+            box.dirty = true;
+            canvas.requestRenderAll();
+            updateStepBoxFloatingControls(box);
+            saveState();
+            showToast(`Deleted step. Now on Step ${box.stepBoxCurrentStep + 1} of ${box.stepBoxSteps.length}`);
+        }
+    }
+
+    function findStepBoxAtPoint(x, y) {
+        const boxes = canvas.getObjects().filter(o => o.isStepBox);
+        for (let i = boxes.length - 1; i >= 0; i--) {
+            const b = boxes[i];
+            const w = (b.width || 0) * (b.scaleX || 1);
+            const h = (b.height || 0) * (b.scaleY || 1);
+            if (x >= b.left && x <= b.left + w && y >= b.top && y <= b.top + h) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    function updateStepBoxFloatingControls(box) {
+        if (!stepBoxFloatingBar) return;
+
+        const allBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        if (allBoxes.length === 0) {
+            stepBoxFloatingBar.style.display = 'none';
+            activeStepBox = null;
+            return;
+        }
+
+        if (!box || !box.isStepBox || !canvas.contains(box)) {
+            if (activeStepBox && canvas.contains(activeStepBox) && activeStepBox.isStepBox) {
+                box = activeStepBox;
+            } else {
+                box = allBoxes[allBoxes.length - 1];
+            }
+        }
+
+        activeStepBox = box;
+        const curIdx = box.stepBoxCurrentStep || 0;
+        const totalSteps = box.stepBoxSteps ? box.stepBoxSteps.length : 1;
+
+        if (stepBoxCounterLabel) {
+            stepBoxCounterLabel.textContent = `Step ${curIdx + 1} / ${totalSteps}`;
+        }
+
+        if (btnStepBoxPrev) {
+            btnStepBoxPrev.disabled = (curIdx === 0);
+        }
+        if (btnStepBoxNext) {
+            btnStepBoxNext.disabled = (curIdx >= totalSteps - 1);
+        }
+        if (btnStepBoxDel) {
+            btnStepBoxDel.disabled = (totalSteps <= 1);
+        }
+
+        box.setCoords();
+        const aCoords = box.aCoords || {
+            tl: new fabric.Point(box.left, box.top),
+            tr: new fabric.Point(box.left + (box.width * (box.scaleX || 1)), box.top),
+            br: new fabric.Point(box.left + (box.width * (box.scaleX || 1)), box.top + (box.height * (box.scaleY || 1))),
+            bl: new fabric.Point(box.left, box.top + (box.height * (box.scaleY || 1)))
+        };
+
+        const vpt = canvas.viewportTransform;
+        const pts = [aCoords.tl, aCoords.tr, aCoords.br, aCoords.bl].map(pt => 
+            fabric.util.transformPoint(pt, vpt)
+        );
+
+        let minX = Infinity, maxX = -Infinity, maxY = -Infinity;
+        pts.forEach(pt => {
+            if (pt.x < minX) minX = pt.x;
+            if (pt.x > maxX) maxX = pt.x;
+            if (pt.y > maxY) maxY = pt.y;
+        });
+
+        const canvasEl = canvas.upperCanvasEl || canvas.lowerCanvasEl;
+        const rect = canvasEl ? canvasEl.getBoundingClientRect() : { left: 0, top: 0 };
+
+        const screenCenterX = rect.left + (minX + maxX) / 2;
+        const screenBottomY = rect.top + maxY;
+
+        stepBoxFloatingBar.style.display = 'flex';
+        const barWidth = stepBoxFloatingBar.offsetWidth || 270;
+        const posX = Math.max(16, Math.min(window.innerWidth - barWidth - 16, screenCenterX - barWidth / 2));
+        const posY = Math.min(window.innerHeight - 52, screenBottomY + 8);
+
+        stepBoxFloatingBar.style.left = `${posX}px`;
+        stepBoxFloatingBar.style.top = `${posY}px`;
+    }
+
+    function handleStepBoxSelection(e) {
+        const activeObj = canvas.getActiveObject();
+        if (activeObj && activeObj.isStepBox) {
+            updateStepBoxFloatingControls(activeObj);
+            return;
+        }
+
+        if (activeObj) {
+            let parentBox = null;
+            if (activeObj.stepBoxOwnerId) {
+                parentBox = canvas.getObjects().find(o => o.isStepBox && o.stepBoxId === activeObj.stepBoxOwnerId);
+            }
+            if (!parentBox) {
+                parentBox = findStepBoxContaining(activeObj);
+            }
+            if (parentBox) {
+                updateStepBoxFloatingControls(parentBox);
+                return;
+            }
+
+            if (activeStepBox) {
+                saveStepBoxCurrentStep(activeStepBox);
+            }
+            if (stepBoxFloatingBar) {
+                stepBoxFloatingBar.style.display = 'none';
+            }
+            activeStepBox = null;
+            return;
+        }
+
+        if (activeStepBox && canvas.contains(activeStepBox)) {
+            updateStepBoxFloatingControls(activeStepBox);
+            return;
+        }
+
+        const allBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        if (allBoxes.length > 0) {
+            updateStepBoxFloatingControls(allBoxes[allBoxes.length - 1]);
+        } else {
+            if (stepBoxFloatingBar) {
+                stepBoxFloatingBar.style.display = 'none';
+            }
+            activeStepBox = null;
+        }
+    }
+
+    function handleStepBoxMoving(target) {
+        if (!target || !target.isStepBox) return;
+        const box = target;
+        const curLeft = box.left;
+        const curTop = box.top;
+        const lastLeft = box._lastMovingLeft !== undefined ? box._lastMovingLeft : curLeft;
+        const lastTop = box._lastMovingTop !== undefined ? box._lastMovingTop : curTop;
+        const dx = curLeft - lastLeft;
+        const dy = curTop - lastTop;
+        box._lastMovingLeft = curLeft;
+        box._lastMovingTop = curTop;
+
+        canvas.forEachObject(o => {
+            if (o.stepBoxOwnerId === box.stepBoxId && o !== box) {
+                o.left += dx;
+                o.top += dy;
+                o.setCoords();
+                if (o.connectedLines) {
+                    updateConnectedLinesFor(o);
+                }
+            }
+        });
+        updateStepBoxFloatingControls(box);
+    }
+
+    function handleStepBoxScaling(target) {
+        if (!target || !target.isStepBox) return;
+        updateStepBoxFloatingControls(target);
+    }
+
+    function handleStepBoxModified(target) {
+        if (!target) return;
+        if (target.isStepBox) {
+            const box = target;
+            delete box._lastMovingLeft;
+            delete box._lastMovingTop;
+
+            const sx = box.scaleX || 1;
+            const sy = box.scaleY || 1;
+            if (sx !== 1 || sy !== 1) {
+                const ow = box.width;
+                const oh = box.height;
+                const nw = Math.max(80, Math.round(ow * sx));
+                const nh = Math.max(60, Math.round(oh * sy));
+                const ox = box.left;
+                const oy = box.top;
+
+                canvas.forEachObject(o => {
+                    if (o.stepBoxOwnerId === box.stepBoxId && o !== box) {
+                        const relX = o.left - ox;
+                        const relY = o.top - oy;
+                        o.left = ox + relX * (nw / ow);
+                        o.top = oy + relY * (nh / oh);
+                        o.scaleX = (o.scaleX || 1) * (nw / ow);
+                        o.scaleY = (o.scaleY || 1) * (nh / oh);
+                        o.setCoords();
+                        if (o.connectedLines) {
+                            updateConnectedLinesFor(o);
+                        }
+                    }
+                });
+
+                box.set({
+                    width: nw,
+                    height: nh,
+                    scaleX: 1,
+                    scaleY: 1
+                });
+                box.setCoords();
+                box.dirty = true;
+                canvas.requestRenderAll();
+            }
+            updateStepBoxFloatingControls(box);
+        } else {
+            const parentBox = findStepBoxContaining(target);
+            if (parentBox) {
+                target.stepBoxOwnerId = parentBox.stepBoxId;
+            } else if (target.stepBoxOwnerId) {
+                target.stepBoxOwnerId = null;
+            }
+        }
+    }
+
+    if (btnStepBoxPrev) {
+        btnStepBoxPrev.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                loadStepBoxStep(activeStepBox, (activeStepBox.stepBoxCurrentStep || 0) - 1);
+            }
+        });
+    }
+
+    if (btnStepBoxNext) {
+        btnStepBoxNext.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                loadStepBoxStep(activeStepBox, (activeStepBox.stepBoxCurrentStep || 0) + 1);
+            }
+        });
+    }
+
+    if (btnStepBoxAdd) {
+        btnStepBoxAdd.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                addStepBoxStep(activeStepBox);
+            }
+        });
+    }
+
+    if (btnStepBoxDel) {
+        btnStepBoxDel.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (activeStepBox) {
+                deleteStepBoxStep(activeStepBox);
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
     // 17. Multi-Board System & Right Sidebar Controller
     // -------------------------------------------------------------------------
     const rightBoardsSidebar = document.getElementById('right-boards-sidebar');
@@ -3147,7 +5483,30 @@ document.addEventListener('DOMContentLoaded', () => {
         updateAutosaveIndicator('saving');
 
         try {
-            const dataObj = canvas.toJSON(EXTRA_PROPS);
+            // Save active step snapshot for all Step Boxes before serializing
+            if (typeof saveStepBoxCurrentStep === 'function') {
+                const stepBoxes = canvas.getObjects().filter(o => o.isStepBox);
+                stepBoxes.forEach(sb => saveStepBoxCurrentStep(sb));
+            }
+
+            if (currentFrameRatio !== 'infinite' && typeof saveCurrentSlide === 'function') {
+                saveCurrentSlide();
+            }
+
+            let dataObj;
+            if (currentFrameRatio === 'infinite') {
+                dataObj = canvas.toJSON(EXTRA_PROPS);
+                infiniteBoardObjects = dataObj.objects.filter(o => !o.isSlideFrame);
+            } else {
+                dataObj = {
+                    version: '5.3.0',
+                    objects: infiniteBoardObjects || []
+                };
+            }
+            dataObj.infiniteBoardObjects = infiniteBoardObjects;
+            dataObj.boardSlides = boardSlides;
+            dataObj.currentSlideIndex = currentSlideIndex;
+            dataObj.currentFrameRatio = currentFrameRatio;
             const activeBoard = boards.find(b => b.id === activeBoardId);
             const bgColor = (activeBoard && (activeBoard.bg_color || activeBoard.bgColor)) ? (activeBoard.bg_color || activeBoard.bgColor) : '#f8fafc';
 
@@ -3234,6 +5593,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            if (obj.isStepBox) {
+                if (typeof attachStepBoxRendering === 'function') {
+                    attachStepBoxRendering(obj);
+                }
+                obj.dirty = true;
+            }
+
+            if (obj.isSlideFrame) {
+                slideFrameRect = obj;
+                obj.selectable = false;
+                obj.evented = false;
+                if (typeof attachSlideFrameRendering === 'function') {
+                    attachSlideFrameRendering(obj);
+                }
+                currentFrameRatio = obj.slideFrameRatio || '16:9';
+                document.body.classList.add('slide-mode-active');
+                if (slideFrameBanner) {
+                    slideFrameBanner.classList.remove('hidden');
+                    const preset = SLIDE_PRESETS[currentFrameRatio] || SLIDE_PRESETS['16:9'];
+                    if (slideFrameTitle) slideFrameTitle.textContent = preset.title;
+                }
+                if (frameModeLabel) {
+                    const preset = SLIDE_PRESETS[currentFrameRatio];
+                    frameModeLabel.textContent = preset ? preset.shortName : 'Slide';
+                }
+                if (frameMenuItems) {
+                    frameMenuItems.forEach(item => {
+                        item.classList.toggle('active', item.getAttribute('data-ratio') === currentFrameRatio);
+                    });
+                }
+                if (typeof updateSlideNavigationUI === 'function') {
+                    updateSlideNavigationUI();
+                }
+                obj.dirty = true;
+            }
+
             if (obj.globalCompositeOperation === 'destination-out') {
                 obj.selectable = false;
                 obj.evented = false;
@@ -3245,6 +5640,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 obj.selectable = false;
             }
         });
+
+        const hasSlide = canvas.getObjects().some(o => o.isSlideFrame);
+        if (!hasSlide) {
+            currentFrameRatio = 'infinite';
+            document.body.classList.remove('slide-mode-active');
+            if (slideFrameBanner) slideFrameBanner.classList.add('hidden');
+            if (frameModeLabel) frameModeLabel.textContent = 'Canvas: Infinite';
+            if (frameMenuItems) {
+                frameMenuItems.forEach(item => {
+                    item.classList.toggle('active', item.getAttribute('data-ratio') === 'infinite');
+                });
+            }
+        }
+
+        const stepBoxes = canvas.getObjects().filter(o => o.isStepBox);
+        if (stepBoxes.length > 0 && typeof updateStepBoxFloatingControls === 'function') {
+            updateStepBoxFloatingControls(stepBoxes[stepBoxes.length - 1]);
+        }
     }
 
     function hexToRgb(hex) {
@@ -3378,6 +5791,323 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`Downloaded "${board.name}" (.json)`);
     }
 
+    function exportCanvasAsPNG() {
+        if (downloadDropdown) downloadDropdown.classList.add('hidden');
+        if (activeStepBox && typeof saveStepBoxCurrentStep === 'function') {
+            saveStepBoxCurrentStep(activeStepBox);
+        }
+        const objects = canvas.getObjects().filter(o => !o.isGridLine && o !== stepBoxPreviewRect && o !== connectorPreviewLine);
+        if (!objects || objects.length === 0) {
+            showToast('Canvas is empty');
+            return;
+        }
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        objects.forEach(obj => {
+            const b = obj.getBoundingRect(true, true);
+            if (b.left < minX) minX = b.left;
+            if (b.top < minY) minY = b.top;
+            if (b.left + b.width > maxX) maxX = b.left + b.width;
+            if (b.top + b.height > maxY) maxY = b.top + b.height;
+        });
+
+        if (!isFinite(minX) || !isFinite(minY)) {
+            minX = 0; minY = 0; maxX = canvas.getWidth(); maxY = canvas.getHeight();
+        }
+
+        const padding = 40;
+        const cropX = Math.max(0, minX - padding);
+        const cropY = Math.max(0, minY - padding);
+        const cropWidth = (maxX - minX) + padding * 2;
+        const cropHeight = (maxY - minY) + padding * 2;
+
+        const prevVpt = canvas.viewportTransform.slice();
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+
+        const dataUrl = canvas.toDataURL({
+            format: 'png',
+            left: cropX,
+            top: cropY,
+            width: cropWidth,
+            height: cropHeight,
+            multiplier: 2,
+            enableRetinaScaling: true
+        });
+
+        canvas.setViewportTransform(prevVpt);
+        canvas.requestRenderAll();
+
+        const curBoard = (Array.isArray(boards) ? boards.find(b => b.id === activeBoardId) : null);
+        const safeName = (curBoard ? curBoard.name : 'whiteboard').toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'whiteboard';
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `${safeName}-${new Date().toISOString().slice(0, 10)}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast(`Exported "${a.download}"`);
+    }
+
+    function exportCanvasAsSVG() {
+        if (downloadDropdown) downloadDropdown.classList.add('hidden');
+        if (activeStepBox && typeof saveStepBoxCurrentStep === 'function') {
+            saveStepBoxCurrentStep(activeStepBox);
+        }
+        const objects = canvas.getObjects().filter(o => !o.isGridLine && o !== stepBoxPreviewRect && o !== connectorPreviewLine);
+        if (!objects || objects.length === 0) {
+            showToast('Canvas is empty');
+            return;
+        }
+
+        const svgContent = canvas.toSVG({
+            suppressPreamble: false,
+            width: canvas.getWidth(),
+            height: canvas.getHeight()
+        }, EXTRA_PROPS);
+        const curBoard = (Array.isArray(boards) ? boards.find(b => b.id === activeBoardId) : null);
+        const safeName = (curBoard ? curBoard.name : 'whiteboard').toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'whiteboard';
+        const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${safeName}-${new Date().toISOString().slice(0, 10)}.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        showToast(`Exported "${a.download}"`);
+    }
+
+    async function collectPresentationSlides(format) {
+        const slideCaptures = [];
+
+        // 1. If in Fixed Width / Slide Mode, capture all slides in boardSlides
+        if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+            saveCurrentSlide();
+            const originalSlideIndex = currentSlideIndex;
+
+            const prevVpt = canvas.viewportTransform.slice();
+            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+
+            const cropX = slideFrameRect.left;
+            const cropY = slideFrameRect.top;
+            const cropW = slideFrameRect.width;
+            const cropH = slideFrameRect.height;
+
+            for (let i = 0; i < boardSlides.length; i++) {
+                await new Promise((resolve) => {
+                    loadSlide(i);
+                    setTimeout(resolve, 90);
+                });
+                canvas.requestRenderAll();
+
+                const dataUrl = canvas.toDataURL({
+                    format: 'png',
+                    left: cropX,
+                    top: cropY,
+                    width: cropW,
+                    height: cropH,
+                    multiplier: 2,
+                    enableRetinaScaling: true
+                });
+
+                slideCaptures.push({
+                    image_data: dataUrl,
+                    title: (boardSlides[i] && boardSlides[i].name) ? boardSlides[i].name : `Slide ${i + 1}`,
+                    step_num: i + 1
+                });
+            }
+
+            await new Promise((resolve) => {
+                loadSlide(originalSlideIndex);
+                setTimeout(resolve, 80);
+            });
+
+            canvas.setViewportTransform(prevVpt);
+            canvas.requestRenderAll();
+            return slideCaptures;
+        }
+
+        // 2. Otherwise (Infinite Canvas): Step Box steps or whole canvas
+        const frame = canvas.getObjects().find(o => o.isSlideFrame);
+        let cropX = 100, cropY = 100, cropW = 1920, cropH = 1080;
+        if (frame) {
+            cropX = frame.left;
+            cropY = frame.top;
+            cropW = frame.width;
+            cropH = frame.height;
+        } else {
+            const objs = canvas.getObjects().filter(o => !o.isGridLine && !o.isSlideFrame && o !== stepBoxPreviewRect && o !== connectorPreviewLine);
+            if (objs.length === 0) return null;
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            objs.forEach(o => {
+                const b = o.getBoundingRect(true, true);
+                if (b.left < minX) minX = b.left;
+                if (b.top < minY) minY = b.top;
+                if (b.left + b.width > maxX) maxX = b.left + b.width;
+                if (b.top + b.height > maxY) maxY = b.top + b.height;
+            });
+            const pad = 40;
+            cropX = Math.max(0, minX - pad);
+            cropY = Math.max(0, minY - pad);
+            cropW = (maxX - minX) + pad * 2;
+            cropH = (maxY - minY) + pad * 2;
+        }
+
+        const stepBoxes = canvas.getObjects().filter(o => o.isStepBox && o.stepBoxSteps && o.stepBoxSteps.length > 1);
+        const primaryBox = activeStepBox || (stepBoxes.length > 0 ? stepBoxes[0] : null);
+
+        if (primaryBox && primaryBox.stepBoxSteps && primaryBox.stepBoxSteps.length > 1) {
+            saveStepBoxCurrentStep(primaryBox);
+            const originalStep = primaryBox.stepBoxCurrentStep;
+
+            const prevVpt = canvas.viewportTransform.slice();
+            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+
+            for (let i = 0; i < primaryBox.stepBoxSteps.length; i++) {
+                await new Promise(res => {
+                    loadStepBoxStep(primaryBox, i);
+                    setTimeout(res, 80);
+                });
+                canvas.requestRenderAll();
+
+                const dataUrl = canvas.toDataURL({
+                    format: 'png',
+                    left: cropX,
+                    top: cropY,
+                    width: cropW,
+                    height: cropH,
+                    multiplier: 2,
+                    enableRetinaScaling: true
+                });
+
+                slideCaptures.push({
+                    image_data: dataUrl,
+                    title: `Step ${i + 1}`,
+                    step_num: i + 1
+                });
+            }
+
+            await new Promise(res => {
+                loadStepBoxStep(primaryBox, originalStep);
+                setTimeout(res, 80);
+            });
+            canvas.setViewportTransform(prevVpt);
+            canvas.requestRenderAll();
+        } else {
+            if (activeStepBox) saveStepBoxCurrentStep(activeStepBox);
+            const prevVpt = canvas.viewportTransform.slice();
+            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+
+            const dataUrl = canvas.toDataURL({
+                format: 'png',
+                left: cropX,
+                top: cropY,
+                width: cropW,
+                height: cropH,
+                multiplier: 2,
+                enableRetinaScaling: true
+            });
+
+            canvas.setViewportTransform(prevVpt);
+            canvas.requestRenderAll();
+
+            slideCaptures.push({
+                image_data: dataUrl,
+                title: 'Slide 1',
+                step_num: 1
+            });
+        }
+
+        return slideCaptures;
+    }
+
+    async function exportAsPPTX() {
+        if (downloadDropdown) downloadDropdown.classList.add('hidden');
+        showToast('Preparing PowerPoint presentation (.pptx)...');
+
+        const slides = await collectPresentationSlides('pptx');
+        if (!slides || slides.length === 0) {
+            showToast('Canvas is empty');
+            return;
+        }
+
+        const curBoard = (Array.isArray(boards) ? boards.find(b => b.id === activeBoardId) : null);
+        const title = (curBoard ? curBoard.name : 'presentation');
+
+        try {
+            const res = await fetch('/api/export/pptx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    aspect_ratio: currentFrameRatio === '4:3' ? '4:3' : (currentFrameRatio === 'a4' ? 'a4' : '16:9'),
+                    slides: slides
+                })
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeName = title.toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'presentation';
+            a.download = `${safeName}.pptx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            showToast(`Exported "${a.download}" (${slides.length} slide${slides.length > 1 ? 's' : ''})`);
+        } catch (err) {
+            console.error('PPTX export error:', err);
+            showToast('Failed to export PPTX');
+        }
+    }
+
+    async function exportAsPDF() {
+        if (downloadDropdown) downloadDropdown.classList.add('hidden');
+        showToast('Preparing PDF document (.pdf)...');
+
+        const slides = await collectPresentationSlides('pdf');
+        if (!slides || slides.length === 0) {
+            showToast('Canvas is empty');
+            return;
+        }
+
+        const curBoard = (Array.isArray(boards) ? boards.find(b => b.id === activeBoardId) : null);
+        const title = (curBoard ? curBoard.name : 'document');
+
+        try {
+            const res = await fetch('/api/export/pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    aspect_ratio: currentFrameRatio === '4:3' ? '4:3' : (currentFrameRatio === 'a4' ? 'a4' : '16:9'),
+                    slides: slides
+                })
+            });
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeName = title.toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'document';
+            a.download = `${safeName}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+            showToast(`Exported "${a.download}" (${slides.length} page${slides.length > 1 ? 's' : ''})`);
+        } catch (err) {
+            console.error('PDF export error:', err);
+            showToast('Failed to export PDF');
+        }
+    }
+
     async function switchBoard(targetBoardId) {
         if (targetBoardId === activeBoardId) return;
         const targetBoard = boards.find(b => b.id === targetBoardId);
@@ -3423,7 +6153,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 parsedData = fullBoard.data || { version: '5.3.0', objects: [] };
             }
 
-            canvas.loadFromJSON(parsedData, () => {
+            if (parsedData.infiniteBoardObjects && Array.isArray(parsedData.infiniteBoardObjects)) {
+                infiniteBoardObjects = parsedData.infiniteBoardObjects;
+            } else if (Array.isArray(parsedData.objects)) {
+                infiniteBoardObjects = parsedData.objects.filter(o => !o.isSlideFrame);
+            } else {
+                infiniteBoardObjects = [];
+            }
+
+            if (parsedData.boardSlides && Array.isArray(parsedData.boardSlides) && parsedData.boardSlides.length > 0) {
+                boardSlides = parsedData.boardSlides;
+                currentSlideIndex = parsedData.currentSlideIndex || 0;
+            } else {
+                boardSlides = [
+                    { id: 'slide_' + Date.now(), name: 'Slide 1', objects: [] }
+                ];
+                currentSlideIndex = 0;
+            }
+
+            const loadPayload = (parsedData.currentFrameRatio && parsedData.currentFrameRatio !== 'infinite')
+                ? parsedData
+                : { version: '5.3.0', objects: infiniteBoardObjects };
+
+            canvas.loadFromJSON(loadPayload, () => {
                 reconnectLoadedObjects();
                 canvas.renderAll();
                 isBoardLoading = false;
@@ -3910,8 +6662,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     setBoardBackgroundColor(boardRecord.bg_color, false);
                 }
 
+                if (parsedData.infiniteBoardObjects && Array.isArray(parsedData.infiniteBoardObjects)) {
+                    infiniteBoardObjects = parsedData.infiniteBoardObjects;
+                } else if (Array.isArray(parsedData.objects)) {
+                    infiniteBoardObjects = parsedData.objects.filter(o => !o.isSlideFrame);
+                } else {
+                    infiniteBoardObjects = [];
+                }
+
+                if (parsedData.boardSlides && Array.isArray(parsedData.boardSlides) && parsedData.boardSlides.length > 0) {
+                    boardSlides = parsedData.boardSlides;
+                    currentSlideIndex = parsedData.currentSlideIndex || 0;
+                } else {
+                    boardSlides = [
+                        { id: 'slide_' + Date.now(), name: 'Slide 1', objects: [] }
+                    ];
+                    currentSlideIndex = 0;
+                }
+
+                const loadPayload = (parsedData.currentFrameRatio && parsedData.currentFrameRatio !== 'infinite')
+                    ? parsedData
+                    : { version: '5.3.0', objects: infiniteBoardObjects };
+
                 isProcessingHistory = true;
-                canvas.loadFromJSON(parsedData, () => {
+                canvas.loadFromJSON(loadPayload, () => {
                     reconnectLoadedObjects();
                     canvas.renderAll();
                     isBoardLoading = false;
@@ -4030,8 +6804,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const key = e.key;
         const code = e.code;
 
-        // Dismiss Shortcuts Modal if open and user presses Escape
+        // Dismiss modals or exit fullscreen if open and user presses Escape
         if (key === 'Escape' || code === 'Escape') {
+            if (modalExitSlide && !modalExitSlide.classList.contains('hidden')) {
+                e.preventDefault();
+                closeExitSlideModal();
+                return;
+            }
+            if (isSlidePageFullscreen) {
+                e.preventDefault();
+                toggleSlidePageFullscreen(false);
+                return;
+            }
             if (shortcutsModal && !shortcutsModal.classList.contains('hidden')) {
                 e.preventDefault();
                 closeShortcutsModal();
@@ -4236,7 +7020,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!isCtrl && (key === 'e' || key === 'E')) {
-            setMode('eraser');
+            if (currentMode === 'eraser') {
+                setEraserSubMode(eraserSubMode === 'brush' ? 'area' : 'brush');
+            } else {
+                setMode('eraser');
+            }
+            return;
+        }
+        if (!isCtrl && (key === '[' || code === 'BracketLeft')) {
+            if (currentMode === 'eraser') {
+                setEraserSize(eraserSize - 6);
+                showToast(`Eraser Size: ${eraserSize}px`);
+            } else {
+                setStrokeSize(strokeSize - 1);
+                showToast(`Writing Size: ${strokeSize}px`);
+            }
+            return;
+        }
+        if (!isCtrl && (key === ']' || code === 'BracketRight')) {
+            if (currentMode === 'eraser') {
+                setEraserSize(eraserSize + 6);
+                showToast(`Eraser Size: ${eraserSize}px`);
+            } else {
+                setStrokeSize(strokeSize + 1);
+                showToast(`Writing Size: ${strokeSize}px`);
+            }
             return;
         }
         if (key === 'Escape') {
@@ -4372,12 +7180,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (key === 'ArrowUp') activeObj.top -= step;
                 if (key === 'ArrowDown') activeObj.top += step;
                 activeObj.setCoords();
+                if (typeof constrainObjectToSlideFrame === 'function') {
+                    constrainObjectToSlideFrame(activeObj);
+                }
                 updateConnectedLinesFor(activeObj);
                 canvas.requestRenderAll();
                 saveState();
                 e.preventDefault();
             }
             return;
+        }
+
+        // Slide Navigation Shortcuts (PageDown / PageUp or Alt + ArrowRight / Alt + ArrowLeft)
+        if (currentFrameRatio !== 'infinite' && !isUserTyping()) {
+            if (key === 'PageDown' || (e.altKey && key === 'ArrowRight')) {
+                e.preventDefault();
+                if (currentSlideIndex < boardSlides.length - 1) {
+                    saveCurrentSlide();
+                    loadSlide(currentSlideIndex + 1);
+                }
+                return;
+            }
+            if (key === 'PageUp' || (e.altKey && key === 'ArrowLeft')) {
+                e.preventDefault();
+                if (currentSlideIndex > 0) {
+                    saveCurrentSlide();
+                    loadSlide(currentSlideIndex - 1);
+                }
+                return;
+            }
         }
     });
 
@@ -4473,7 +7304,23 @@ document.addEventListener('DOMContentLoaded', () => {
     btnUndo.addEventListener('click', undo);
     btnRedo.addEventListener('click', redo);
 
-    canvas.on('object:added', () => saveState());
+    canvas.on('object:added', (opt) => {
+        const addedObj = opt.target;
+        if (addedObj && !addedObj.isStepBox && !addedObj.isArrowHead && !addedObj.stepBoxOwnerId) {
+            if (typeof findStepBoxContaining === 'function') {
+                const parentBox = findStepBoxContaining(addedObj);
+                if (parentBox) {
+                    addedObj.stepBoxOwnerId = parentBox.stepBoxId;
+                }
+            }
+        }
+        if (addedObj && !addedObj.isSlideFrame && currentFrameRatio !== 'infinite') {
+            if (typeof applySlideClip === 'function') {
+                applySlideClip(addedObj);
+            }
+        }
+        saveState();
+    });
     canvas.on('object:modified', () => saveState());
     canvas.on('object:removed', () => saveState());
 
@@ -4533,7 +7380,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnClear.addEventListener('click', () => {
         if (canvas.getObjects().length === 0) return;
-        canvas.clear();
+        if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+            const toRemove = canvas.getObjects().filter(o => !o.isSlideFrame);
+            toRemove.forEach(o => canvas.remove(o));
+            if (boardSlides[currentSlideIndex]) {
+                boardSlides[currentSlideIndex].objects = [];
+            }
+        } else {
+            canvas.clear();
+        }
+        if (stepBoxFloatingBar) {
+            stepBoxFloatingBar.style.display = 'none';
+        }
+        activeStepBox = null;
         saveState();
     });
 
