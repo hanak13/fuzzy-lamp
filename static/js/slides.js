@@ -339,6 +339,25 @@
         fitSlideView();
     }
 
+    function renderSlideFrameOverlays(ctx) {
+        if (currentFrameRatio === 'infinite' || !slideFrameRect || !slideFrameRect.visible) return;
+        ctx.save();
+        const m = slideFrameRect.calcTransformMatrix();
+        ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+        const w = slideFrameRect.width;
+        const h = slideFrameRect.height;
+        const x = -w / 2;
+        const y = -h / 2;
+
+        ctx.strokeStyle = slideFrameRect.stroke || '#94a3b8';
+        ctx.lineWidth = slideFrameRect.strokeWidth || 2;
+        if (ctx.setLineDash) ctx.setLineDash([]);
+        ctx.strokeRect(x, y, w, h);
+
+        ctx.restore();
+    }
+
     function initSlidesUI() {
         const btnPrevSlide = document.getElementById('btn-prev-slide');
         const btnNextSlide = document.getElementById('btn-next-slide');
@@ -406,7 +425,8 @@
         loadSlide,
         addNewSlide,
         deleteCurrentSlide,
-        toggleSlidePageFullscreen
+        toggleSlidePageFullscreen,
+        renderSlideFrameOverlays
     };
 
     window.WhiteboardApp.slides = SlidesModule;
@@ -421,5 +441,6 @@
     window.addNewSlide = addNewSlide;
     window.deleteCurrentSlide = deleteCurrentSlide;
     window.toggleSlidePageFullscreen = toggleSlidePageFullscreen;
+    window.renderSlideFrameOverlays = renderSlideFrameOverlays;
 
 })(window);

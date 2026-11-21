@@ -297,6 +297,251 @@
             bar.style.transform = 'translateX(-50%)';
         },
 
+        addStepBoxStep(box) {
+            if (!box || !box.isStepBox || !box.stepBoxSteps) return;
+            StepsModule.saveStepBoxCurrentStep(box);
+
+            const newStepNum = box.stepBoxSteps.length + 1;
+            const newStep = {
+                id: 'step_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                name: `Step ${newStepNum}`,
+                objects: []
+            };
+
+            box.stepBoxSteps.push(newStep);
+            StepsModule.loadStepBoxStep(box, box.stepBoxSteps.length - 1);
+            if (typeof window.showToast === 'function') window.showToast(`Added ${newStep.name}`);
+        },
+
+        deleteStepBoxStep(box, targetIdx) {
+            if (!box || !box.isStepBox || !box.stepBoxSteps || box.stepBoxSteps.length <= 1) {
+                if (typeof window.showToast === 'function') window.showToast('Cannot delete the only step');
+                return;
+            }
+
+            const delIdx = (targetIdx !== undefined) ? targetIdx : (box.stepBoxCurrentStep || 0);
+            box.stepBoxSteps.splice(delIdx, 1);
+
+            let newIdx = box.stepBoxCurrentStep || 0;
+            if (newIdx >= box.stepBoxSteps.length) {
+                newIdx = box.stepBoxSteps.length - 1;
+            }
+
+            StepsModule.loadStepBoxStep(box, newIdx);
+            if (typeof window.showToast === 'function') window.showToast(`Step deleted (Now on Step ${newIdx + 1})`);
+        },
+
+        toggleStepBoxPlay(box) {
+            if (!box || !box.isStepBox || !box.stepBoxSteps || box.stepBoxSteps.length <= 1) {
+                if (typeof window.showToast === 'function') window.showToast('Add more steps to play slideshow');
+                return;
+            }
+
+            const btnPlay = document.getElementById('btn-stepbox-play');
+            const playLabel = document.getElementById('stepbox-play-label');
+
+            if (StepsModule.isPlaying) {
+                StepsModule.stopStepBoxPlay();
+                if (typeof window.showToast === 'function') window.showToast('Playback paused');
+                return;
+            }
+
+            StepsModule.saveStepBoxCurrentStep(box);
+            StepsModule.isPlaying = true;
+            if (btnPlay) btnPlay.classList.add('active');
+            if (playLabel) playLabel.textContent = 'Pause';
+            if (typeof window.showToast === 'function') window.showToast('Playing step presentation (1.8s auto-cycle)...');
+
+            StepsModule.playInterval = setInterval(() => {
+                const canvas = StepsModule.getCanvas();
+                const active = window.__activeStepBox || box;
+                if (!active || !canvas || !canvas.contains(active) || !StepsModule.isPlaying) {
+                    StepsModule.stopStepBoxPlay();
+                    return;
+                }
+                const nextIdx = ((active.stepBoxCurrentStep || 0) + 1) % active.stepBoxSteps.length;
+                StepsModule.loadStepBoxStep(active, nextIdx);
+            }, 1800);
+        },
+
+        stopStepBoxPlay() {
+            if (StepsModule.playInterval) {
+                clearInterval(StepsModule.playInterval);
+                StepsModule.playInterval = null;
+            }
+            StepsModule.isPlaying = false;
+            const btnPlay = document.getElementById('btn-stepbox-play');
+            const playLabel = document.getElementById('stepbox-play-label');
+            if (btnPlay) btnPlay.classList.remove('active');
+            if (playLabel) playLabel.textContent = 'Play';
+        },
+
+        openStepBoxManager(box) {
+            const modal = document.getElementById('stepbox-manager-modal');
+            if (!modal) return;
+            const canvas = StepsModule.getCanvas();
+            if (!box || !box.isStepBox) {
+                const boxes = canvas ? canvas.getObjects().filter(o => o.isStepBox) : [];
+                if (boxes.length > 0) box = boxes[boxes.length - 1];
+                else return;
+            }
+            window.__activeStepBox = box;
+            StepsModule.saveStepBoxCurrentStep(box);
+            const titleEl = document.getElementById('stepbox-modal-title');
+            if (titleEl) titleEl.textContent = `${box.stepBoxName || 'Step Box'} - Step Manager`;
+            StepsModule.renderStepBoxManagerList(box);
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+        },
+
+        closeStepBoxManager() {
+            const modal = document.getElementById('stepbox-manager-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            if (window.__activeStepBox) {
+                StepsModule.updateFloatingControls(window.__activeStepBox);
+            }
+        },
+
+        renderStepBoxManagerList(box) {
+            const listEl = document.getElementById('stepbox-steps-list');
+            if (!listEl || !box || !box.isStepBox) return;
+            listEl.innerHTML = '';
+
+            const steps = box.stepBoxSteps || [];
+            const curIdx = box.stepBoxCurrentStep || 0;
+
+            const countBadge = document.getElementById('stepbox-manager-count-badge');
+            const activeBadge = document.getElementById('stepbox-manager-active-badge');
+            if (countBadge) countBadge.textContent = `Total Steps: ${steps.length}`;
+            if (activeBadge) {
+                const curStepObj = steps[curIdx];
+                const curName = (curStepObj && curStepObj.name) ? curStepObj.name : `Step ${curIdx + 1}`;
+                activeBadge.textContent = `Active: ${curName}`;
+            }
+
+            steps.forEach((step, idx) => {
+                const card = document.createElement('div');
+                card.className = `stepbox-step-card ${idx === curIdx ? 'active' : ''}`;
+                const itemCount = Array.isArray(step.objects) ? step.objects.length : 0;
+                const stepName = step.name || `Step ${idx + 1}`;
+
+                card.innerHTML = `
+                    <div class="stepbox-step-card-left">
+                        <span class="stepbox-step-num">#${idx + 1}</span>
+                        <input type="text" class="stepbox-step-input" value="${stepName.replace(/"/g, '&quot;')}" placeholder="Step name..." title="Click to rename step" />
+                        <span class="stepbox-step-meta">${itemCount} item${itemCount === 1 ? '' : 's'}</span>
+                    </div>
+                    <div class="stepbox-step-actions">
+                        <button type="button" class="stepbox-action-icon-btn btn-step-jump" title="Switch to this step">
+                            <span>${idx === curIdx ? '✓ Current' : 'Activate'}</span>
+                        </button>
+                        <button type="button" class="stepbox-action-icon-btn btn-step-delete" title="Delete Step" ${steps.length <= 1 ? 'disabled' : ''}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                        </button>
+                    </div>
+                `;
+
+                const nameInput = card.querySelector('.stepbox-step-input');
+                if (nameInput) {
+                    nameInput.addEventListener('change', () => {
+                        step.name = nameInput.value.trim() || `Step ${idx + 1}`;
+                        box.dirty = true;
+                        StepsModule.getCanvas().requestRenderAll();
+                    });
+                }
+
+                const jumpBtn = card.querySelector('.btn-step-jump');
+                if (jumpBtn) {
+                    jumpBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (idx !== box.stepBoxCurrentStep) {
+                            StepsModule.loadStepBoxStep(box, idx);
+                            StepsModule.renderStepBoxManagerList(box);
+                        }
+                    });
+                }
+
+                const delBtn = card.querySelector('.btn-step-delete');
+                if (delBtn) {
+                    delBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        StepsModule.deleteStepBoxStep(box, idx);
+                        StepsModule.renderStepBoxManagerList(box);
+                    });
+                }
+
+                listEl.appendChild(card);
+            });
+        },
+
+        renderStepBoxOverlays(ctx) {
+            const canvas = StepsModule.getCanvas();
+            if (!canvas) return;
+            const stepBoxes = canvas.getObjects().filter(o => o.isStepBox && !o._deleted);
+            if (!stepBoxes.length) return;
+
+            stepBoxes.forEach(box => {
+                if (!box.visible) return;
+                ctx.save();
+                const m = box.calcTransformMatrix();
+                ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+                const w = box.width;
+                const h = box.height;
+                const rx = box.rx || 6;
+                const ry = box.ry || 6;
+                const x = -w / 2;
+                const y = -h / 2;
+
+                ctx.save();
+                ctx.strokeStyle = box.stroke || '#6366f1';
+                ctx.lineWidth = box.strokeWidth || 2;
+                if (ctx.setLineDash) {
+                    ctx.setLineDash(box.strokeDashArray || [6, 4]);
+                }
+                ctx.beginPath();
+                if (typeof ctx.roundRect === 'function') {
+                    ctx.roundRect(x, y, w, h, [rx, ry, rx, ry]);
+                } else {
+                    ctx.rect(x, y, w, h);
+                }
+                ctx.stroke();
+                ctx.restore();
+
+                const curStep = (box.stepBoxCurrentStep !== undefined) ? box.stepBoxCurrentStep + 1 : 1;
+                const totalSteps = (box.stepBoxSteps && box.stepBoxSteps.length) ? box.stepBoxSteps.length : 1;
+                const curStepObj = (box.stepBoxSteps && box.stepBoxSteps[box.stepBoxCurrentStep]);
+                const stepName = (curStepObj && curStepObj.name) ? curStepObj.name : `Step ${curStep}`;
+                const boxName = box.stepBoxName || 'Step Box';
+                const label = `${boxName} • ${stepName} (${curStep}/${totalSteps})`;
+
+                ctx.font = 'bold 11px system-ui, -apple-system, sans-serif';
+                const textWidth = ctx.measureText(label).width;
+                const badgeW = textWidth + 16;
+                const badgeH = 22;
+                const bx = -w / 2 + 6;
+                const by = -h / 2 + 6;
+
+                ctx.fillStyle = '#4f46e5';
+                ctx.beginPath();
+                if (typeof ctx.roundRect === 'function') {
+                    ctx.roundRect(bx, by, badgeW, badgeH, 5);
+                } else {
+                    ctx.rect(bx, by, badgeW, badgeH);
+                }
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, bx + 8, by + badgeH / 2);
+
+                ctx.restore();
+            });
+        },
+
         initUI() {
             // Expose globally for instant cross-module access
             window.attachStepBoxRendering = StepsModule.attachStepBoxRendering;
@@ -306,6 +551,69 @@
             window.saveStepBoxCurrentStep = StepsModule.saveStepBoxCurrentStep;
             window.loadStepBoxStep = StepsModule.loadStepBoxStep;
             window.updateStepBoxFloatingControls = StepsModule.updateFloatingControls;
+            window.renderStepBoxOverlays = StepsModule.renderStepBoxOverlays;
+            window.openStepBoxManager = StepsModule.openStepBoxManager;
+            window.closeStepBoxManager = StepsModule.closeStepBoxManager;
+
+            // Wire floating toolbar controls
+            const btnPrev = document.getElementById('btn-stepbox-prev');
+            const btnNext = document.getElementById('btn-stepbox-next');
+            const btnAdd = document.getElementById('btn-stepbox-add');
+            const btnDel = document.getElementById('btn-stepbox-del');
+            const btnSave = document.getElementById('btn-stepbox-save');
+            const btnPlay = document.getElementById('btn-stepbox-play');
+            const btnManage = document.getElementById('btn-stepbox-manage');
+            const btnCloseManager = document.getElementById('btn-close-stepbox-manager');
+            const btnManagerDone = document.getElementById('btn-stepbox-manager-done');
+
+            if (btnPrev) {
+                btnPrev.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) {
+                        StepsModule.loadStepBoxStep(window.__activeStepBox, (window.__activeStepBox.stepBoxCurrentStep || 0) - 1);
+                    }
+                });
+            }
+            if (btnNext) {
+                btnNext.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) {
+                        StepsModule.loadStepBoxStep(window.__activeStepBox, (window.__activeStepBox.stepBoxCurrentStep || 0) + 1);
+                    }
+                });
+            }
+            if (btnAdd) {
+                btnAdd.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) StepsModule.addStepBoxStep(window.__activeStepBox);
+                });
+            }
+            if (btnDel) {
+                btnDel.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) StepsModule.deleteStepBoxStep(window.__activeStepBox);
+                });
+            }
+            if (btnSave) {
+                btnSave.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) StepsModule.saveStepBoxCurrentStep(window.__activeStepBox, true);
+                });
+            }
+            if (btnPlay) {
+                btnPlay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) StepsModule.toggleStepBoxPlay(window.__activeStepBox);
+                });
+            }
+            if (btnManage) {
+                btnManage.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window.__activeStepBox) StepsModule.openStepBoxManager(window.__activeStepBox);
+                });
+            }
+            if (btnCloseManager) btnCloseManager.addEventListener('click', StepsModule.closeStepBoxManager);
+            if (btnManagerDone) btnManagerDone.addEventListener('click', StepsModule.closeStepBoxManager);
         }
     };
 
