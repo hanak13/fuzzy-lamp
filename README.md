@@ -190,10 +190,17 @@ fuzzy-lamp/
 │   │   ├── core.js      # Canvas init, shared state, DOM refs, grid & zoom engine
 │   │   ├── tools.js     # Brushes, highlighter, dual eraser, connector arrows
 │   │   ├── shapes.js    # Shape library loader, custom shapes, templates gallery
+│   │   ├── notes.js     # Sticky notes factory & stickers/media gallery controller
+│   │   ├── ui.js        # Sidebar flyout drawer, property handlers, formatting
+│   │   ├── slides.js    # Multi-slide navigation, 16:9/4:3/A4 framing, presenter view
+│   │   ├── modes.js     # Mode switching, dock bar controls, theme toggling
 │   │   ├── steps.js     # Step Box sequential diagrams & step manager modal
 │   │   ├── objects.js   # Objects & layers drawer, inspection, locking, visibility
+│   │   ├── interactions.js # Canvas mouse events, pan, area erase, transform controls
+│   │   ├── commands.js  # Keyboard shortcuts, clipboard, context menu, undo/redo
+│   │   ├── boards.js    # SQLite multi-board manager, autosave loop, boards sidebar
 │   │   ├── export.js    # PNG, SVG, PDF, and PowerPoint PPTX presentation exports
-│   │   └── whiteboard.js # Main client-side coordinator & canvas event controller
+│   │   └── whiteboard.js # Application boot coordinator & glue
 │   ├── shapes.json      # Shape library (280+ SVG path definitions)
 │   ├── templates.json   # Starter template layouts
 │   └── vendor/
