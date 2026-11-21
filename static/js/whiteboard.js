@@ -1479,10 +1479,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeDrawer() {
         if (!shapesPanel) return;
         shapesPanel.classList.add('hidden');
+        shapesPanel.classList.remove('open-in-slide');
+        shapesPanel.classList.remove('open-floating');
         activeDrawerPanel = null;
 
         sidebarBtns.forEach(btn => btn.classList.remove('active'));
         if (btnToggleShapes) btnToggleShapes.classList.remove('active');
+        const fsBtnObj = document.getElementById('fs-btn-objects');
+        if (fsBtnObj) fsBtnObj.classList.remove('active');
+        const btnTopObj = document.getElementById('btn-topbar-objects');
+        if (btnTopObj) btnTopObj.classList.remove('active');
     }
 
     sidebarBtns.forEach(btn => {
@@ -4515,6 +4521,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------------
     const btnTopbarObjects = document.getElementById('btn-topbar-objects');
     const topbarObjectsCount = document.getElementById('topbar-objects-count');
+    const fsBtnObjects = document.getElementById('fs-btn-objects');
+    const fsObjectsBadge = document.getElementById('fs-objects-badge');
     const sidebarObjectsBadge = document.getElementById('sidebar-objects-badge');
     const drawerObjectsCount = document.getElementById('drawer-objects-count');
     const btnRefreshObjects = document.getElementById('btn-refresh-objects');
@@ -4679,6 +4687,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sidebarObjectsBadge) {
             sidebarObjectsBadge.textContent = total;
             sidebarObjectsBadge.style.display = total > 0 ? 'flex' : 'none';
+        }
+
+        if (fsObjectsBadge) {
+            fsObjectsBadge.textContent = total;
+            fsObjectsBadge.style.display = total > 0 ? 'inline-block' : 'none';
         }
 
         // Selected count
@@ -4917,10 +4930,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Top bar Objects button toggles the Objects drawer
+    function toggleObjectsDrawer() {
+        if (!shapesPanel) return;
+
+        const isCurrentlyOpen = !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers';
+
+        if (isCurrentlyOpen) {
+            closeDrawer();
+            return;
+        }
+
+        // Check if slide mode or fullscreen is active
+        const isSlideMode = document.body.classList.contains('slide-page-fullscreen') || document.body.classList.contains('slide-mode-active');
+        if (isSlideMode) {
+            shapesPanel.classList.add('open-in-slide');
+        } else {
+            shapesPanel.classList.remove('open-in-slide');
+        }
+
+        const leftSidebar = document.getElementById('left-sidebar');
+        const isSidebarMinimized = leftSidebar && leftSidebar.classList.contains('minimized-sidebar');
+        if (isSidebarMinimized || isSlideMode) {
+            shapesPanel.classList.add('open-floating');
+        } else {
+            shapesPanel.classList.remove('open-floating');
+        }
+
+        openDrawerPanel('layers');
+        if (fsBtnObjects) fsBtnObjects.classList.add('active');
+        if (btnTopbarObjects) btnTopbarObjects.classList.add('active');
+    }
+
+    // Top bar & Bottom Dock Objects buttons toggle the Objects drawer
     if (btnTopbarObjects) {
-        btnTopbarObjects.addEventListener('click', () => {
-            openDrawerPanel('layers');
+        btnTopbarObjects.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleObjectsDrawer();
+        });
+    }
+
+    if (fsBtnObjects) {
+        fsBtnObjects.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleObjectsDrawer();
         });
     }
 
@@ -8439,7 +8491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (!isCtrl && (key === 'o' || key === 'O')) {
-            openDrawerPanel('layers');
+            toggleObjectsDrawer();
             return;
         }
         if (!isCtrl && (key === 'l' || key === 'L')) {

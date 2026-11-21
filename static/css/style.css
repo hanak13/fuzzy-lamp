@@ -387,8 +387,8 @@ body.slide-mode-active #canvas-container {
 body.slide-page-fullscreen .top-bar-container,
 body.slide-page-fullscreen #left-sidebar,
 body.slide-page-fullscreen .sidebar-dock,
-body.slide-page-fullscreen #shapes-panel,
-body.slide-page-fullscreen .sidebar-drawer,
+body.slide-page-fullscreen #shapes-panel:not(.open-in-slide),
+body.slide-page-fullscreen .sidebar-drawer:not(.open-in-slide),
 body.slide-page-fullscreen #right-boards-sidebar,
 body.slide-page-fullscreen .right-boards-sidebar,
 body.slide-page-fullscreen #zoom-widget,
@@ -396,6 +396,19 @@ body.slide-page-fullscreen .zoom-control,
 body.slide-page-fullscreen #stepbox-floating-bar,
 body.slide-page-fullscreen .stepbox-floating-bar {
     display: none !important;
+}
+
+body.slide-page-fullscreen #shapes-panel.open-in-slide,
+body.slide-page-fullscreen .sidebar-drawer.open-in-slide {
+    display: flex !important;
+    position: fixed !important;
+    top: 75px !important;
+    left: 20px !important;
+    z-index: 10005 !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
 }
 
 body.slide-page-fullscreen #canvas-container {
@@ -549,6 +562,18 @@ body.slide-page-fullscreen .fullscreen-presenter-bar:not([data-dragged="true"]) 
     background: #3b82f6;
     color: #ffffff;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+}
+
+.fs-badge {
+    background: #38bdf8;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 2px;
+    line-height: 1.3;
+    display: inline-block;
 }
 
 .fs-bar-sep {
@@ -1421,8 +1446,13 @@ body.slide-page-fullscreen .fullscreen-presenter-bar:not([data-dragged="true"]) 
     box-shadow: var(--toolbar-shadow);
     display: flex;
     flex-direction: column;
-    z-index: 95;
+    z-index: 999;
     transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.sidebar-drawer.open-floating {
+    left: 20px !important;
+    z-index: 10005 !important;
 }
 
 .sidebar-drawer.hidden {
