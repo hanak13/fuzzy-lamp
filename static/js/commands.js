@@ -569,6 +569,24 @@
             if (btnUndo) btnUndo.addEventListener('click', CommandsModule.undo);
             if (btnRedo) btnRedo.addEventListener('click', CommandsModule.redo);
 
+            // Delete selected object(s)
+            const btnDelete = document.getElementById('btn-delete');
+            if (btnDelete) {
+                btnDelete.addEventListener('click', () => {
+                    if (typeof window.deleteSelectedObjects === 'function') window.deleteSelectedObjects();
+                });
+                const canvas = CommandsModule.getCanvas();
+                if (canvas) {
+                    const syncDeleteBtn = () => {
+                        const activeObjs = canvas.getActiveObjects ? canvas.getActiveObjects() : [];
+                        btnDelete.disabled = !activeObjs || activeObjs.length === 0;
+                    };
+                    canvas.on('selection:created', syncDeleteBtn);
+                    canvas.on('selection:updated', syncDeleteBtn);
+                    canvas.on('selection:cleared', syncDeleteBtn);
+                }
+            }
+
             // Quick action buttons: Add Box and Clear Canvas
             const btnAddBox = document.getElementById('btn-add-box');
             const btnClear = document.getElementById('btn-clear');
