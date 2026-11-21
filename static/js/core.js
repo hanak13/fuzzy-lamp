@@ -1,0 +1,271 @@
+/**
+ * Whiteboard Application - Core Engine Module
+ * static/js/core.js
+ *
+ * Implements Phase 0 / Step 1:
+ * - Shared application namespace: window.WhiteboardApp
+ * - DOM element caching and accessors
+ * - Shared state variables & synchronization bridge
+ * - Fabric.js Canvas initialization and responsive viewport resize
+ * - Responsive grid background positioning (updateGrid)
+ * - Canvas Zoom engine, wheel navigation, and zoom percentage indicator
+ * - Global toast notification dispatcher
+ */
+
+(function (window) {
+    'use strict';
+
+    window.WhiteboardApp = window.WhiteboardApp || {};
+
+    const GRID_BASE_SIZE = 30;
+    const MAX_HISTORY = 50;
+
+    // Extra properties to serialize in Fabric JSON history
+    const EXTRA_PROPS = [
+        'globalCompositeOperation',
+        'objectCaching',
+        'selectable',
+        'evented',
+        'stroke',
+        'strokeWidth',
+        'strokeLineCap',
+        'strokeLineJoin',
+        'fill',
+        'fontSize',
+        'fontFamily',
+        'fontWeight',
+        'fontStyle',
+        'underline',
+        'linethrough',
+        'textAlign',
+        'isStickyNote',
+        'stickyColor',
+        'isShapeGroup',
+        'isMergedShape',
+        'shapeId',
+        'shapeUid',
+        'isConnector',
+        'hasArrow',
+        'fromShapeUid',
+        'toShapeUid',
+        'isArrowHead',
+        'strokeDashArray',
+        'arrowHeadStyle',
+        'isFreeLine',
+        'subTargetCheck',
+        'isSticker',
+        'stickerUrl',
+        'isStepBox',
+        'stepBoxId',
+        'stepBoxName',
+        'stepBoxSteps',
+        'stepBoxCurrentStep',
+        'stepBoxOwnerId',
+        'relLeft',
+        'relTop',
+        'isSlideFrame',
+        'slideFrameRatio',
+        'imageName'
+    ];
+
+    const STICKY_COLORS = {
+        yellow: { bg: '#fef08a', border: '#fde047', text: '#1e293b' },
+        pink: { bg: '#fbcfe8', border: '#f9a8d4', text: '#1e293b' },
+        green: { bg: '#bbf7d0', border: '#86efac', text: '#1e293b' },
+        blue: { bg: '#bfdbfe', border: '#93c5fd', text: '#1e293b' }
+    };
+
+    // Shared State Container
+    const state = {
+        currentMode: 'select',
+        currentColor: '#1e293b',
+        currentFillColor: 'transparent',
+        strokeSize: 4,
+        eraserSize: 30,
+        eraserSubMode: 'brush',
+        currentStickyColor: 'yellow',
+        currentLinePattern: 'solid',
+        currentArrowHeadStyle: 'end',
+        activeCategory: 'all',
+        activeFlowchartSection: 'all',
+        currentFrameRatio: 'infinite',
+        slideFrameRect: null,
+        boardSlides: [],
+        currentSlideIndex: 0,
+        boards: [],
+        activeBoardId: null,
+        isProcessingHistory: false,
+        undoStack: [],
+        redoStack: []
+    };
+
+    let canvas = null;
+    let toastTimeout = null;
+
+    // DOM Element References (cached lazily)
+    const dom = {
+        get container() { return document.getElementById('canvas-container'); },
+        get canvasEl() { return document.getElementById('whiteboard-canvas'); },
+        get toast() { return document.getElementById('toast'); },
+        get zoomPercentage() { return document.getElementById('zoom-percentage'); },
+        get btnZoomIn() { return document.getElementById('btn-zoom-in'); },
+        get btnZoomOut() { return document.getElementById('btn-zoom-out'); },
+        get btnResetView() { return document.getElementById('btn-reset-view'); }
+    };
+
+    function showToast(message) {
+        const toastEl = dom.toast;
+        if (!toastEl) return;
+        toastEl.textContent = message;
+        toastEl.classList.remove('hidden');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toastEl.classList.add('hidden');
+        }, 2200);
+    }
+
+    function updateGrid() {
+        if (!canvas) return;
+        const container = dom.container;
+        if (!container) return;
+
+        const zoom = canvas.getZoom();
+        const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+
+        const scaledGrid = GRID_BASE_SIZE * zoom;
+        const posX = ((vpt[4] % scaledGrid) + scaledGrid) % scaledGrid;
+        const posY = ((vpt[5] % scaledGrid) + scaledGrid) % scaledGrid;
+
+        container.style.backgroundSize = `${scaledGrid}px ${scaledGrid}px`;
+        container.style.backgroundPosition = `${posX}px ${posY}px`;
+    }
+
+    function updateZoomDisplay() {
+        if (!canvas) return;
+        const zoomEl = dom.zoomPercentage;
+        if (!zoomEl) return;
+        const zoom = canvas.getZoom();
+        const percentage = Math.round(zoom * 100);
+        zoomEl.textContent = `${percentage}%`;
+    }
+
+    function setZoom(newZoom, point) {
+        if (!canvas) return;
+        const clampedZoom = Math.max(0.1, Math.min(5.0, newZoom));
+        const targetPoint = point || new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+
+        canvas.zoomToPoint(targetPoint, clampedZoom);
+        updateZoomDisplay();
+        updateGrid();
+
+        if (window.activeStepBox && typeof window.updateStepBoxFloatingControls === 'function') {
+            window.updateStepBoxFloatingControls(window.activeStepBox);
+        }
+    }
+
+    function resetView() {
+        if (!canvas) return;
+        canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+        updateZoomDisplay();
+        updateGrid();
+
+        if (window.activeStepBox && typeof window.updateStepBoxFloatingControls === 'function') {
+            window.updateStepBoxFloatingControls(window.activeStepBox);
+        }
+    }
+
+    function initCanvas() {
+        if (canvas) return canvas;
+        const canvasEl = document.getElementById('whiteboard-canvas');
+        if (!canvasEl || typeof fabric === 'undefined') return null;
+
+        canvas = new fabric.Canvas('whiteboard-canvas', {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            selection: true,
+            preserveObjectStacking: true,
+            stopContextMenu: true,
+            fireRightClick: true
+        });
+
+        // Publish canvas immediately to all namespaces
+        window.__canvas = canvas;
+        window.canvas = canvas;
+        window.WhiteboardApp.canvas = canvas;
+
+        window.addEventListener('resize', () => {
+            if (!canvas) return;
+            canvas.setWidth(window.innerWidth);
+            canvas.setHeight(window.innerHeight);
+            canvas.renderAll();
+            updateGrid();
+        });
+
+        // Wheel zoom handling
+        canvas.on('mouse:wheel', (opt) => {
+            const delta = opt.e.deltaY;
+            let zoom = canvas.getZoom();
+            zoom *= 0.999 ** delta;
+            setZoom(zoom, new fabric.Point(opt.e.offsetX, opt.e.offsetY));
+            opt.e.preventDefault();
+            opt.e.stopPropagation();
+        });
+
+        // Zoom button event bindings
+        const btnIn = dom.btnZoomIn;
+        const btnOut = dom.btnZoomOut;
+        const btnReset = dom.btnResetView;
+        const zoomEl = dom.zoomPercentage;
+
+        if (btnIn) btnIn.addEventListener('click', () => setZoom(canvas.getZoom() * 1.2));
+        if (btnOut) btnOut.addEventListener('click', () => setZoom(canvas.getZoom() / 1.2));
+        if (btnReset) btnReset.addEventListener('click', resetView);
+        if (zoomEl) zoomEl.addEventListener('click', resetView);
+
+        updateGrid();
+        updateZoomDisplay();
+
+        return canvas;
+    }
+
+    // Auto-init canvas on DOM ready if not yet created
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+        });
+    } else {
+        initCanvas();
+    }
+
+    const CoreModule = {
+        get canvas() { return canvas || initCanvas(); },
+        initCanvas,
+        state,
+        dom,
+        GRID_BASE_SIZE,
+        MAX_HISTORY,
+        EXTRA_PROPS,
+        STICKY_COLORS,
+        showToast,
+        updateGrid,
+        updateZoomDisplay,
+        setZoom,
+        resetView
+    };
+
+    window.WhiteboardApp.core = CoreModule;
+    window.WhiteboardApp.canvas = canvas;
+    window.WhiteboardApp.state = state;
+    window.WhiteboardApp.GRID_BASE_SIZE = GRID_BASE_SIZE;
+    window.WhiteboardApp.MAX_HISTORY = MAX_HISTORY;
+    window.WhiteboardApp.EXTRA_PROPS = EXTRA_PROPS;
+    window.WhiteboardApp.STICKY_COLORS = STICKY_COLORS;
+
+    // Backward compatibility direct window exports
+    window.showToast = showToast;
+    window.updateGrid = updateGrid;
+    window.updateZoomDisplay = updateZoomDisplay;
+    window.setZoom = setZoom;
+    window.resetView = resetView;
+
+})(window);

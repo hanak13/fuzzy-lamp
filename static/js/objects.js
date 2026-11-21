@@ -274,11 +274,43 @@
             const canvas = ObjectsModule.getCanvas();
             if (!canvas) return;
 
+            // 1. If this object is currently selected or in an activeSelection, discard active object immediately
+            const activeObj = canvas.getActiveObject();
+            if (activeObj) {
+                if (activeObj === obj) {
+                    canvas.discardActiveObject();
+                } else if (activeObj.type === 'activeSelection') {
+                    if (typeof activeObj.contains === 'function' && activeObj.contains(obj)) {
+                        activeObj.removeWithUpdate(obj);
+                        if (activeObj.size() === 0) {
+                            canvas.discardActiveObject();
+                        }
+                    } else if (canvas.getActiveObjects && canvas.getActiveObjects().includes(obj)) {
+                        canvas.discardActiveObject();
+                    }
+                }
+            }
+
+            // 2. Delegate to window.deleteSingleObject or perform robust removal
             if (typeof window.deleteSingleObject === 'function') {
                 window.deleteSingleObject(obj);
             } else {
+                if (obj.isStepBox) {
+                    const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === obj.stepBoxId && o !== obj);
+                    owned.forEach(c => canvas.remove(c));
+                }
+                if (obj.connectedLines && Array.isArray(obj.connectedLines)) {
+                    obj.connectedLines.forEach(line => {
+                        if (line.arrowHead) canvas.remove(line.arrowHead);
+                        if (line.startArrowHead) canvas.remove(line.startArrowHead);
+                        canvas.remove(line);
+                    });
+                }
+                if (obj.arrowHead) canvas.remove(obj.arrowHead);
+                if (obj.startArrowHead) canvas.remove(obj.startArrowHead);
                 canvas.remove(obj);
             }
+
             canvas.requestRenderAll();
             if (typeof window.saveState === 'function') window.saveState();
             ObjectsModule.updateCountBadges();
@@ -288,18 +320,28 @@
         deleteSelectedObjects() {
             const canvas = ObjectsModule.getCanvas();
             if (!canvas) return;
-            const activeObjs = canvas.getActiveObjects();
-            if (!activeObjs || activeObjs.length === 0) return;
-
-            if (typeof window.deleteSelectedObjects === 'function') {
-                window.deleteSelectedObjects();
-            } else {
-                canvas.discardActiveObject();
-                activeObjs.forEach(o => canvas.remove(o));
+            const activeObjs = canvas.getActiveObjects() ? canvas.getActiveObjects().slice() : [];
+            if (!activeObjs || activeObjs.length === 0) {
+                if (typeof window.showToast === 'function') window.showToast('No objects selected to delete');
+                return;
             }
+
+            canvas.discardActiveObject();
+            activeObjs.forEach(o => {
+                if (typeof window.deleteSingleObject === 'function') {
+                    window.deleteSingleObject(o);
+                } else {
+                    canvas.remove(o);
+                }
+            });
+
+            canvas.requestRenderAll();
+            if (typeof window.saveState === 'function') window.saveState();
             ObjectsModule.updateCountBadges();
             ObjectsModule.renderObjectsList(ObjectsModule.currentFilter, ObjectsModule.currentSearch);
-            if (typeof window.showToast === 'function') window.showToast('Selected objects deleted');
+            if (typeof window.showToast === 'function') {
+                window.showToast(`Deleted ${activeObjs.length} selected object${activeObjs.length > 1 ? 's' : ''}`);
+            }
         },
 
         clearAllObjects() {
@@ -313,6 +355,7 @@
             }
             const canvas = ObjectsModule.getCanvas();
             if (!canvas) return;
+
             canvas.discardActiveObject();
             userObjects.forEach(obj => {
                 if (typeof window.deleteSingleObject === 'function') {
@@ -321,6 +364,7 @@
                     canvas.remove(obj);
                 }
             });
+
             canvas.requestRenderAll();
             if (typeof window.saveState === 'function') window.saveState();
             ObjectsModule.updateCountBadges();
@@ -389,6 +433,7 @@
                     card.dataset.uid = obj.__uid;
 
                     card.innerHTML = `
+                        <input type="checkbox" class="obj-item-checkbox" ${isSelected ? 'checked' : ''} title="Select this object for bulk delete or actions">
                         <div class="object-item-icon ${meta.badgeClass}">
                             ${meta.icon}
                         </div>
@@ -432,10 +477,61 @@
                         </div>
                     `;
 
-                    // Click to select & pan to object
+                    // Checkbox for item selection
+                    const chk = card.querySelector('.obj-item-checkbox');
+                    if (chk) {
+                        chk.addEventListener('click', (e) => e.stopPropagation());
+                        chk.addEventListener('change', (e) => {
+                            e.stopPropagation();
+                            const canvas = ObjectsModule.getCanvas();
+                            if (!canvas) return;
+                            let currentActive = canvas.getActiveObjects() ? canvas.getActiveObjects().slice() : [];
+                            if (chk.checked) {
+                                if (!currentActive.includes(obj)) currentActive.push(obj);
+                            } else {
+                                currentActive = currentActive.filter(o => o !== obj);
+                            }
+                            if (currentActive.length === 0) {
+                                canvas.discardActiveObject();
+                            } else if (currentActive.length === 1) {
+                                canvas.setActiveObject(currentActive[0]);
+                            } else {
+                                const sel = new fabric.ActiveSelection(currentActive, { canvas: canvas });
+                                canvas.setActiveObject(sel);
+                            }
+                            canvas.requestRenderAll();
+                            ObjectsModule.updateCountBadges();
+                            ObjectsModule.renderObjectsList(ObjectsModule.currentFilter, ObjectsModule.currentSearch);
+                        });
+                    }
+
+                    // Click card body to select & pan to object (or Ctrl/Shift multi-select)
                     card.addEventListener('click', (e) => {
-                        if (e.target.closest('.obj-row-btn')) return;
-                        ObjectsModule.selectAndPanToObject(obj);
+                        if (e.target.closest('.obj-row-btn') || e.target.closest('.obj-item-checkbox')) return;
+                        const canvas = ObjectsModule.getCanvas();
+                        if (!canvas) return;
+
+                        if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                            let currentActive = canvas.getActiveObjects() ? canvas.getActiveObjects().slice() : [];
+                            if (currentActive.includes(obj)) {
+                                currentActive = currentActive.filter(o => o !== obj);
+                            } else {
+                                currentActive.push(obj);
+                            }
+                            if (currentActive.length === 0) {
+                                canvas.discardActiveObject();
+                            } else if (currentActive.length === 1) {
+                                canvas.setActiveObject(currentActive[0]);
+                            } else {
+                                const sel = new fabric.ActiveSelection(currentActive, { canvas: canvas });
+                                canvas.setActiveObject(sel);
+                            }
+                            canvas.requestRenderAll();
+                            ObjectsModule.updateCountBadges();
+                            ObjectsModule.renderObjectsList(ObjectsModule.currentFilter, ObjectsModule.currentSearch);
+                        } else {
+                            ObjectsModule.selectAndPanToObject(obj);
+                        }
                     });
 
                     // Visibility toggle
@@ -450,8 +546,9 @@
                         ObjectsModule.toggleObjectLock(obj);
                     });
 
-                    // Delete object button
+                    // Delete single object button
                     card.querySelector('.btn-obj-delete').addEventListener('click', (e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         const meta = ObjectsModule.getObjectMetadata(obj);
                         ObjectsModule.deleteSingleObject(obj);
@@ -595,6 +692,8 @@
             window.renderObjectsList = ObjectsModule.renderObjectsList;
             window.debouncedUpdateObjectsList = ObjectsModule.debouncedUpdateList;
             window.toggleObjectsDrawer = ObjectsModule.toggleDrawer;
+            window.deleteSingleObject = ObjectsModule.deleteSingleObject;
+            window.deleteSelectedObjects = ObjectsModule.deleteSelectedObjects;
 
             // Delayed updates
             setTimeout(ObjectsModule.updateCountBadges, 200);

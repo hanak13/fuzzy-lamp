@@ -187,6 +187,7 @@ fuzzy-lamp/
 ├── static/
 │   ├── css/style.css    # All application styles + dark-mode variables
 │   ├── js/
+│   │   ├── core.js      # Canvas init, shared state, DOM refs, grid & zoom engine
 │   │   ├── tools.js     # Brushes, highlighter, dual eraser, connector arrows
 │   │   ├── shapes.js    # Shape library loader, custom shapes, templates gallery
 │   │   ├── steps.js     # Step Box sequential diagrams & step manager modal

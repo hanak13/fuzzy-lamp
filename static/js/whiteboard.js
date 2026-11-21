@@ -326,28 +326,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // -------------------------------------------------------------------------
-    // 3. Initialize Fabric.js Canvas
+    // 3. Retrieve or Initialize Fabric.js Canvas (Core Engine)
     // -------------------------------------------------------------------------
-    const canvas = new fabric.Canvas('whiteboard-canvas', {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        selection: true,
-        preserveObjectStacking: true,
-        stopContextMenu: true,
-        fireRightClick: true
-    });
+    const canvas = (window.WhiteboardApp && window.WhiteboardApp.core && window.WhiteboardApp.core.canvas)
+        || window.canvas
+        || new fabric.Canvas('whiteboard-canvas', {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            selection: true,
+            preserveObjectStacking: true,
+            stopContextMenu: true,
+            fireRightClick: true
+        });
 
-    // Expose canvas for modular sub-scripts (objects.js, export.js, steps.js, shapes.js, tools.js)
     window.__canvas = canvas;
+    window.canvas = canvas;
     window.WhiteboardApp = window.WhiteboardApp || {};
     window.WhiteboardApp.canvas = canvas;
-
-    window.addEventListener('resize', () => {
-        canvas.setWidth(window.innerWidth);
-        canvas.setHeight(window.innerHeight);
-        canvas.renderAll();
-        updateGrid();
-    });
 
     // -------------------------------------------------------------------------
     // 4. Color & Brush Helpers
@@ -4461,12 +4456,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function deleteSingleObject(obj) {
-        if (!obj) return;
+        if (!obj || !canvas) return;
+
+        // Discard active object selection if this object is currently selected
+        const activeObj = canvas.getActiveObject();
+        if (activeObj) {
+            if (activeObj === obj) {
+                canvas.discardActiveObject();
+            } else if (activeObj.type === 'activeSelection') {
+                if (typeof activeObj.contains === 'function' && activeObj.contains(obj)) {
+                    activeObj.removeWithUpdate(obj);
+                    if (activeObj.size() === 0) {
+                        canvas.discardActiveObject();
+                    }
+                } else if (canvas.getActiveObjects && canvas.getActiveObjects().includes(obj)) {
+                    canvas.discardActiveObject();
+                }
+            }
+        }
+
         if (obj.isStepBox) {
             const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === obj.stepBoxId && o !== obj);
             owned.forEach(c => {
                 if (c.connectedLines) {
-                    c.connectedLines.forEach(l => canvas.remove(l));
+                    c.connectedLines.forEach(l => {
+                        if (l.arrowHead) canvas.remove(l.arrowHead);
+                        if (l.startArrowHead) canvas.remove(l.startArrowHead);
+                        canvas.remove(l);
+                    });
                 }
                 canvas.remove(c);
             });
@@ -4476,23 +4493,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (obj.connectedLines) {
             obj.connectedLines.forEach(line => {
+                if (!line) return;
                 if (line.arrowHead) canvas.remove(line.arrowHead);
                 if (line.startArrowHead) canvas.remove(line.startArrowHead);
+                const otherShape = (line.fromShape === obj) ? line.toShape : line.fromShape;
+                if (otherShape && otherShape.connectedLines && Array.isArray(otherShape.connectedLines)) {
+                    otherShape.connectedLines = otherShape.connectedLines.filter(l => l !== line);
+                }
                 canvas.remove(line);
             });
             obj.connectedLines = [];
         }
+        if (obj.fromShape && obj.fromShape.connectedLines) {
+            obj.fromShape.connectedLines = obj.fromShape.connectedLines.filter(l => l !== obj);
+        }
+        if (obj.toShape && obj.toShape.connectedLines) {
+            obj.toShape.connectedLines = obj.toShape.connectedLines.filter(l => l !== obj);
+        }
         if (obj.arrowHead) {
             canvas.remove(obj.arrowHead);
+            obj.arrowHead = null;
         }
         if (obj.startArrowHead) {
             canvas.remove(obj.startArrowHead);
+            obj.startArrowHead = null;
         }
         canvas.remove(obj);
     }
+    window.deleteSingleObject = deleteSingleObject;
 
     function deleteSelectedObjects() {
-        const activeObjs = canvas.getActiveObjects();
+        if (!canvas) return;
+        const activeObjs = canvas.getActiveObjects() ? canvas.getActiveObjects().slice() : [];
         if (!activeObjs || activeObjs.length === 0) return;
 
         canvas.discardActiveObject();
@@ -4517,6 +4549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.requestRenderAll();
         saveState();
     }
+    window.deleteSelectedObjects = deleteSelectedObjects;
 
     btnDelete.addEventListener('click', deleteSelectedObjects);
 
@@ -4543,540 +4576,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // -------------------------------------------------------------------------
-    // 14b. Canvas Objects & Layers Management System
+    // 14b. Canvas Objects & Layers Management System (Delegated to static/js/objects.js)
     // -------------------------------------------------------------------------
-    const btnTopbarObjects = document.getElementById('btn-topbar-objects');
-    const topbarObjectsCount = document.getElementById('topbar-objects-count');
-    const fsBtnObjects = document.getElementById('fs-btn-objects');
-    const fsObjectsBadge = document.getElementById('fs-objects-badge');
-    const sidebarObjectsBadge = document.getElementById('sidebar-objects-badge');
-    const drawerObjectsCount = document.getElementById('drawer-objects-count');
-    const btnRefreshObjects = document.getElementById('btn-refresh-objects');
-    const objectsSearchInput = document.getElementById('objects-search');
-    const btnClearObjectsSearch = document.getElementById('btn-clear-objects-search');
-    const objFilterChips = document.querySelectorAll('.obj-filter-chip');
-    const filterCountAll = document.getElementById('filter-count-all');
-    const btnObjectsDeleteSelected = document.getElementById('btn-objects-delete-selected');
-    const objectsSelectedCount = document.getElementById('objects-selected-count');
-    const btnObjectsClearAll = document.getElementById('btn-objects-clear-all');
-    const objectsListWrapper = document.getElementById('objects-list-wrapper');
-
-    let currentObjectsFilter = 'all';
-    let currentObjectsSearch = '';
-    let objectListDebounceTimer = null;
-
     function getUserCanvasObjects() {
-        if (!canvas) return [];
-        const all = (typeof canvas.getObjects === 'function') ? (canvas.getObjects() || []) : [];
-        return all.filter(o => {
-            if (!o) return false;
-            if (o.isSlideFrame || o.isGridLine) return false;
-            if (o === stepBoxPreviewRect || o === connectorPreviewLine) return false;
-            if (o.isArrowHead) return false;
-            if (o.type === 'activeSelection') return false;
-            return true;
-        });
+        return (window.WhiteboardApp && window.WhiteboardApp.objects && typeof window.WhiteboardApp.objects.getUserCanvasObjects === 'function')
+            ? window.WhiteboardApp.objects.getUserCanvasObjects()
+            : (window.getUserCanvasObjects ? window.getUserCanvasObjects() : []);
     }
-
-    function getObjectMetadata(obj) {
-        if (!obj) {
-            return {
-                type: 'shapes',
-                typeName: 'Object',
-                title: 'Object',
-                meta: '0×0px',
-                icon: '📐',
-                badgeClass: 'badge-generic'
-            };
-        }
-
-        if (!obj.__uid) {
-            obj.__uid = 'obj_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-        }
-
-        const width = Math.round((obj.width || 0) * (obj.scaleX || 1));
-        const height = Math.round((obj.height || 0) * (obj.scaleY || 1));
-        const left = Math.round(obj.left || 0);
-        const top = Math.round(obj.top || 0);
-
-        if (obj.isStepBox) {
-            const stepNum = (obj.stepBoxCurrentStep || 0) + 1;
-            const totalSteps = (obj.stepBoxSteps && Array.isArray(obj.stepBoxSteps)) ? obj.stepBoxSteps.length : 1;
-            return {
-                type: 'stepbox',
-                typeName: 'Step Box',
-                title: obj.stepBoxName || 'Step Box',
-                meta: `Step ${stepNum}/${totalSteps} • ${width}×${height}px`,
-                icon: '📦',
-                badgeClass: 'badge-stepbox'
-            };
-        }
-
-        if (obj.isStickyNote) {
-            let noteText = '';
-            if (obj._objects && Array.isArray(obj._objects)) {
-                const textChild = obj._objects.find(o => o && (o.type === 'textbox' || o.type === 'i-text' || o.type === 'text'));
-                if (textChild && typeof textChild.text === 'string') noteText = textChild.text.trim();
-            }
-            return {
-                type: 'notes',
-                typeName: 'Sticky Note',
-                title: noteText.length > 0 ? (noteText.length > 28 ? noteText.substring(0, 28) + '…' : noteText) : 'Sticky Note',
-                meta: `Sticky Note (${obj.stickyColor || 'yellow'}) • ${left}, ${top}`,
-                icon: '📝',
-                badgeClass: 'badge-note'
-            };
-        }
-
-        if (obj.isSticker) {
-            return {
-                type: 'images',
-                typeName: 'Sticker',
-                title: obj.imageName || 'Sticker',
-                meta: `Sticker • ${width}×${height}px`,
-                icon: '🎨',
-                badgeClass: 'badge-sticker'
-            };
-        }
-
-        if (obj.type === 'image') {
-            return {
-                type: 'images',
-                typeName: 'Image',
-                title: obj.imageName || 'Uploaded Image',
-                meta: `Image • ${width}×${height}px`,
-                icon: '🖼️',
-                badgeClass: 'badge-image'
-            };
-        }
-
-        if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') {
-            const textVal = (typeof obj.text === 'string') ? obj.text.trim() : '';
-            return {
-                type: 'text',
-                typeName: 'Text',
-                title: textVal.length > 0 ? (textVal.length > 28 ? textVal.substring(0, 28) + '…' : textVal) : 'Empty Text',
-                meta: `Font: ${obj.fontSize || 20}px • ${left}, ${top}`,
-                icon: '🔤',
-                badgeClass: 'badge-text'
-            };
-        }
-
-        if (obj.isConnector || obj.isFreeLine || obj.type === 'line') {
-            const hasArrow = obj.hasArrow || !!obj.arrowHead;
-            const strokeColor = (typeof obj.stroke === 'string') ? obj.stroke : '#000';
-            return {
-                type: 'shapes',
-                typeName: hasArrow ? 'Arrow Connector' : 'Line Connector',
-                title: hasArrow ? 'Arrow Connector' : 'Line Connector',
-                meta: `Color: ${strokeColor} • Width: ${obj.strokeWidth || 2}px`,
-                icon: '↗️',
-                badgeClass: 'badge-connector'
-            };
-        }
-
-        if (obj.type === 'path') {
-            const strokeStr = (typeof obj.stroke === 'string') ? obj.stroke : '';
-            const isHighlighter = (strokeStr.includes('rgba') || (typeof obj.opacity === 'number' && obj.opacity < 1));
-            return {
-                type: 'drawings',
-                typeName: isHighlighter ? 'Highlighter' : 'Pen Stroke',
-                title: isHighlighter ? 'Highlighter Stroke' : 'Pen Stroke',
-                meta: `Color: ${strokeStr || '#1e293b'} • Width: ${obj.strokeWidth || 2}px`,
-                icon: isHighlighter ? '🖍️' : '✏️',
-                badgeClass: isHighlighter ? 'badge-highlighter' : 'badge-pen'
-            };
-        }
-
-        if (obj.isShapeGroup || obj.isMergedShape || obj.shapeId) {
-            let shapeName = obj.shapeName || obj.shapeId || 'Shape';
-            if (obj._objects && Array.isArray(obj._objects)) {
-                const textChild = obj._objects.find(o => o && (o.type === 'text' || o.type === 'i-text' || o.type === 'textbox'));
-                if (textChild && typeof textChild.text === 'string' && textChild.text.trim()) {
-                    shapeName += `: "${textChild.text.trim().substring(0, 18)}"`;
-                }
-            }
-            return {
-                type: 'shapes',
-                typeName: 'Shape',
-                title: shapeName,
-                meta: `Shape • ${width}×${height}px`,
-                icon: '🔷',
-                badgeClass: 'badge-shape'
-            };
-        }
-
-        const typeCap = obj.type ? (obj.type.charAt(0).toUpperCase() + obj.type.slice(1)) : 'Object';
-        return {
-            type: 'shapes',
-            typeName: typeCap,
-            title: `${typeCap} (${width}×${height}px)`,
-            meta: `Position: ${left}, ${top}`,
-            icon: '📐',
-            badgeClass: 'badge-generic'
-        };
-    }
-
     function updateObjectsCountBadges() {
-        try {
-            const objects = getUserCanvasObjects();
-            const total = objects.length;
-
-            if (topbarObjectsCount) topbarObjectsCount.textContent = total;
-            if (drawerObjectsCount) drawerObjectsCount.textContent = total;
-            if (filterCountAll) filterCountAll.textContent = total;
-
-            if (sidebarObjectsBadge) {
-                sidebarObjectsBadge.textContent = total;
-                sidebarObjectsBadge.style.display = total > 0 ? 'flex' : 'none';
-            }
-
-            if (fsObjectsBadge) {
-                fsObjectsBadge.textContent = total;
-                fsObjectsBadge.style.display = total > 0 ? 'inline-block' : 'none';
-            }
-
-            // Selected count
-            const activeObjs = (canvas && typeof canvas.getActiveObjects === 'function') ? canvas.getActiveObjects() : [];
-            const selCount = activeObjs.filter(o => o && !o.isSlideFrame && !o.isGridLine && o !== stepBoxPreviewRect && o !== connectorPreviewLine).length;
-            if (objectsSelectedCount) objectsSelectedCount.textContent = selCount;
-            if (btnObjectsDeleteSelected) btnObjectsDeleteSelected.disabled = (selCount === 0);
-        } catch (err) {
-            console.error('Error updating objects count badges:', err);
+        if (window.WhiteboardApp && window.WhiteboardApp.objects && typeof window.WhiteboardApp.objects.updateCountBadges === 'function') {
+            window.WhiteboardApp.objects.updateCountBadges();
+        } else if (typeof window.updateObjectsCountBadges === 'function') {
+            window.updateObjectsCountBadges();
         }
     }
-
-    function selectAndPanToObject(obj) {
-        if (!obj || !canvas) return;
-        canvas.setActiveObject(obj);
-
-        // Center on screen
-        const center = obj.getCenterPoint();
-        const zoom = canvas.getZoom();
-        const vpt = canvas.viewportTransform;
-        vpt[4] = (canvas.getWidth() / 2) - (center.x * zoom);
-        vpt[5] = (canvas.getHeight() / 2) - (center.y * zoom);
-        canvas.setViewportTransform(vpt);
-        if (typeof updateGrid === 'function') updateGrid();
-
-        canvas.requestRenderAll();
-        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
-    }
-
-    function toggleObjectVisibility(obj) {
-        if (!obj || !canvas) return;
-        obj.visible = !obj.visible;
-        if (!obj.visible && canvas.getActiveObject() === obj) {
-            canvas.discardActiveObject();
-        }
-        canvas.requestRenderAll();
-        saveState();
-        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
-        showToast(obj.visible ? 'Object visible' : 'Object hidden');
-    }
-
-    function toggleObjectLock(obj) {
-        if (!obj || !canvas) return;
-        const isCurrentlyLocked = !!obj.lockMovementX;
-        const newLock = !isCurrentlyLocked;
-
-        obj.lockMovementX = newLock;
-        obj.lockMovementY = newLock;
-        obj.lockRotation = newLock;
-        obj.lockScalingX = newLock;
-        obj.lockScalingY = newLock;
-        obj.hasControls = !newLock;
-
-        canvas.requestRenderAll();
-        saveState();
-        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
-        showToast(newLock ? 'Object locked' : 'Object unlocked');
-    }
-
-    function deleteSingleObjectFromList(obj) {
-        if (!obj || !canvas) return;
-        const meta = getObjectMetadata(obj);
-        deleteSingleObject(obj);
-        canvas.requestRenderAll();
-        saveState();
-        updateObjectsCountBadges();
-        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
-        showToast(`Deleted ${meta.typeName}`);
-    }
-
-    function deleteSelectedObjectsFromList() {
-        const activeObjs = canvas.getActiveObjects();
-        if (!activeObjs || activeObjs.length === 0) return;
-        deleteSelectedObjects();
-        updateObjectsCountBadges();
-        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
-        showToast('Selected objects deleted');
-    }
-
-    function clearAllCanvasObjects() {
-        const userObjects = getUserCanvasObjects();
-        if (userObjects.length === 0) {
-            showToast('No objects to delete');
-            return;
-        }
-
-        if (!confirm(`Are you sure you want to delete all ${userObjects.length} objects from this board?`)) {
-            return;
-        }
-
-        canvas.discardActiveObject();
-        userObjects.forEach(obj => {
-            deleteSingleObject(obj);
-        });
-
-        canvas.requestRenderAll();
-        saveState();
-        updateObjectsCountBadges();
-        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
-        showToast('All objects deleted');
-    }
-
-    function renderObjectsList(filter = currentObjectsFilter, searchQuery = currentObjectsSearch) {
-        if (!objectsListWrapper) return;
-        currentObjectsFilter = filter;
-        currentObjectsSearch = searchQuery ? searchQuery.toLowerCase().trim() : '';
-
-        updateObjectsCountBadges();
-
-        try {
-            const allObjects = getUserCanvasObjects();
-            // Top-most objects in canvas stacking order appear at the top of the list (reverse order)
-            let filtered = [...allObjects].reverse();
-
-            if (filter !== 'all') {
-                filtered = filtered.filter(obj => {
-                    const meta = getObjectMetadata(obj);
-                    return meta.type === filter;
-                });
-            }
-
-            if (searchQuery) {
-                filtered = filtered.filter(obj => {
-                    const meta = getObjectMetadata(obj);
-                    return meta.title.toLowerCase().includes(searchQuery) ||
-                           meta.typeName.toLowerCase().includes(searchQuery) ||
-                           meta.meta.toLowerCase().includes(searchQuery);
-                });
-            }
-
-            objectsListWrapper.innerHTML = '';
-
-        if (filtered.length === 0) {
-            const emptyEl = document.createElement('div');
-            emptyEl.className = 'objects-empty-state';
-            emptyEl.innerHTML = `
-                <div class="objects-empty-icon">${allObjects.length === 0 ? '🎨' : '🔍'}</div>
-                <div class="objects-empty-title">${allObjects.length === 0 ? 'No objects on canvas' : 'No matching objects'}</div>
-                <div class="objects-empty-sub">
-                    ${allObjects.length === 0 
-                        ? 'Draw, add shapes, sticky notes, text, or stickers to see and manage them here.'
-                        : 'Try searching with different keywords or switch the filter tab.'}
-                </div>
-            `;
-            objectsListWrapper.appendChild(emptyEl);
-            return;
-        }
-
-        const activeObjs = canvas ? canvas.getActiveObjects() : [];
-
-        filtered.forEach(obj => {
-            const meta = getObjectMetadata(obj);
-            const isSelected = activeObjs.includes(obj);
-            const isVisible = (obj.visible !== false);
-            const isLocked = !!obj.lockMovementX;
-
-            const card = document.createElement('div');
-            card.className = `object-item-card ${isSelected ? 'active' : ''} ${!isVisible ? 'is-hidden-obj' : ''}`;
-            card.dataset.uid = obj.__uid;
-
-            card.innerHTML = `
-                <div class="object-item-icon ${meta.badgeClass}">
-                    ${meta.icon}
-                </div>
-                <div class="object-item-details">
-                    <div class="object-item-title" title="${meta.title}">${meta.title}</div>
-                    <div class="object-item-meta">${meta.meta}</div>
-                </div>
-                <div class="object-item-actions">
-                    <button type="button" class="obj-row-btn btn-obj-visibility ${!isVisible ? 'is-hidden-eye' : ''}" title="${isVisible ? 'Hide object' : 'Show object'}">
-                        ${isVisible ? `
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                        ` : `
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                                <line x1="1" y1="1" x2="23" y2="23"/>
-                            </svg>
-                        `}
-                    </button>
-                    <button type="button" class="obj-row-btn btn-obj-lock ${isLocked ? 'is-active-lock' : ''}" title="${isLocked ? 'Unlock object' : 'Lock object'}">
-                        ${isLocked ? `
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                            </svg>
-                        ` : `
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-                            </svg>
-                        `}
-                    </button>
-                    <button type="button" class="obj-row-btn danger btn-obj-delete" title="Delete this object">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                    </button>
-                </div>
-            `;
-
-            // Click to select & pan to object
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.obj-row-btn')) return;
-                selectAndPanToObject(obj);
-            });
-
-            // Visibility toggle
-            card.querySelector('.btn-obj-visibility').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleObjectVisibility(obj);
-            });
-
-            // Lock toggle
-            card.querySelector('.btn-obj-lock').addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleObjectLock(obj);
-            });
-
-            // Delete object button
-            card.querySelector('.btn-obj-delete').addEventListener('click', (e) => {
-                e.stopPropagation();
-                deleteSingleObjectFromList(obj);
-            });
-
-            objectsListWrapper.appendChild(card);
-        });
-        } catch (renderErr) {
-            console.error('Error rendering objects list:', renderErr);
-            if (objectsListWrapper) {
-                objectsListWrapper.innerHTML = `
-                    <div class="objects-empty-state">
-                        <div class="objects-empty-icon">⚠️</div>
-                        <div class="objects-empty-title">Error rendering objects</div>
-                        <div class="objects-empty-sub">${renderErr.message || 'Unknown error'}</div>
-                    </div>
-                `;
-            }
+    function renderObjectsList(filter, search) {
+        if (window.WhiteboardApp && window.WhiteboardApp.objects && typeof window.WhiteboardApp.objects.renderObjectsList === 'function') {
+            window.WhiteboardApp.objects.renderObjectsList(filter, search);
+        } else if (typeof window.renderObjectsList === 'function') {
+            window.renderObjectsList(filter, search);
         }
     }
-
     function debouncedUpdateObjectsList() {
-        updateObjectsCountBadges();
-        if (shapesPanel && !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers') {
-            clearTimeout(objectListDebounceTimer);
-            objectListDebounceTimer = setTimeout(() => {
-                renderObjectsList();
-            }, 80);
+        if (window.WhiteboardApp && window.WhiteboardApp.objects && typeof window.WhiteboardApp.objects.debouncedUpdateList === 'function') {
+            window.WhiteboardApp.objects.debouncedUpdateList();
+        } else if (typeof window.debouncedUpdateObjectsList === 'function') {
+            window.debouncedUpdateObjectsList();
         }
     }
-
     function toggleObjectsDrawer() {
-        if (!shapesPanel) return;
-
-        const isCurrentlyOpen = !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers';
-
-        if (isCurrentlyOpen) {
-            closeDrawer();
-            return;
+        if (window.WhiteboardApp && window.WhiteboardApp.objects && typeof window.WhiteboardApp.objects.toggleDrawer === 'function') {
+            window.WhiteboardApp.objects.toggleDrawer();
+        } else if (typeof window.toggleObjectsDrawer === 'function') {
+            window.toggleObjectsDrawer();
         }
-
-        // Check if slide mode or fullscreen is active
-        const isSlideMode = document.body.classList.contains('slide-page-fullscreen') || document.body.classList.contains('slide-mode-active');
-        if (isSlideMode) {
-            shapesPanel.classList.add('open-in-slide');
-        } else {
-            shapesPanel.classList.remove('open-in-slide');
-        }
-
-        const leftSidebar = document.getElementById('left-sidebar');
-        const isSidebarMinimized = leftSidebar && leftSidebar.classList.contains('minimized-sidebar');
-        if (isSidebarMinimized || isSlideMode) {
-            shapesPanel.classList.add('open-floating');
-        } else {
-            shapesPanel.classList.remove('open-floating');
-        }
-
-        openDrawerPanel('layers');
-        if (fsBtnObjects) fsBtnObjects.classList.add('active');
-        if (btnTopbarObjects) btnTopbarObjects.classList.add('active');
     }
 
-    // Top bar & Bottom Dock Objects buttons toggle the Objects drawer
-    if (btnTopbarObjects) {
-        btnTopbarObjects.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleObjectsDrawer();
-        });
-    }
-
-    if (fsBtnObjects) {
-        fsBtnObjects.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleObjectsDrawer();
-        });
-    }
-
-    if (btnRefreshObjects) {
-        btnRefreshObjects.addEventListener('click', () => {
-            renderObjectsList();
-            showToast('Objects refreshed');
-        });
-    }
-
-    if (objectsSearchInput) {
-        objectsSearchInput.addEventListener('input', (e) => {
-            const query = e.target.value;
-            if (btnClearObjectsSearch) {
-                btnClearObjectsSearch.style.display = query.length > 0 ? 'inline-flex' : 'none';
-            }
-            renderObjectsList(currentObjectsFilter, query);
-        });
-    }
-
-    if (btnClearObjectsSearch) {
-        btnClearObjectsSearch.addEventListener('click', () => {
-            if (objectsSearchInput) objectsSearchInput.value = '';
-            btnClearObjectsSearch.style.display = 'none';
-            renderObjectsList(currentObjectsFilter, '');
-        });
-    }
-
-    objFilterChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            objFilterChips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            const filter = chip.dataset.filter || 'all';
-            renderObjectsList(filter, objectsSearchInput ? objectsSearchInput.value : '');
-        });
-    });
-
-    if (btnObjectsDeleteSelected) {
-        btnObjectsDeleteSelected.addEventListener('click', deleteSelectedObjectsFromList);
-    }
-
-    if (btnObjectsClearAll) {
-        btnObjectsClearAll.addEventListener('click', clearAllCanvasObjects);
-    }
-
-    // Canvas sync listeners
+    // Canvas sync listeners to keep objects drawer badges updated
     canvas.on('object:added', () => debouncedUpdateObjectsList());
     canvas.on('object:modified', () => debouncedUpdateObjectsList());
     canvas.on('selection:created', () => {
@@ -5098,10 +4634,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial badge update & window exposure for debugging/testing
-    setTimeout(updateObjectsCountBadges, 200);
-    setTimeout(updateObjectsCountBadges, 600);
-    setTimeout(updateObjectsCountBadges, 1500);
     window.__canvas = canvas;
     window.__getUserCanvasObjects = getUserCanvasObjects;
     window.__renderObjectsList = renderObjectsList;
