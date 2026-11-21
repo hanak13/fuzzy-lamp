@@ -612,7 +612,6 @@
                     }
                     CommandsModule.saveState();
                 });
-                canvas.on('object:modified', () => CommandsModule.saveState());
                 canvas.on('object:removed', () => CommandsModule.saveState());
             }
 

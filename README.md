@@ -199,8 +199,7 @@ fuzzy-lamp/
 │   │   ├── interactions.js # Canvas mouse events, pan, area erase, transform controls
 │   │   ├── commands.js  # Keyboard shortcuts, clipboard, context menu, undo/redo
 │   │   ├── boards.js    # SQLite multi-board manager, autosave loop, boards sidebar
-│   │   ├── export.js    # PNG, SVG, PDF, and PowerPoint PPTX presentation exports
-│   │   └── whiteboard.js # Application boot coordinator & glue
+│   │   └── export.js    # PNG, SVG, PDF, and PowerPoint PPTX presentation exports
 │   ├── shapes.json      # Shape library (280+ SVG path definitions)
 │   ├── templates.json   # Starter template layouts
 │   └── vendor/
