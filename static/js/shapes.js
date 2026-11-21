@@ -98,6 +98,56 @@
         return window.__canvas || (window.WhiteboardApp && window.WhiteboardApp.canvas);
     }
 
+    function getBoardBackgroundColor() {
+        if (typeof window.getBoardBackgroundColor === 'function') {
+            return window.getBoardBackgroundColor();
+        }
+        if (window.WhiteboardApp && window.WhiteboardApp.boards && typeof window.WhiteboardApp.boards.getBoardBackgroundColor === 'function') {
+            return window.WhiteboardApp.boards.getBoardBackgroundColor();
+        }
+        const canvasContainer = document.getElementById('canvas-container');
+        if (canvasContainer) {
+            const bg = canvasContainer.style.getPropertyValue('--board-bg-color') || canvasContainer.style.backgroundColor;
+            if (bg) return bg;
+        }
+        return '#f8fafc';
+    }
+
+    function hexToRgbValues(color) {
+        if (!color) return null;
+        let c = color.trim();
+        if (c.startsWith('rgb')) {
+            const m = c.match(/\d+/g);
+            if (m && m.length >= 3) {
+                return { r: parseInt(m[0], 10), g: parseInt(m[1], 10), b: parseInt(m[2], 10) };
+            }
+        }
+        c = c.replace('#', '');
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        if (c.length === 6) {
+            const n = parseInt(c, 16);
+            return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+        }
+        return null;
+    }
+
+    function getOppositeColorForBoard(boardBg, preferredColor) {
+        const rgbBg = hexToRgbValues(boardBg) || { r: 248, g: 250, b: 252 };
+        const lumBg = (rgbBg.r * 299 + rgbBg.g * 587 + rgbBg.b * 114) / 1000;
+        const defaultOpposite = (lumBg < 128) ? '#f8fafc' : '#1e293b';
+
+        if (!preferredColor) return defaultOpposite;
+
+        const rgbPref = hexToRgbValues(preferredColor);
+        if (!rgbPref) return defaultOpposite;
+
+        const lumPref = (rgbPref.r * 299 + rgbPref.g * 587 + rgbPref.b * 114) / 1000;
+        if (Math.abs(lumBg - lumPref) < 80) {
+            return defaultOpposite;
+        }
+        return preferredColor;
+    }
+
     function generateUid() {
         return 'shape_' + Date.now() + '_' + Math.random().toString(36).substr(2, 7);
     }
@@ -280,7 +330,9 @@
 
         const strokeWidth = (window.strokeSize !== undefined ? window.strokeSize : 2);
         const fill = window.currentFillColor || 'transparent';
-        const stroke = window.currentColor || '#334155';
+        const boardBg = getBoardBackgroundColor();
+        const oppositeColor = getOppositeColorForBoard(boardBg, window.currentColor);
+        const stroke = oppositeColor;
 
         const shapeObj = shapeDef.create(fill, stroke, strokeWidth);
         if (shapeDef.strokeDashArray) {
@@ -295,12 +347,12 @@
             width: textWidth,
             fontSize: 15,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            fill: window.currentColor || '#1e293b',
+            fill: oppositeColor,
             textAlign: 'center',
             originX: 'center',
             originY: 'center',
             splitByGrapheme: true,
-            cursorColor: '#1e293b'
+            cursorColor: oppositeColor
         });
 
         const group = new fabric.Group([shapeObj, textObj], {
@@ -455,6 +507,11 @@
         const dy = centerY - templateCenterOrigY;
 
         const nodeMap = {};
+        const boardBg = getBoardBackgroundColor();
+        const rgbBg = hexToRgbValues(boardBg) || { r: 248, g: 250, b: 252 };
+        const isDarkBoard = ((rgbBg.r * 299 + rgbBg.g * 587 + rgbBg.b * 114) / 1000) < 128;
+        const nodeTextColor = isDarkBoard ? '#f8fafc' : '#1e293b';
+        const defaultConnColor = isDarkBoard ? '#94a3b8' : '#475569';
 
         templateDef.nodes.forEach(node => {
             const posX = node.x + dx;
@@ -464,10 +521,13 @@
 
             const shapeDef = allShapes.find(s => s.id === node.shapeId) || allShapes.find(s => s.id === 'fc-basic-process');
             let shapeObj;
+            const fillCol = isDarkBoard ? (node.fill === '#eff6ff' ? '#1e293b' : (node.fill || '#1e293b')) : (node.fill || '#eff6ff');
+            const strokeCol = isDarkBoard ? (node.stroke || '#60a5fa') : (node.stroke || '#3b82f6');
+
             if (shapeDef && shapeDef.path) {
                 shapeObj = new fabric.Path(shapeDef.path, {
-                    fill: node.fill || '#eff6ff',
-                    stroke: node.stroke || '#3b82f6',
+                    fill: fillCol,
+                    stroke: strokeCol,
                     strokeWidth: 2,
                     originX: 'center',
                     originY: 'center'
@@ -484,8 +544,8 @@
                     height: nodeHeight,
                     rx: 8,
                     ry: 8,
-                    fill: node.fill || '#eff6ff',
-                    stroke: node.stroke || '#3b82f6',
+                    fill: fillCol,
+                    stroke: strokeCol,
                     strokeWidth: 2,
                     originX: 'center',
                     originY: 'center'
@@ -496,13 +556,13 @@
                 width: Math.max(60, nodeWidth - 20),
                 fontSize: 13,
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                fill: '#1e293b',
+                fill: nodeTextColor,
                 fontWeight: 600,
                 textAlign: 'center',
                 originX: 'center',
                 originY: 'center',
                 splitByGrapheme: true,
-                cursorColor: '#1e293b'
+                cursorColor: nodeTextColor
             });
 
             const group = new fabric.Group([shapeObj, textObj], {
@@ -534,7 +594,7 @@
                 const p2 = pair ? (pair.p2 || pair.to) : toNode.getCenterPoint();
 
                 const line = new fabric.Line([p1.x, p1.y, p2.x, p2.y], {
-                    stroke: '#475569',
+                    stroke: defaultConnColor,
                     strokeWidth: 2,
                     selectable: true,
                     isConnector: true,
@@ -557,7 +617,7 @@
                     angle: angle + 90,
                     width: 12,
                     height: 12,
-                    fill: '#475569',
+                    fill: defaultConnColor,
                     selectable: false,
                     evented: false,
                     isArrowHead: true

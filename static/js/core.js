@@ -384,6 +384,8 @@
 
     // Backward compatibility direct window exports
     window.EXTRA_PROPS = EXTRA_PROPS;
+    window.currentLinePattern = state.currentLinePattern;
+    window.currentArrowHeadStyle = state.currentArrowHeadStyle;
     window.showToast = showToast;
     window.updateGrid = updateGrid;
     window.updateZoomDisplay = updateZoomDisplay;

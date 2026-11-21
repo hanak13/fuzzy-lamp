@@ -123,8 +123,13 @@
                 if (typeof window.updateSelectionUI === 'function') {
                     window.updateSelectionUI();
                 }
-                if (typeof window.updateObjectsCountBadges === 'function') {
+                if (typeof window.debouncedUpdateObjectsList === 'function') {
+                    window.debouncedUpdateObjectsList();
+                } else if (typeof window.updateObjectsCountBadges === 'function') {
                     window.updateObjectsCountBadges();
+                }
+                if (typeof window.renderObjectsList === 'function') {
+                    window.renderObjectsList();
                 }
             });
         },

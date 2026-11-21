@@ -298,11 +298,13 @@
             }
             if (obj.connectedLines && Array.isArray(obj.connectedLines)) {
                 obj.connectedLines.forEach(line => {
+                    if (typeof window.detachConnector === 'function') window.detachConnector(line);
                     if (line.arrowHead) canvas.remove(line.arrowHead);
                     if (line.startArrowHead) canvas.remove(line.startArrowHead);
                     canvas.remove(line);
                 });
             }
+            if (obj.isConnector && typeof window.detachConnector === 'function') window.detachConnector(obj);
             if (obj.arrowHead) canvas.remove(obj.arrowHead);
             if (obj.startArrowHead) canvas.remove(obj.startArrowHead);
             canvas.remove(obj);
@@ -561,14 +563,27 @@
 
         debouncedUpdateList() {
             ObjectsModule.updateCountBadges();
-            const shapesPanel = document.getElementById('shapes-panel');
-            const isLayersOpen = shapesPanel && !shapesPanel.classList.contains('hidden') && window.activeDrawerPanel === 'layers';
-            if (isLayersOpen) {
-                clearTimeout(ObjectsModule.debounceTimer);
-                ObjectsModule.debounceTimer = setTimeout(() => {
+            clearTimeout(ObjectsModule.debounceTimer);
+            ObjectsModule.debounceTimer = setTimeout(() => {
+                ObjectsModule.updateCountBadges();
+                const shapesPanel = document.getElementById('shapes-panel');
+                if (shapesPanel && !shapesPanel.classList.contains('hidden')) {
                     ObjectsModule.renderObjectsList();
-                }, 80);
-            }
+                }
+            }, 50);
+        },
+
+        attachCanvasListeners() {
+            const canvas = ObjectsModule.getCanvas();
+            if (!canvas || ObjectsModule._listenersAttached) return;
+            ObjectsModule._listenersAttached = true;
+
+            canvas.on('object:added', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('object:removed', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('object:modified', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('selection:created', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('selection:updated', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('selection:cleared', () => ObjectsModule.debouncedUpdateList());
         },
 
         toggleDrawer() {
@@ -683,10 +698,20 @@
             window.deleteSingleObject = ObjectsModule.deleteSingleObject;
             window.deleteSelectedObjects = ObjectsModule.deleteSelectedObjects;
 
-            // Delayed updates
-            setTimeout(ObjectsModule.updateCountBadges, 200);
-            setTimeout(ObjectsModule.updateCountBadges, 800);
-            setTimeout(ObjectsModule.updateCountBadges, 1800);
+            // Delayed updates and canvas listeners
+            ObjectsModule.attachCanvasListeners();
+            setTimeout(() => {
+                ObjectsModule.attachCanvasListeners();
+                ObjectsModule.updateCountBadges();
+            }, 200);
+            setTimeout(() => {
+                ObjectsModule.attachCanvasListeners();
+                ObjectsModule.updateCountBadges();
+            }, 800);
+            setTimeout(() => {
+                ObjectsModule.attachCanvasListeners();
+                ObjectsModule.updateCountBadges();
+            }, 1800);
         }
     };
 

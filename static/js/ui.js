@@ -380,6 +380,50 @@
                 }
             });
         }
+        // Line Pattern & Arrowhead Style
+        const selectLinePattern = document.getElementById('select-line-pattern');
+        if (selectLinePattern) {
+            selectLinePattern.addEventListener('change', () => {
+                window.currentLinePattern = selectLinePattern.value;
+                const canvas = getCanvas();
+                if (!canvas) return;
+                const activeObj = canvas.getActiveObject();
+                if (!activeObj) return;
+                const targets = activeObj.type === 'activeSelection' ? activeObj.getObjects() : [activeObj];
+                const dash = typeof window.getDashArrayForPattern === 'function'
+                    ? window.getDashArrayForPattern(selectLinePattern.value)
+                    : (selectLinePattern.value === 'dashed' ? [8, 6] : selectLinePattern.value === 'dotted' ? [3, 4] : null);
+                targets.forEach(obj => {
+                    if (obj.isConnector || obj.isFreeLine || obj.type === 'line') {
+                        obj.set('strokeDashArray', dash);
+                        if (obj.arrowHead) obj.arrowHead.set('strokeDashArray', dash);
+                        if (obj.startArrowHead) obj.startArrowHead.set('strokeDashArray', dash);
+                    }
+                });
+                canvas.requestRenderAll();
+                if (typeof window.saveState === 'function') window.saveState();
+            });
+        }
+
+        const selectArrowHead = document.getElementById('select-arrow-head');
+        if (selectArrowHead) {
+            selectArrowHead.addEventListener('change', () => {
+                window.currentArrowHeadStyle = selectArrowHead.value;
+                const canvas = getCanvas();
+                if (!canvas) return;
+                const activeObj = canvas.getActiveObject();
+                if (!activeObj) return;
+                const targets = activeObj.type === 'activeSelection' ? activeObj.getObjects() : [activeObj];
+                targets.forEach(obj => {
+                    if ((obj.isConnector || obj.isFreeLine || obj.type === 'line') && typeof window.applyArrowheadStyleToLine === 'function') {
+                        window.applyArrowheadStyleToLine(obj, selectArrowHead.value);
+                    }
+                });
+                canvas.requestRenderAll();
+                if (typeof window.saveState === 'function') window.saveState();
+            });
+        }
+
         // Selection Event Listeners on Canvas
         const canvas = getCanvas();
         if (canvas) {

@@ -678,6 +678,17 @@
         }
     }
 
+    function detachConnector(line) {
+        if (!line) return;
+        [line.fromShape, line.toShape].forEach(shape => {
+            if (shape && Array.isArray(shape.connectedLines)) {
+                shape.connectedLines = shape.connectedLines.filter(l => l !== line);
+            }
+        });
+        line.fromShape = null;
+        line.toShape = null;
+    }
+
     function updateConnectedLinesFor(target) {
         const canvas = getCanvas();
         if (!target || !canvas) return;
@@ -790,6 +801,7 @@
         createFreeformLine,
         createAttachedConnector,
         updateConnector,
+        detachConnector,
         updateConnectedLinesFor
     };
 
@@ -816,5 +828,6 @@
     window.createFreeformLine = createFreeformLine;
     window.createAttachedConnector = createAttachedConnector;
     window.updateConnector = updateConnector;
+    window.detachConnector = detachConnector;
     window.updateConnectedLinesFor = updateConnectedLinesFor;
 })();

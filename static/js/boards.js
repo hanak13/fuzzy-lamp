@@ -261,6 +261,23 @@
             };
         },
 
+        getBoardBackgroundColor() {
+            const activeBoard = boards.find(b => b.id === activeBoardId);
+            if (activeBoard && (activeBoard.bgColor || activeBoard.bg_color)) {
+                return activeBoard.bgColor || activeBoard.bg_color;
+            }
+            const canvasContainer = document.getElementById('canvas-container');
+            if (canvasContainer) {
+                const bg = canvasContainer.style.getPropertyValue('--board-bg-color') || canvasContainer.style.backgroundColor;
+                if (bg) return bg;
+            }
+            const canvas = BoardsModule.getCanvas();
+            if (canvas && canvas.backgroundColor && typeof canvas.backgroundColor === 'string') {
+                return canvas.backgroundColor;
+            }
+            return '#f8fafc';
+        },
+
         setBoardBackgroundColor(color, save = true) {
             if (!color) return;
             const activeBoard = boards.find(b => b.id === activeBoardId);
@@ -283,8 +300,20 @@
                     const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
                     if (brightness < 128) {
                         canvasContainer.style.setProperty('--grid-line-color', 'rgba(255, 255, 255, 0.12)');
+                        // Auto-switch default currentColor to white if it was dark default
+                        if (!window.currentColor || window.currentColor === '#1e293b' || window.currentColor === '#334155' || window.currentColor === '#000000') {
+                            if (typeof window.updateActiveDrawingColor === 'function') {
+                                window.updateActiveDrawingColor('#f8fafc');
+                            }
+                        }
                     } else {
                         canvasContainer.style.setProperty('--grid-line-color', '#e2e8f0');
+                        // Auto-switch default currentColor to dark if it was light default
+                        if (window.currentColor === '#f8fafc' || window.currentColor === '#ffffff') {
+                            if (typeof window.updateActiveDrawingColor === 'function') {
+                                window.updateActiveDrawingColor('#1e293b');
+                            }
+                        }
                     }
                 }
             }
@@ -970,6 +999,7 @@
 
     // Exports
     window.WhiteboardApp.boards = BoardsModule;
+    window.getBoardBackgroundColor = BoardsModule.getBoardBackgroundColor;
     window.saveActiveBoardDebounced = BoardsModule.saveActiveBoardDebounced;
     window.markBoardDirty = BoardsModule.markBoardDirty;
     window.setBoardBackgroundColor = BoardsModule.setBoardBackgroundColor;

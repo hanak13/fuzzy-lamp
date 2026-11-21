@@ -1,8 +1,26 @@
-# ✏️ Whiteboard
+# ✏️ Whiteboard `v0.1.1`
+
+[![Version](https://img.shields.io/badge/version-v0.1.1-blue.svg)](README.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com)
+[![Fabric.js](https://img.shields.io/badge/Fabric.js-5.3-orange.svg)](http://fabricjs.com)
 
 **An offline-first, open-source collaborative whiteboard built with FastAPI + Fabric.js.**
 
 > Draw, annotate, diagram, present — entirely in your browser, with zero cloud dependency.
+
+<p align="center">
+  <img src="docs/screenshots/step_box_demo.gif" alt="Step Box Sequential Diagram Demo" width="760" style="border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);" />
+</p>
+
+---
+
+## 🚀 What's New in v0.1.1
+
+- 🧹 **Real Stroke Eraser Engine**: Eraser now acts as a natural stroke eraser without creating canvas objects. Drawing on top of imported media or images can now be erased cleanly without damaging or punching holes in the underlying media.
+- 🎨 **Adaptive Shape & Flowchart Contrast**: Newly added shapes and flowchart symbols automatically invert their stroke and text colors opposite to the board background (crisp dark text on light boards, bright white text on dark boards).
+- 🔄 **Real-Time Objects & Layers Synchronization**: Adding, deleting, undoing (`Ctrl+Z`), or redoing (`Ctrl+Y`) shapes/flowcharts immediately synchronizes the Objects panel and counter badges.
+- 📦 **Step Box Showcase & Media Enhancements**: Enhanced sequential diagram playback, drag-and-drop media upload, clipboard paste (`Ctrl+V`), and panel minimize controls.
 
 ---
 
@@ -43,8 +61,8 @@
 ### 🧰 Left Sidebar & Tools Panel
 ![Sidebar Tools](docs/screenshots/03_sidebar_tools.png)
 
-### 📦 Step Box Feature
-![Step Box](docs/screenshots/04_step_box.png)
+### 📦 Step Box Feature (Sequential Diagrams)
+![Step Box Demo](docs/screenshots/step_box_demo.gif)
 
 ### 🎞️ Slide / Presentation Mode
 ![Slide Mode](docs/screenshots/05_slide_mode.png)
