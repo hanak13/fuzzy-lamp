@@ -34,11 +34,26 @@
 
 ## 📸 Screenshots
 
-> _Screenshots will be added before the first public release._
+### 🖼️ Main Canvas
+![Main Canvas](docs/screenshots/01_main_canvas.png)
 
-| Whiteboard canvas | Shapes panel | Dark mode | Slide mode |
-|---|---|---|---|
-| _(coming soon)_ | _(coming soon)_ | _(coming soon)_ | _(coming soon)_ |
+### 🖊️ Drawing Tools
+![Drawing Tools](docs/screenshots/02_drawing_tools.png)
+
+### 🧰 Left Sidebar & Tools Panel
+![Sidebar Tools](docs/screenshots/03_sidebar_tools.png)
+
+### 📦 Step Box Feature
+![Step Box](docs/screenshots/04_step_box.png)
+
+### 🎞️ Slide / Presentation Mode
+![Slide Mode](docs/screenshots/05_slide_mode.png)
+
+### 📋 Multi-Board Management
+![Multi Board](docs/screenshots/06_multi_board.png)
+
+### 🌙 Dark Mode
+![Dark Mode](docs/screenshots/07_dark_mode.png)
 
 ---
 
