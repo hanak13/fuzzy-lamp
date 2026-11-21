@@ -29,6 +29,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STICKERS_DIR = os.path.join(BASE_DIR, "stickers")
 os.makedirs(STICKERS_DIR, exist_ok=True)
 
+# Cache-Control middleware to prevent browsers from serving stale CSS and JS during development
+@app.middleware("http")
+async def add_no_cache_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 # Mount static directory for CSS, JS, and vendor libraries
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -105,7 +115,7 @@ async def whiteboard(request: Request, board: Optional[str] = None):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"initial_board_id": initial_id}
+        context={"initial_board_id": initial_id, "asset_version": int(time.time())}
     )
 
 
@@ -114,7 +124,11 @@ async def boards_list_page(request: Request):
     """
     Serve the dedicated Board List dashboard page.
     """
-    return templates.TemplateResponse(request=request, name="boards.html")
+    return templates.TemplateResponse(
+        request=request,
+        name="boards.html",
+        context={"asset_version": int(time.time())}
+    )
 
 
 @app.get("/board/{board_id}", response_class=HTMLResponse)
@@ -127,7 +141,7 @@ async def board_page(request: Request, board_id: str):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"initial_board_id": target_id}
+        context={"initial_board_id": target_id, "asset_version": int(time.time())}
     )
 
 

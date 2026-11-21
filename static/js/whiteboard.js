@@ -1466,9 +1466,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderMediaGallery();
             }
         } else if (panelId === 'layers') {
+            if (typeof updateObjectsCountBadges === 'function') {
+                updateObjectsCountBadges();
+            }
             if (typeof renderObjectsList === 'function') {
                 renderObjectsList();
             }
+            const fsBtnObj = document.getElementById('fs-btn-objects');
+            if (fsBtnObj) fsBtnObj.classList.add('active');
+            const btnTopObj = document.getElementById('btn-topbar-objects');
+            if (btnTopObj) btnTopObj.classList.add('active');
             const objSearch = document.getElementById('objects-search');
             if (objSearch) {
                 setTimeout(() => objSearch.focus(), 50);
@@ -2344,6 +2351,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 canvas.requestRenderAll();
                 updateSlideNavigationUI();
                 saveState();
+                if (typeof updateObjectsCountBadges === 'function') {
+                    updateObjectsCountBadges();
+                }
+                if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                    renderObjectsList();
+                }
             });
         } else {
             if (slideFrameRect) {
@@ -2352,6 +2365,12 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.requestRenderAll();
             updateSlideNavigationUI();
             saveState();
+            if (typeof updateObjectsCountBadges === 'function') {
+                updateObjectsCountBadges();
+            }
+            if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                renderObjectsList();
+            }
         }
     }
 
@@ -4541,16 +4560,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getUserCanvasObjects() {
         if (!canvas) return [];
-        return canvas.getObjects().filter(o => {
+        const all = (typeof canvas.getObjects === 'function') ? (canvas.getObjects() || []) : [];
+        return all.filter(o => {
             if (!o) return false;
             if (o.isSlideFrame || o.isGridLine) return false;
             if (o === stepBoxPreviewRect || o === connectorPreviewLine) return false;
             if (o.isArrowHead) return false;
+            if (o.type === 'activeSelection') return false;
             return true;
         });
     }
 
     function getObjectMetadata(obj) {
+        if (!obj) {
+            return {
+                type: 'shapes',
+                typeName: 'Object',
+                title: 'Object',
+                meta: '0×0px',
+                icon: '📐',
+                badgeClass: 'badge-generic'
+            };
+        }
+
         if (!obj.__uid) {
             obj.__uid = 'obj_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
         }
@@ -4562,7 +4594,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (obj.isStepBox) {
             const stepNum = (obj.stepBoxCurrentStep || 0) + 1;
-            const totalSteps = obj.stepBoxSteps ? obj.stepBoxSteps.length : 1;
+            const totalSteps = (obj.stepBoxSteps && Array.isArray(obj.stepBoxSteps)) ? obj.stepBoxSteps.length : 1;
             return {
                 type: 'stepbox',
                 typeName: 'Step Box',
@@ -4575,9 +4607,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (obj.isStickyNote) {
             let noteText = '';
-            if (obj._objects) {
-                const textChild = obj._objects.find(o => o.type === 'textbox' || o.type === 'i-text' || o.type === 'text');
-                if (textChild && textChild.text) noteText = textChild.text.trim();
+            if (obj._objects && Array.isArray(obj._objects)) {
+                const textChild = obj._objects.find(o => o && (o.type === 'textbox' || o.type === 'i-text' || o.type === 'text'));
+                if (textChild && typeof textChild.text === 'string') noteText = textChild.text.trim();
             }
             return {
                 type: 'notes',
@@ -4612,7 +4644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') {
-            const textVal = (obj.text || '').trim();
+            const textVal = (typeof obj.text === 'string') ? obj.text.trim() : '';
             return {
                 type: 'text',
                 typeName: 'Text',
@@ -4625,23 +4657,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (obj.isConnector || obj.isFreeLine || obj.type === 'line') {
             const hasArrow = obj.hasArrow || !!obj.arrowHead;
+            const strokeColor = (typeof obj.stroke === 'string') ? obj.stroke : '#000';
             return {
                 type: 'shapes',
                 typeName: hasArrow ? 'Arrow Connector' : 'Line Connector',
                 title: hasArrow ? 'Arrow Connector' : 'Line Connector',
-                meta: `Color: ${obj.stroke || '#000'} • Width: ${obj.strokeWidth || 2}px`,
+                meta: `Color: ${strokeColor} • Width: ${obj.strokeWidth || 2}px`,
                 icon: '↗️',
                 badgeClass: 'badge-connector'
             };
         }
 
         if (obj.type === 'path') {
-            const isHighlighter = (obj.stroke && (obj.stroke.includes('rgba') || obj.opacity < 1));
+            const strokeStr = (typeof obj.stroke === 'string') ? obj.stroke : '';
+            const isHighlighter = (strokeStr.includes('rgba') || (typeof obj.opacity === 'number' && obj.opacity < 1));
             return {
                 type: 'drawings',
                 typeName: isHighlighter ? 'Highlighter' : 'Pen Stroke',
                 title: isHighlighter ? 'Highlighter Stroke' : 'Pen Stroke',
-                meta: `Color: ${obj.stroke || '#1e293b'} • Width: ${obj.strokeWidth || 2}px`,
+                meta: `Color: ${strokeStr || '#1e293b'} • Width: ${obj.strokeWidth || 2}px`,
                 icon: isHighlighter ? '🖍️' : '✏️',
                 badgeClass: isHighlighter ? 'badge-highlighter' : 'badge-pen'
             };
@@ -4649,9 +4683,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (obj.isShapeGroup || obj.isMergedShape || obj.shapeId) {
             let shapeName = obj.shapeName || obj.shapeId || 'Shape';
-            if (obj._objects) {
-                const textChild = obj._objects.find(o => o.type === 'text' || o.type === 'i-text' || o.type === 'textbox');
-                if (textChild && textChild.text && textChild.text.trim()) {
+            if (obj._objects && Array.isArray(obj._objects)) {
+                const textChild = obj._objects.find(o => o && (o.type === 'text' || o.type === 'i-text' || o.type === 'textbox'));
+                if (textChild && typeof textChild.text === 'string' && textChild.text.trim()) {
                     shapeName += `: "${textChild.text.trim().substring(0, 18)}"`;
                 }
             }
@@ -4665,7 +4699,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
-        const typeCap = obj.type ? obj.type.charAt(0).toUpperCase() + obj.type.slice(1) : 'Object';
+        const typeCap = obj.type ? (obj.type.charAt(0).toUpperCase() + obj.type.slice(1)) : 'Object';
         return {
             type: 'shapes',
             typeName: typeCap,
@@ -4677,28 +4711,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateObjectsCountBadges() {
-        const objects = getUserCanvasObjects();
-        const total = objects.length;
+        try {
+            const objects = getUserCanvasObjects();
+            const total = objects.length;
 
-        if (topbarObjectsCount) topbarObjectsCount.textContent = total;
-        if (drawerObjectsCount) drawerObjectsCount.textContent = total;
-        if (filterCountAll) filterCountAll.textContent = total;
+            if (topbarObjectsCount) topbarObjectsCount.textContent = total;
+            if (drawerObjectsCount) drawerObjectsCount.textContent = total;
+            if (filterCountAll) filterCountAll.textContent = total;
 
-        if (sidebarObjectsBadge) {
-            sidebarObjectsBadge.textContent = total;
-            sidebarObjectsBadge.style.display = total > 0 ? 'flex' : 'none';
+            if (sidebarObjectsBadge) {
+                sidebarObjectsBadge.textContent = total;
+                sidebarObjectsBadge.style.display = total > 0 ? 'flex' : 'none';
+            }
+
+            if (fsObjectsBadge) {
+                fsObjectsBadge.textContent = total;
+                fsObjectsBadge.style.display = total > 0 ? 'inline-block' : 'none';
+            }
+
+            // Selected count
+            const activeObjs = (canvas && typeof canvas.getActiveObjects === 'function') ? canvas.getActiveObjects() : [];
+            const selCount = activeObjs.filter(o => o && !o.isSlideFrame && !o.isGridLine && o !== stepBoxPreviewRect && o !== connectorPreviewLine).length;
+            if (objectsSelectedCount) objectsSelectedCount.textContent = selCount;
+            if (btnObjectsDeleteSelected) btnObjectsDeleteSelected.disabled = (selCount === 0);
+        } catch (err) {
+            console.error('Error updating objects count badges:', err);
         }
-
-        if (fsObjectsBadge) {
-            fsObjectsBadge.textContent = total;
-            fsObjectsBadge.style.display = total > 0 ? 'inline-block' : 'none';
-        }
-
-        // Selected count
-        const activeObjs = canvas ? canvas.getActiveObjects() : [];
-        const selCount = activeObjs.filter(o => !o.isSlideFrame && !o.isGridLine && o !== stepBoxPreviewRect && o !== connectorPreviewLine).length;
-        if (objectsSelectedCount) objectsSelectedCount.textContent = selCount;
-        if (btnObjectsDeleteSelected) btnObjectsDeleteSelected.disabled = (selCount === 0);
     }
 
     function selectAndPanToObject(obj) {
@@ -4798,27 +4836,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateObjectsCountBadges();
 
-        const allObjects = getUserCanvasObjects();
-        // Top-most objects in canvas stacking order appear at the top of the list (reverse order)
-        let filtered = [...allObjects].reverse();
+        try {
+            const allObjects = getUserCanvasObjects();
+            // Top-most objects in canvas stacking order appear at the top of the list (reverse order)
+            let filtered = [...allObjects].reverse();
 
-        if (filter !== 'all') {
-            filtered = filtered.filter(obj => {
-                const meta = getObjectMetadata(obj);
-                return meta.type === filter;
-            });
-        }
+            if (filter !== 'all') {
+                filtered = filtered.filter(obj => {
+                    const meta = getObjectMetadata(obj);
+                    return meta.type === filter;
+                });
+            }
 
-        if (searchQuery) {
-            filtered = filtered.filter(obj => {
-                const meta = getObjectMetadata(obj);
-                return meta.title.toLowerCase().includes(searchQuery) ||
-                       meta.typeName.toLowerCase().includes(searchQuery) ||
-                       meta.meta.toLowerCase().includes(searchQuery);
-            });
-        }
+            if (searchQuery) {
+                filtered = filtered.filter(obj => {
+                    const meta = getObjectMetadata(obj);
+                    return meta.title.toLowerCase().includes(searchQuery) ||
+                           meta.typeName.toLowerCase().includes(searchQuery) ||
+                           meta.meta.toLowerCase().includes(searchQuery);
+                });
+            }
 
-        objectsListWrapper.innerHTML = '';
+            objectsListWrapper.innerHTML = '';
 
         if (filtered.length === 0) {
             const emptyEl = document.createElement('div');
@@ -4918,6 +4957,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             objectsListWrapper.appendChild(card);
         });
+        } catch (renderErr) {
+            console.error('Error rendering objects list:', renderErr);
+            if (objectsListWrapper) {
+                objectsListWrapper.innerHTML = `
+                    <div class="objects-empty-state">
+                        <div class="objects-empty-icon">⚠️</div>
+                        <div class="objects-empty-title">Error rendering objects</div>
+                        <div class="objects-empty-sub">${renderErr.message || 'Unknown error'}</div>
+                    </div>
+                `;
+            }
+        }
     }
 
     function debouncedUpdateObjectsList() {
@@ -5040,8 +5091,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial badge update
-    setTimeout(updateObjectsCountBadges, 500);
+    // Initial badge update & window exposure for debugging/testing
+    setTimeout(updateObjectsCountBadges, 200);
+    setTimeout(updateObjectsCountBadges, 600);
+    setTimeout(updateObjectsCountBadges, 1500);
+    window.__canvas = canvas;
+    window.__getUserCanvasObjects = getUserCanvasObjects;
+    window.__renderObjectsList = renderObjectsList;
+    window.__updateObjectsCountBadges = updateObjectsCountBadges;
 
     // -------------------------------------------------------------------------
     // 15. Property Handlers (Fill, Border, Stroke Size, Font Size, Bold, Italic)
@@ -7667,6 +7724,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSelectionUI();
                 saveState();
                 updateAutosaveIndicator('saved');
+                if (typeof updateObjectsCountBadges === 'function') {
+                    updateObjectsCountBadges();
+                }
+                if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                    renderObjectsList();
+                }
                 showToast(`Switched to "${targetBoard.name}"`);
             });
         } catch (err) {
@@ -7684,6 +7747,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         updateSelectionUI();
                         saveState();
                         updateAutosaveIndicator('saved');
+                        if (typeof updateObjectsCountBadges === 'function') {
+                            updateObjectsCountBadges();
+                        }
+                        if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                            renderObjectsList();
+                        }
                         showToast(`Switched to "${targetBoard.name}" (cached)`);
                     });
                     return;
@@ -8179,6 +8248,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveState();
                     isBoardDirty = false;
                     updateAutosaveIndicator('saved');
+                    if (typeof updateObjectsCountBadges === 'function') {
+                        updateObjectsCountBadges();
+                    }
+                    if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                        renderObjectsList();
+                    }
                 });
             } else {
                 throw new Error(`HTTP ${res.status}`);
@@ -8201,6 +8276,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         saveState();
                         isBoardDirty = false;
                         updateAutosaveIndicator('saved');
+                        if (typeof updateObjectsCountBadges === 'function') {
+                            updateObjectsCountBadges();
+                        }
+                        if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                            renderObjectsList();
+                        }
                     });
                 } catch (e) {
                     isBoardLoading = false;
@@ -8786,6 +8867,12 @@ document.addEventListener('DOMContentLoaded', () => {
             isProcessingHistory = false;
             updateHistoryButtons();
             updateSelectionUI();
+            if (typeof updateObjectsCountBadges === 'function') {
+                updateObjectsCountBadges();
+            }
+            if (typeof renderObjectsList === 'function' && activeDrawerPanel === 'layers') {
+                renderObjectsList();
+            }
         });
     }
 

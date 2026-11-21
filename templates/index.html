@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whiteboard App</title>
     <!-- Local CSS stylesheet -->
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v={{ asset_version or '20261121_04' }}">
 </head>
 <body data-initial-board-id="{{ initial_board_id or '' }}">
     <!-- Top Bar: Fixed Logo on Left (Never Moves) & Centered Toolbar -->
@@ -1443,6 +1443,6 @@
 
     <!-- Scripts (Offline Fabric.js vendor script and custom whiteboard script) -->
     <script src="/static/vendor/fabric.min.js"></script>
-    <script src="/static/js/whiteboard.js"></script>
+    <script src="/static/js/whiteboard.js?v={{ asset_version or '20261121_04' }}"></script>
 </body>
 </html>
