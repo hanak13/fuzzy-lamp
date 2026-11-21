@@ -22,8 +22,8 @@
             const canvas = InteractionsModule.getCanvas();
             if (!canvas) return;
 
-            const mode = window.WhiteboardApp.currentMode || window.currentMode || 'select';
-            const isSpace = window.WhiteboardApp.isSpacePressed || window.isSpacePressed;
+            const mode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
+            const isSpace = window.isSpacePressed || (window.WhiteboardApp && window.WhiteboardApp.isSpacePressed);
 
             if (mode === 'pan' || isSpace) {
                 canvas.defaultCursor = 'grab';
@@ -50,7 +50,7 @@
                 const path = opt.path;
                 if (!path) return;
 
-                const currentMode = window.WhiteboardApp.currentMode || window.currentMode;
+                const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
                 const currentFrameRatio = window.WhiteboardApp.currentFrameRatio || window.currentFrameRatio || 'infinite';
                 const slideFrameRect = window.WhiteboardApp.slideFrameRect || window.slideFrameRect;
                 const currentColor = window.WhiteboardApp.currentColor || window.currentColor || '#1e293b';
@@ -153,8 +153,8 @@
                 }
 
                 const isMiddleClick = evt && evt.button === 1;
-                const currentMode = window.WhiteboardApp.currentMode || window.currentMode || 'select';
-                const isSpacePressed = window.WhiteboardApp.isSpacePressed || window.isSpacePressed;
+                const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
+                const isSpacePressed = window.isSpacePressed || (window.WhiteboardApp && window.WhiteboardApp.isSpacePressed);
                 const shouldPan = currentMode === 'pan' || isSpacePressed || isMiddleClick;
 
                 if (shouldPan) {
@@ -453,7 +453,7 @@
                     return;
                 }
 
-                const currentMode = window.WhiteboardApp.currentMode || window.currentMode;
+                const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
                 const eraserSubMode = window.WhiteboardApp.eraserSubMode || window.eraserSubMode || 'brush';
                 const eraserCursorPreview = document.getElementById('eraser-cursor-preview');
                 const eraserSize = window.WhiteboardApp.eraserSize || window.eraserSize || 24;

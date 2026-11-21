@@ -136,6 +136,10 @@
 
     function setEraserSize(newSize) {
         window.eraserSize = Math.max(6, Math.min(150, Math.round(newSize)));
+        if (window.WhiteboardApp) {
+            window.WhiteboardApp.eraserSize = window.eraserSize;
+            if (window.WhiteboardApp.state) window.WhiteboardApp.state.eraserSize = window.eraserSize;
+        }
         const eraserSizeVal = document.getElementById('eraser-size-val');
         const sliderEraserSize = document.getElementById('slider-eraser-size');
         const fsSizeDisplay = document.getElementById('fs-size-display');
@@ -169,6 +173,10 @@
 
     function setEraserSubMode(subMode) {
         window.eraserSubMode = (subMode === 'area') ? 'area' : 'brush';
+        if (window.WhiteboardApp) {
+            window.WhiteboardApp.eraserSubMode = window.eraserSubMode;
+            if (window.WhiteboardApp.state) window.WhiteboardApp.state.eraserSubMode = window.eraserSubMode;
+        }
 
         const btnEraserModeBrush = document.getElementById('btn-eraser-mode-brush');
         const btnEraserModeArea = document.getElementById('btn-eraser-mode-area');
@@ -208,6 +216,10 @@
 
     function updateActiveDrawingColor(newColor) {
         window.currentColor = newColor;
+        if (window.WhiteboardApp) {
+            window.WhiteboardApp.currentColor = newColor;
+            if (window.WhiteboardApp.state) window.WhiteboardApp.state.currentColor = newColor;
+        }
 
         const colorPicker = document.getElementById('color-picker');
         const colorPreview = document.getElementById('color-preview');

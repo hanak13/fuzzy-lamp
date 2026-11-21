@@ -16,6 +16,7 @@
 
     let currentMode = 'select';
     window.currentMode = 'select';
+    window.__currentMode = 'select';
     window.WhiteboardApp.currentMode = 'select';
 
     function getCanvas() {
@@ -25,8 +26,12 @@
     function setMode(mode) {
         currentMode = mode;
         window.currentMode = mode;
-        if (window.WhiteboardApp.state) {
-            window.WhiteboardApp.state.currentMode = mode;
+        window.__currentMode = mode;
+        if (window.WhiteboardApp) {
+            window.WhiteboardApp.currentMode = mode;
+            if (window.WhiteboardApp.state) {
+                window.WhiteboardApp.state.currentMode = mode;
+            }
         }
 
         const toolButtons = {
@@ -151,15 +156,7 @@
         } else if (mode === 'eraser') {
             canvas.discardActiveObject();
             canvas.selection = false;
-            const eraserSubMode = window.eraserSubMode || 'brush';
-            if (eraserSubMode === 'brush') {
-                canvas.defaultCursor = 'crosshair';
-                if (typeof window.updateBrushSettings === 'function') window.updateBrushSettings();
-            } else {
-                canvas.isDrawingMode = false;
-                canvas.defaultCursor = 'crosshair';
-                if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
-            }
+            canvas.defaultCursor = 'crosshair';
             canvas.forEachObject(obj => {
                 obj.selectable = false;
                 obj.evented = false;
@@ -167,6 +164,18 @@
             if (propLineGroup) propLineGroup.style.display = 'none';
             if (propFillGroup) propFillGroup.style.display = 'none';
             if (propTextGroup) propTextGroup.style.display = 'none';
+            if (propSizeGroup) propSizeGroup.style.display = 'none';
+            if (propEraserGroup) propEraserGroup.style.display = 'none';
+            const eraserSubMode = window.eraserSubMode || (window.WhiteboardApp && window.WhiteboardApp.eraserSubMode) || 'brush';
+            if (typeof window.setEraserSubMode === 'function') {
+                window.setEraserSubMode(eraserSubMode);
+            } else if (eraserSubMode === 'brush') {
+                canvas.isDrawingMode = true;
+                if (typeof window.updateBrushSettings === 'function') window.updateBrushSettings();
+            } else {
+                canvas.isDrawingMode = false;
+                if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
+            }
             canvas.renderAll();
         } else if (mode === 'text' || mode === 'sticky') {
             canvas.isDrawingMode = false;

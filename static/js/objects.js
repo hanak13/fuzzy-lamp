@@ -291,25 +291,21 @@
                 }
             }
 
-            // 2. Delegate to window.deleteSingleObject or perform robust removal
-            if (typeof window.deleteSingleObject === 'function') {
-                window.deleteSingleObject(obj);
-            } else {
-                if (obj.isStepBox) {
-                    const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === obj.stepBoxId && o !== obj);
-                    owned.forEach(c => canvas.remove(c));
-                }
-                if (obj.connectedLines && Array.isArray(obj.connectedLines)) {
-                    obj.connectedLines.forEach(line => {
-                        if (line.arrowHead) canvas.remove(line.arrowHead);
-                        if (line.startArrowHead) canvas.remove(line.startArrowHead);
-                        canvas.remove(line);
-                    });
-                }
-                if (obj.arrowHead) canvas.remove(obj.arrowHead);
-                if (obj.startArrowHead) canvas.remove(obj.startArrowHead);
-                canvas.remove(obj);
+            // 2. Perform robust removal
+            if (obj.isStepBox) {
+                const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === obj.stepBoxId && o !== obj);
+                owned.forEach(c => canvas.remove(c));
             }
+            if (obj.connectedLines && Array.isArray(obj.connectedLines)) {
+                obj.connectedLines.forEach(line => {
+                    if (line.arrowHead) canvas.remove(line.arrowHead);
+                    if (line.startArrowHead) canvas.remove(line.startArrowHead);
+                    canvas.remove(line);
+                });
+            }
+            if (obj.arrowHead) canvas.remove(obj.arrowHead);
+            if (obj.startArrowHead) canvas.remove(obj.startArrowHead);
+            canvas.remove(obj);
 
             canvas.requestRenderAll();
             if (typeof window.saveState === 'function') window.saveState();
@@ -328,11 +324,7 @@
 
             canvas.discardActiveObject();
             activeObjs.forEach(o => {
-                if (typeof window.deleteSingleObject === 'function') {
-                    window.deleteSingleObject(o);
-                } else {
-                    canvas.remove(o);
-                }
+                ObjectsModule.deleteSingleObject(o);
             });
 
             canvas.requestRenderAll();
@@ -358,11 +350,7 @@
 
             canvas.discardActiveObject();
             userObjects.forEach(obj => {
-                if (typeof window.deleteSingleObject === 'function') {
-                    window.deleteSingleObject(obj);
-                } else {
-                    canvas.remove(obj);
-                }
+                ObjectsModule.deleteSingleObject(obj);
             });
 
             canvas.requestRenderAll();
