@@ -239,16 +239,110 @@
         const btnOut = dom.btnZoomOut;
         const btnReset = dom.btnResetView;
         const zoomEl = dom.zoomPercentage;
+        const btnFullscreenToggle = document.getElementById('btn-fullscreen-toggle');
+        const btnZoomFullscreen = document.getElementById('btn-zoom-fullscreen');
+        const fullscreenIconExpand = document.getElementById('fullscreen-icon-expand');
+        const fullscreenIconCompress = document.getElementById('fullscreen-icon-compress');
 
         if (btnIn) btnIn.addEventListener('click', () => setZoom(canvas.getZoom() * 1.2));
         if (btnOut) btnOut.addEventListener('click', () => setZoom(canvas.getZoom() / 1.2));
         if (btnReset) btnReset.addEventListener('click', resetView);
         if (zoomEl) zoomEl.addEventListener('click', resetView);
+        if (btnFullscreenToggle) btnFullscreenToggle.addEventListener('click', toggleFullscreen);
+        if (btnZoomFullscreen) btnZoomFullscreen.addEventListener('click', toggleFullscreen);
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFull = !!document.fullscreenElement;
+            if (fullscreenIconExpand && fullscreenIconCompress) {
+                fullscreenIconExpand.style.display = isFull ? 'none' : 'block';
+                fullscreenIconCompress.style.display = isFull ? 'block' : 'none';
+            }
+        });
 
         updateGrid();
         updateZoomDisplay();
 
         return canvas;
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn('Error attempting to enable fullscreen:', err);
+                showToast('Fullscreen mode not permitted by browser');
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    function fitEntireCanvas() {
+        if (!canvas) return;
+        const objs = canvas.getObjects().filter(o => !o.isArrowHead && o.globalCompositeOperation !== 'destination-out' && !o.isSlideFrame);
+        if (objs.length === 0) {
+            resetView();
+            return;
+        }
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        objs.forEach(o => {
+            const b = o.getBoundingRect ? o.getBoundingRect(true) : null;
+            if (b) {
+                minX = Math.min(minX, b.left);
+                minY = Math.min(minY, b.top);
+                maxX = Math.max(maxX, b.left + b.width);
+                maxY = Math.max(maxY, b.top + b.height);
+            }
+        });
+        const width = Math.max(20, maxX - minX);
+        const height = Math.max(20, maxY - minY);
+        const padding = 80;
+        const zoomX = (canvas.getWidth() - padding * 2) / width;
+        const zoomY = (canvas.getHeight() - padding * 2) / height;
+        const newZoom = Math.max(0.1, Math.min(3.0, Math.min(zoomX, zoomY)));
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+        canvas.setZoom(newZoom);
+        canvas.viewportTransform[4] = canvas.getWidth() / 2 - centerX * newZoom;
+        canvas.viewportTransform[5] = canvas.getHeight() / 2 - centerY * newZoom;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        showToast('Fit entire canvas (Shift + 1)');
+    }
+
+    function zoomToSelection() {
+        if (!canvas) return;
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) {
+            showToast('Select an object first (Shift + 2)');
+            return;
+        }
+        const b = activeObj.getBoundingRect ? activeObj.getBoundingRect(true) : null;
+        if (!b) return;
+        const padding = 80;
+        const zoomX = (canvas.getWidth() - padding * 2) / Math.max(20, b.width);
+        const zoomY = (canvas.getHeight() - padding * 2) / Math.max(20, b.height);
+        const newZoom = Math.max(0.1, Math.min(4.0, Math.min(zoomX, zoomY)));
+        const center = activeObj.getCenterPoint ? activeObj.getCenterPoint() : { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+        canvas.setZoom(newZoom);
+        canvas.viewportTransform[4] = canvas.getWidth() / 2 - center.x * newZoom;
+        canvas.viewportTransform[5] = canvas.getHeight() / 2 - center.y * newZoom;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        showToast('Zoomed to selection (Shift + 2)');
+    }
+
+    function goToOrigin() {
+        if (!canvas) return;
+        canvas.viewportTransform[4] = 0;
+        canvas.viewportTransform[5] = 0;
+        canvas.requestRenderAll();
+        updateGrid();
+        updateZoomDisplay();
+        showToast('Canvas origin (Home)');
     }
 
     // Auto-init canvas on DOM ready if not yet created
@@ -273,7 +367,11 @@
         updateGrid,
         updateZoomDisplay,
         setZoom,
-        resetView
+        resetView,
+        toggleFullscreen,
+        fitEntireCanvas,
+        zoomToSelection,
+        goToOrigin
     };
 
     window.WhiteboardApp.core = CoreModule;
@@ -285,10 +383,15 @@
     window.WhiteboardApp.STICKY_COLORS = STICKY_COLORS;
 
     // Backward compatibility direct window exports
+    window.EXTRA_PROPS = EXTRA_PROPS;
     window.showToast = showToast;
     window.updateGrid = updateGrid;
     window.updateZoomDisplay = updateZoomDisplay;
     window.setZoom = setZoom;
     window.resetView = resetView;
+    window.toggleFullscreen = toggleFullscreen;
+    window.fitEntireCanvas = fitEntireCanvas;
+    window.zoomToSelection = zoomToSelection;
+    window.goToOrigin = goToOrigin;
 
 })(window);

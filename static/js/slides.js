@@ -425,7 +425,86 @@
             });
         }
 
+        const btnExitSlideMode = document.getElementById('btn-exit-slide-mode');
+        const btnSlideSaveExit = document.getElementById('btn-slide-save-exit');
+        const btnSlideDiscardExit = document.getElementById('btn-slide-discard-exit');
+        const btnSlideCancelExit = document.getElementById('btn-slide-cancel-exit');
+        const btnCloseExitSlide = document.getElementById('btn-close-exit-slide');
+
+        if (btnExitSlideMode) {
+            btnExitSlideMode.addEventListener('click', () => {
+                if (currentFrameRatio !== 'infinite') {
+                    openExitSlideModal();
+                }
+            });
+        }
+        if (btnSlideSaveExit) btnSlideSaveExit.addEventListener('click', () => executeExitSlideMode(true));
+        if (btnSlideDiscardExit) btnSlideDiscardExit.addEventListener('click', () => executeExitSlideMode(false));
+        if (btnSlideCancelExit) btnSlideCancelExit.addEventListener('click', closeExitSlideModal);
+        if (btnCloseExitSlide) btnCloseExitSlide.addEventListener('click', closeExitSlideModal);
+
         syncSharedSlideState();
+    }
+
+    function openExitSlideModal() {
+        const modal = document.getElementById('modal-exit-slide');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+    }
+
+    function closeExitSlideModal() {
+        const modal = document.getElementById('modal-exit-slide');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    function executeExitSlideMode(shouldSave) {
+        if (shouldSave) {
+            saveCurrentSlide();
+            if (typeof window.showToast === 'function') window.showToast('Saved slide presentation to board');
+        } else {
+            boardSlides = [
+                { id: 'slide_' + Date.now(), name: 'Slide 1', objects: [] }
+            ];
+            currentSlideIndex = 0;
+            if (typeof window.showToast === 'function') window.showToast('Discarded slide deck content');
+        }
+
+        closeExitSlideModal();
+        setFrameMode('infinite');
+    }
+
+    function attachSlideFrameRendering(frame) {
+        if (!frame) return;
+        frame._render = function(ctx) {
+            fabric.Rect.prototype._render.call(this, ctx);
+
+            ctx.save();
+            const w = this.width;
+            const h = this.height;
+            const halfW = w / 2;
+            const halfH = h / 2;
+
+            // Subtle slide grid lines
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            const step = 48;
+            for (let x = -halfW + step; x < halfW; x += step) {
+                ctx.moveTo(x, -halfH);
+                ctx.lineTo(x, halfH);
+            }
+            for (let y = -halfH + step; y < halfH; y += step) {
+                ctx.moveTo(-halfW, y);
+                ctx.lineTo(halfW, y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        };
     }
 
     if (document.readyState === 'loading') {
@@ -454,7 +533,11 @@
         addNewSlide,
         deleteCurrentSlide,
         toggleSlidePageFullscreen,
-        renderSlideFrameOverlays
+        renderSlideFrameOverlays,
+        openExitSlideModal,
+        closeExitSlideModal,
+        executeExitSlideMode,
+        attachSlideFrameRendering
     };
 
     window.WhiteboardApp.slides = SlidesModule;
@@ -470,5 +553,9 @@
     window.deleteCurrentSlide = deleteCurrentSlide;
     window.toggleSlidePageFullscreen = toggleSlidePageFullscreen;
     window.renderSlideFrameOverlays = renderSlideFrameOverlays;
+    window.openExitSlideModal = openExitSlideModal;
+    window.closeExitSlideModal = closeExitSlideModal;
+    window.executeExitSlideMode = executeExitSlideMode;
+    window.attachSlideFrameRendering = attachSlideFrameRendering;
 
 })(window);

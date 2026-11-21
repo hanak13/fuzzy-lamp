@@ -671,6 +671,71 @@
         loadTemplates();
     }
 
+    function saveActiveObjectAsCustomShape() {
+        const canvas = getCanvas();
+        if (!canvas) return;
+        const activeObj = canvas.getActiveObject();
+        if (!activeObj) {
+            if (typeof window.showToast === 'function') window.showToast('Select a merged shape or diagram to save');
+            return;
+        }
+
+        if (activeObj.type === 'activeSelection') {
+            if (typeof window.showToast === 'function') window.showToast('Please merge objects first, then right-click Save');
+            return;
+        }
+
+        const defaultName = activeObj.isMergedShape ? 'Merged Diagram' : (activeObj.shapeId || 'Custom Shape');
+        const shapeName = prompt('Enter a name for your custom shape:', defaultName);
+        if (!shapeName || !shapeName.trim()) return;
+
+        let thumbnail = '';
+        try {
+            thumbnail = activeObj.toDataURL({
+                format: 'png',
+                multiplier: 0.5,
+                enableRetinaScaling: false
+            });
+        } catch (err) {
+            console.warn('Could not generate thumbnail for custom shape:', err);
+        }
+
+        const EXTRA_PROPS = window.EXTRA_PROPS || ['shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName'];
+        const serializedJson = activeObj.toJSON(EXTRA_PROPS);
+
+        const newCustomShape = {
+            id: 'custom_shape_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            name: shapeName.trim(),
+            category: 'My Shapes',
+            isUserCustom: true,
+            thumbnail: thumbnail,
+            json: serializedJson,
+            createdAt: Date.now()
+        };
+
+        saveUserCustomShape(newCustomShape);
+
+        window.activeCategory = 'My Shapes';
+        const categoryChips = document.querySelectorAll('.category-chip');
+        categoryChips.forEach(chip => {
+            chip.classList.toggle('active', chip.dataset.category === 'My Shapes');
+        });
+
+        if (typeof window.openDrawerPanel === 'function') window.openDrawerPanel('shapes');
+        renderShapesList();
+        if (typeof window.showToast === 'function') window.showToast(`Saved "${shapeName.trim()}" to My Shapes!`);
+    }
+
+    function addBuiltinShape(shapeId) {
+        const shapeDef = allShapes.find(s => s.id === shapeId);
+        if (shapeDef) {
+            addShapeToCanvas(shapeDef);
+            if (typeof window.showToast === 'function') {
+                window.showToast(`Added ${shapeDef.name} (${shapeId === 'rectangle' ? 'R' : 'C'})`);
+            }
+        }
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initShapesUI);
     } else {
@@ -692,7 +757,9 @@
         addUserCustomShapeToCanvas,
         loadTemplates,
         renderTemplatesList,
-        loadTemplateOntoCanvas
+        loadTemplateOntoCanvas,
+        saveActiveObjectAsCustomShape,
+        addBuiltinShape
     };
 
     window.WhiteboardApp.shapes = ShapesModule;
@@ -710,4 +777,6 @@
     window.loadTemplates = loadTemplates;
     window.renderTemplatesList = renderTemplatesList;
     window.loadTemplateOntoCanvas = loadTemplateOntoCanvas;
+    window.saveActiveObjectAsCustomShape = saveActiveObjectAsCustomShape;
+    window.addBuiltinShape = addBuiltinShape;
 })();

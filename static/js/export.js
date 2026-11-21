@@ -492,6 +492,101 @@
             }
         },
 
+        exportActiveObjectAs(format = 'svg') {
+            const canvas = ExportModule.getCanvas();
+            if (!canvas) return;
+            const activeObj = canvas.getActiveObject();
+            if (!activeObj) {
+                if (typeof window.showToast === 'function') window.showToast('Select a shape to export');
+                return;
+            }
+
+            let baseName = 'whiteboard_shape';
+            if (activeObj.isMergedShape) baseName = 'merged_diagram';
+            else if (activeObj.shapeId) baseName = activeObj.shapeId.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+            else if (activeObj.type === 'i-text' || activeObj.type === 'textbox') baseName = 'text_snippet';
+            else if (activeObj.isStickyNote) baseName = 'sticky_note';
+            else if (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line') baseName = 'line_arrow';
+
+            if (format === 'svg') {
+                const EXTRA_PROPS = window.EXTRA_PROPS || ['shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName'];
+                activeObj.clone((cloned) => {
+                    const b = cloned.getBoundingRect(true, true);
+                    const padding = 20;
+                    const w = Math.max(20, Math.ceil(b.width + padding * 2));
+                    const h = Math.max(20, Math.ceil(b.height + padding * 2));
+
+                    const tempCanvasEl = document.createElement('canvas');
+                    tempCanvasEl.width = w;
+                    tempCanvasEl.height = h;
+
+                    const tempCanvas = new fabric.StaticCanvas(tempCanvasEl, {
+                        width: w,
+                        height: h,
+                        backgroundColor: 'transparent'
+                    });
+
+                    cloned.set({
+                        left: w / 2,
+                        top: h / 2,
+                        originX: 'center',
+                        originY: 'center'
+                    });
+                    cloned.setCoords();
+
+                    tempCanvas.add(cloned);
+                    tempCanvas.renderAll();
+
+                    const svgContent = tempCanvas.toSVG({
+                        viewBox: { x: 0, y: 0, width: w, height: h }
+                    });
+
+                    tempCanvas.dispose();
+
+                    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${baseName}.svg`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 1500);
+                    if (typeof window.showToast === 'function') window.showToast(`Exported "${baseName}.svg"`);
+                }, EXTRA_PROPS);
+            } else if (format === 'jpg' || format === 'png') {
+                const padding = 24;
+                const dataUrl = activeObj.toDataURL({
+                    format: 'png',
+                    multiplier: 2,
+                    enableRetinaScaling: true
+                });
+
+                const img = new Image();
+                img.onload = () => {
+                    const offCanvas = document.createElement('canvas');
+                    offCanvas.width = img.width + padding * 2;
+                    offCanvas.height = img.height + padding * 2;
+                    const ctx = offCanvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+                    ctx.drawImage(img, padding, padding);
+
+                    const ext = format === 'png' ? 'png' : 'jpg';
+                    const mime = format === 'png' ? 'image/png' : 'image/jpeg';
+                    const outUrl = offCanvas.toDataURL(mime, 0.95);
+                    const a = document.createElement('a');
+                    a.href = outUrl;
+                    a.download = `${baseName}.${ext}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    if (typeof window.showToast === 'function') window.showToast(`Exported "${baseName}.${ext}"`);
+                };
+                img.src = dataUrl;
+            }
+        },
+
         initUI() {
             const btnDownloadPng = document.getElementById('btn-download-png');
             const btnDownloadSvg = document.getElementById('btn-download-svg');
@@ -509,6 +604,7 @@
             window.exportAsPDF = ExportModule.exportAsPDF;
             window.exportAsPPTX = ExportModule.exportAsPPTX;
             window.exportStepBoxAsPPTX = ExportModule.exportStepBoxAsPPTX;
+            window.exportActiveObjectAs = ExportModule.exportActiveObjectAs;
         }
     };
 

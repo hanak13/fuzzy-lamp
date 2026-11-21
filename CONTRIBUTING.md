@@ -124,7 +124,7 @@ git push origin feat/your-feature-name
 - No bare `except:` — always catch a specific exception type.
 - Error messages inside export routes should use `print(...)` only for now (logging refactor is on the roadmap).
 
-### JavaScript (`static/js/whiteboard.js`)
+### JavaScript (`static/js/*.js`)
 
 - 4-space indentation, single quotes for strings.
 - No `var` — use `const` and `let`.

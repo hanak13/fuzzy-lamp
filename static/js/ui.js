@@ -90,6 +90,8 @@
             if (typeof window.renderTemplatesList === 'function') window.renderTemplatesList();
         } else if (panelId === 'stickers') {
             if (typeof window.renderStickersGallery === 'function') window.renderStickersGallery();
+        } else if (panelId === 'media') {
+            if (typeof window.renderMediaGallery === 'function') window.renderMediaGallery();
         } else if (panelId === 'layers') {
             if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
             if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
@@ -378,6 +380,84 @@
                 }
             });
         }
+        // Selection Event Listeners on Canvas
+        const canvas = getCanvas();
+        if (canvas) {
+            canvas.on('selection:created', (e) => {
+                const target = (e && e.selected && e.selected.length === 1) ? e.selected[0] : canvas.getActiveObject();
+                updatePropertiesUIForSelection(target);
+            });
+            canvas.on('selection:updated', (e) => {
+                const target = (e && e.selected && e.selected.length === 1) ? e.selected[0] : canvas.getActiveObject();
+                updatePropertiesUIForSelection(target);
+            });
+            canvas.on('selection:cleared', () => {
+                updatePropertiesUIForSelection(null);
+            });
+        }
+
+        // Panel Minimize & Three Floating Restore Buttons System
+        initPanelMinimizeSystem();
+    }
+
+    function initPanelMinimizeSystem() {
+        const btnMinimizeTopBar = document.getElementById('btn-minimize-top-bar');
+        const btnRestoreTopBar = document.getElementById('btn-restore-top-bar');
+        const topBarContainer = document.querySelector('.top-bar-container');
+
+        const btnMinimizeLeftSidebar = document.getElementById('btn-minimize-left-sidebar');
+        const btnRestoreLeftSidebar = document.getElementById('btn-restore-left-sidebar');
+        const leftSidebarNav = document.getElementById('left-sidebar');
+
+        const fsBtnMinimizeDock = document.getElementById('fs-btn-minimize-dock');
+        const btnRestoreBottomDock = document.getElementById('btn-restore-bottom-dock');
+        const fsPresenterBar = document.querySelector('.fullscreen-presenter-bar');
+
+        if (btnMinimizeTopBar && topBarContainer && btnRestoreTopBar) {
+            btnMinimizeTopBar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                topBarContainer.classList.add('minimized-top-bar');
+                btnRestoreTopBar.classList.remove('hidden');
+                if (typeof window.showToast === 'function') window.showToast('Top toolbar minimized');
+            });
+
+            btnRestoreTopBar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                topBarContainer.classList.remove('minimized-top-bar');
+                btnRestoreTopBar.classList.add('hidden');
+            });
+        }
+
+        if (btnMinimizeLeftSidebar && leftSidebarNav && btnRestoreLeftSidebar) {
+            btnMinimizeLeftSidebar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                leftSidebarNav.classList.add('minimized-sidebar');
+                closeDrawer();
+                btnRestoreLeftSidebar.classList.remove('hidden');
+                if (typeof window.showToast === 'function') window.showToast('Sidebar minimized');
+            });
+
+            btnRestoreLeftSidebar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                leftSidebarNav.classList.remove('minimized-sidebar');
+                btnRestoreLeftSidebar.classList.add('hidden');
+            });
+        }
+
+        if (fsBtnMinimizeDock && fsPresenterBar && btnRestoreBottomDock) {
+            fsBtnMinimizeDock.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fsPresenterBar.classList.add('minimized-dock');
+                btnRestoreBottomDock.classList.remove('hidden');
+                if (typeof window.showToast === 'function') window.showToast('Drawing dock minimized');
+            });
+
+            btnRestoreBottomDock.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fsPresenterBar.classList.remove('minimized-dock');
+                btnRestoreBottomDock.classList.add('hidden');
+            });
+        }
     }
 
     if (document.readyState === 'loading') {
@@ -391,7 +471,8 @@
         openDrawerPanel,
         closeDrawer,
         updateFillUI,
-        updatePropertiesUIForSelection
+        updatePropertiesUIForSelection,
+        initPanelMinimizeSystem
     };
 
     window.WhiteboardApp.ui = UIModule;
@@ -401,5 +482,6 @@
     window.closeDrawer = closeDrawer;
     window.updateFillUI = updateFillUI;
     window.updatePropertiesUIForSelection = updatePropertiesUIForSelection;
+    window.updateSelectionUI = updatePropertiesUIForSelection;
 
 })(window);

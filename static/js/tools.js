@@ -711,6 +711,76 @@
         canvas.requestRenderAll();
     }
 
+    function initToolsUI() {
+        const btnStrokeSizeDec = document.getElementById('btn-stroke-size-dec');
+        const btnStrokeSizeInc = document.getElementById('btn-stroke-size-inc');
+        const sliderStrokeSize = document.getElementById('slider-stroke-size');
+
+        const btnEraserSizeDec = document.getElementById('btn-eraser-size-dec');
+        const btnEraserSizeInc = document.getElementById('btn-eraser-size-inc');
+        const sliderEraserSize = document.getElementById('slider-eraser-size');
+        const btnEraserModeBrush = document.getElementById('btn-eraser-mode-brush');
+        const btnEraserModeArea = document.getElementById('btn-eraser-mode-area');
+
+        // Presenter Dock Controls
+        const fsBtnSizeDec = document.getElementById('fs-btn-size-dec');
+        const fsBtnSizeInc = document.getElementById('fs-btn-size-inc');
+        const fsSizeSlider = document.getElementById('fs-size-slider');
+        const fsBtnEraserDec = document.getElementById('fs-btn-eraser-dec');
+        const fsBtnEraserInc = document.getElementById('fs-btn-eraser-inc');
+        const fsSubEraserBrush = document.getElementById('fs-sub-eraser-brush');
+        const fsSubEraserArea = document.getElementById('fs-sub-eraser-area');
+
+        if (btnStrokeSizeDec) btnStrokeSizeDec.addEventListener('click', () => setStrokeSize((window.strokeSize || 4) - 1));
+        if (btnStrokeSizeInc) btnStrokeSizeInc.addEventListener('click', () => setStrokeSize((window.strokeSize || 4) + 1));
+        if (sliderStrokeSize) {
+            sliderStrokeSize.addEventListener('input', (e) => {
+                setStrokeSize(parseInt(e.target.value, 10));
+            });
+        }
+
+        if (btnEraserSizeDec) btnEraserSizeDec.addEventListener('click', () => setEraserSize((window.eraserSize || 30) - 6));
+        if (btnEraserSizeInc) btnEraserSizeInc.addEventListener('click', () => setEraserSize((window.eraserSize || 30) + 6));
+        if (sliderEraserSize) {
+            sliderEraserSize.addEventListener('input', (e) => {
+                setEraserSize(parseInt(e.target.value, 10));
+            });
+        }
+
+        if (btnEraserModeBrush) btnEraserModeBrush.addEventListener('click', () => setEraserSubMode('brush'));
+        if (btnEraserModeArea) btnEraserModeArea.addEventListener('click', () => setEraserSubMode('area'));
+
+        if (fsBtnSizeDec) {
+            fsBtnSizeDec.addEventListener('click', () => {
+                if (window.currentMode === 'eraser') setEraserSize((window.eraserSize || 30) - 6);
+                else setStrokeSize((window.strokeSize || 4) - 1);
+            });
+        }
+        if (fsBtnSizeInc) {
+            fsBtnSizeInc.addEventListener('click', () => {
+                if (window.currentMode === 'eraser') setEraserSize((window.eraserSize || 30) + 6);
+                else setStrokeSize((window.strokeSize || 4) + 1);
+            });
+        }
+        if (fsSizeSlider) {
+            fsSizeSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10);
+                if (window.currentMode === 'eraser') setEraserSize(val);
+                else setStrokeSize(val);
+            });
+        }
+        if (fsBtnEraserDec) fsBtnEraserDec.addEventListener('click', () => setEraserSize((window.eraserSize || 30) - 6));
+        if (fsBtnEraserInc) fsBtnEraserInc.addEventListener('click', () => setEraserSize((window.eraserSize || 30) + 6));
+        if (fsSubEraserBrush) fsSubEraserBrush.addEventListener('click', () => setEraserSubMode('brush'));
+        if (fsSubEraserArea) fsSubEraserArea.addEventListener('click', () => setEraserSubMode('area'));
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initToolsUI);
+    } else {
+        initToolsUI();
+    }
+
     const ToolsModule = {
         hexToRgba,
         updateBrushSettings,

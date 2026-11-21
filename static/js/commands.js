@@ -314,6 +314,54 @@
             if (typeof window.showToast === 'function') window.showToast('Objects Ungrouped (Ctrl + Shift + G)');
         },
 
+        formatActiveText(action) {
+            const canvas = CommandsModule.getCanvas();
+            if (!canvas) return;
+            const activeObj = canvas.getActiveObject();
+            if (!activeObj) return;
+
+            let textObj = null;
+            if (activeObj.type === 'i-text' || activeObj.type === 'textbox') {
+                textObj = activeObj;
+            } else if (activeObj.isShapeGroup || activeObj.isStickyNote) {
+                textObj = activeObj.getObjects ? activeObj.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text') : null;
+            }
+            if (!textObj) return;
+
+            const btnBold = document.getElementById('btn-bold');
+            const btnItalic = document.getElementById('btn-italic');
+
+            if (action === 'bold') {
+                const newVal = (textObj.fontWeight === 'bold') ? 'normal' : 'bold';
+                textObj.set('fontWeight', newVal);
+                if (btnBold) btnBold.classList.toggle('active', newVal === 'bold');
+                if (typeof window.showToast === 'function') window.showToast(newVal === 'bold' ? 'Bold enabled' : 'Bold disabled');
+            } else if (action === 'italic') {
+                const newVal = (textObj.fontStyle === 'italic') ? 'normal' : 'italic';
+                textObj.set('fontStyle', newVal);
+                if (btnItalic) btnItalic.classList.toggle('active', newVal === 'italic');
+                if (typeof window.showToast === 'function') window.showToast(newVal === 'italic' ? 'Italic enabled' : 'Italic disabled');
+            } else if (action === 'underline') {
+                textObj.set('underline', !textObj.underline);
+                if (typeof window.showToast === 'function') window.showToast(textObj.underline ? 'Underline enabled' : 'Underline disabled');
+            } else if (action === 'linethrough') {
+                textObj.set('linethrough', !textObj.linethrough);
+                if (typeof window.showToast === 'function') window.showToast(textObj.linethrough ? 'Strikethrough enabled' : 'Strikethrough disabled');
+            } else if (action === 'alignLeft') {
+                textObj.set('textAlign', 'left');
+                if (typeof window.showToast === 'function') window.showToast('Aligned Left');
+            } else if (action === 'alignCenter') {
+                textObj.set('textAlign', 'center');
+                if (typeof window.showToast === 'function') window.showToast('Aligned Center');
+            } else if (action === 'alignRight') {
+                textObj.set('textAlign', 'right');
+                if (typeof window.showToast === 'function') window.showToast('Aligned Right');
+            }
+
+            canvas.requestRenderAll();
+            CommandsModule.saveState();
+        },
+
         // --- Context Menu Management ---
         showContextMenu(clientX, clientY) {
             const contextMenu = document.getElementById('context-menu');
@@ -722,6 +770,16 @@
                     CommandsModule.duplicateSelected();
                     return;
                 }
+                if (isCtrl && !isShift && (key === 's' || key === 'S')) {
+                    e.preventDefault();
+                    if (typeof window.saveBoard === 'function') window.saveBoard();
+                    return;
+                }
+                if (isCtrl && isShift && (key === 's' || key === 'S')) {
+                    e.preventDefault();
+                    if (typeof window.saveBoardAs === 'function') window.saveBoardAs();
+                    return;
+                }
                 if (key === 'Delete' || key === 'Backspace') {
                     e.preventDefault();
                     if (typeof window.deleteSelectedObjects === 'function') {
@@ -752,6 +810,21 @@
                     if (typeof window.showToast === 'function') window.showToast('Zoom: 100%');
                     return;
                 }
+                if (isShift && !isCtrl && (key === '!' || key === '1')) {
+                    e.preventDefault();
+                    if (typeof window.fitEntireCanvas === 'function') window.fitEntireCanvas();
+                    return;
+                }
+                if (isShift && !isCtrl && (key === '@' || key === '2')) {
+                    e.preventDefault();
+                    if (typeof window.zoomToSelection === 'function') window.zoomToSelection();
+                    return;
+                }
+                if (key === 'Home') {
+                    e.preventDefault();
+                    if (typeof window.goToOrigin === 'function') window.goToOrigin();
+                    return;
+                }
 
                 // Drawing Tools Shortcuts
                 if (!isCtrl && (key === 'v' || key === 'V')) {
@@ -770,6 +843,18 @@
                     if (typeof window.setMode === 'function') window.setMode('text');
                     return;
                 }
+                if (!isCtrl && (key === 'r' || key === 'R')) {
+                    if (typeof window.addBuiltinShape === 'function') window.addBuiltinShape('rectangle');
+                    return;
+                }
+                if (!isCtrl && (key === 'c' || key === 'C')) {
+                    if (typeof window.addBuiltinShape === 'function') window.addBuiltinShape('circle');
+                    return;
+                }
+                if (!isCtrl && (key === 'o' || key === 'O')) {
+                    if (typeof window.toggleObjectsDrawer === 'function') window.toggleObjectsDrawer();
+                    return;
+                }
                 if (!isCtrl && (key === 'l' || key === 'L')) {
                     if (typeof window.setMode === 'function') window.setMode('line');
                     return;
@@ -783,9 +868,9 @@
                     return;
                 }
                 if (!isCtrl && (key === 'e' || key === 'E')) {
-                    const currentMode = window.WhiteboardApp.currentMode || window.currentMode;
+                    const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode);
                     if (currentMode === 'eraser') {
-                        const currentSub = window.WhiteboardApp.eraserSubMode || window.eraserSubMode || 'brush';
+                        const currentSub = window.eraserSubMode || (window.WhiteboardApp && window.WhiteboardApp.eraserSubMode) || 'brush';
                         if (typeof window.setEraserSubMode === 'function') {
                             window.setEraserSubMode(currentSub === 'brush' ? 'area' : 'brush');
                         }
@@ -793,6 +878,158 @@
                         window.setMode('eraser');
                     }
                     return;
+                }
+                if (!isCtrl && (key === '[' || code === 'BracketLeft')) {
+                    const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode);
+                    if (currentMode === 'eraser') {
+                        if (typeof window.setEraserSize === 'function') {
+                            window.setEraserSize((window.eraserSize || 30) - 6);
+                            if (typeof window.showToast === 'function') window.showToast(`Eraser Size: ${window.eraserSize}px`);
+                        }
+                    } else if (typeof window.setStrokeSize === 'function') {
+                        window.setStrokeSize((window.strokeSize || 4) - 1);
+                        if (typeof window.showToast === 'function') window.showToast(`Writing Size: ${window.strokeSize}px`);
+                    }
+                    return;
+                }
+                if (!isCtrl && (key === ']' || code === 'BracketRight')) {
+                    const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode);
+                    if (currentMode === 'eraser') {
+                        if (typeof window.setEraserSize === 'function') {
+                            window.setEraserSize((window.eraserSize || 30) + 6);
+                            if (typeof window.showToast === 'function') window.showToast(`Eraser Size: ${window.eraserSize}px`);
+                        }
+                    } else if (typeof window.setStrokeSize === 'function') {
+                        window.setStrokeSize((window.strokeSize || 4) + 1);
+                        if (typeof window.showToast === 'function') window.showToast(`Writing Size: ${window.strokeSize}px`);
+                    }
+                    return;
+                }
+                if (key === 'Enter') {
+                    const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        if (activeObj.type === 'i-text') {
+                            activeObj.enterEditing();
+                            e.preventDefault();
+                        } else if (activeObj.isShapeGroup || activeObj.isStickyNote) {
+                            const textObj = activeObj.getObjects ? activeObj.getObjects().find(o => o.type === 'textbox' || o.type === 'i-text') : null;
+                            if (textObj) {
+                                canvas.setActiveObject(textObj);
+                                if (textObj.enterEditing) textObj.enterEditing();
+                                if (textObj.selectAll) textObj.selectAll();
+                                canvas.requestRenderAll();
+                                e.preventDefault();
+                            }
+                        }
+                    }
+                    return;
+                }
+
+                // Text Formatting Shortcuts
+                if (isCtrl && !isShift && (key === 'b' || key === 'B')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('bold');
+                    return;
+                }
+                if (isCtrl && !isShift && (key === 'i' || key === 'I')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('italic');
+                    return;
+                }
+                if (isCtrl && !isShift && (key === 'u' || key === 'U')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('underline');
+                    return;
+                }
+                if (isCtrl && isShift && (key === 'x' || key === 'X')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('linethrough');
+                    return;
+                }
+                if (isCtrl && isShift && (key === 'l' || key === 'L')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('alignLeft');
+                    return;
+                }
+                if (isCtrl && isShift && (key === 'e' || key === 'E')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('alignCenter');
+                    return;
+                }
+                if (isCtrl && isShift && (key === 'r' || key === 'R')) {
+                    e.preventDefault();
+                    CommandsModule.formatActiveText('alignRight');
+                    return;
+                }
+
+                // Layer Ordering Shortcuts
+                if (isCtrl && !isShift && key === ']') {
+                    e.preventDefault();
+                    const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        canvas.bringForward(activeObj);
+                        canvas.requestRenderAll();
+                        CommandsModule.saveState();
+                        if (typeof window.showToast === 'function') window.showToast('Brought Forward (Ctrl + ])');
+                    }
+                    return;
+                }
+                if (isCtrl && !isShift && key === '[') {
+                    e.preventDefault();
+                    const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        canvas.sendBackwards(activeObj);
+                        canvas.requestRenderAll();
+                        CommandsModule.saveState();
+                        if (typeof window.showToast === 'function') window.showToast('Sent Backward (Ctrl + [)');
+                    }
+                    return;
+                }
+                if (isCtrl && isShift && (key === '}' || key === ']')) {
+                    e.preventDefault();
+                    const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        canvas.bringToFront(activeObj);
+                        canvas.requestRenderAll();
+                        CommandsModule.saveState();
+                        if (typeof window.showToast === 'function') window.showToast('Brought to Front (Ctrl + Shift + ])');
+                    }
+                    return;
+                }
+                if (isCtrl && isShift && (key === '{' || key === '[')) {
+                    e.preventDefault();
+                    const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        canvas.sendToBack(activeObj);
+                        canvas.requestRenderAll();
+                        CommandsModule.saveState();
+                        if (typeof window.showToast === 'function') window.showToast('Sent to Back (Ctrl + Shift + [)');
+                    }
+                    return;
+                }
+
+                // Slide Navigation Shortcuts
+                const currentFrameRatio = window.currentFrameRatio || (window.WhiteboardApp && window.WhiteboardApp.currentFrameRatio) || 'infinite';
+                if (currentFrameRatio !== 'infinite') {
+                    const boardSlides = window.boardSlides || (window.WhiteboardApp && window.WhiteboardApp.boardSlides) || [];
+                    const currentSlideIndex = (window.currentSlideIndex !== undefined) ? window.currentSlideIndex : ((window.WhiteboardApp && window.WhiteboardApp.currentSlideIndex) || 0);
+
+                    if (key === 'PageDown' || (e.altKey && key === 'ArrowRight')) {
+                        e.preventDefault();
+                        if (currentSlideIndex < boardSlides.length - 1) {
+                            if (typeof window.saveCurrentSlide === 'function') window.saveCurrentSlide();
+                            if (typeof window.loadSlide === 'function') window.loadSlide(currentSlideIndex + 1);
+                        }
+                        return;
+                    }
+                    if (key === 'PageUp' || (e.altKey && key === 'ArrowLeft')) {
+                        e.preventDefault();
+                        if (currentSlideIndex > 0) {
+                            if (typeof window.saveCurrentSlide === 'function') window.saveCurrentSlide();
+                            if (typeof window.loadSlide === 'function') window.loadSlide(currentSlideIndex - 1);
+                        }
+                        return;
+                    }
                 }
 
                 // Object Arrangement
@@ -854,6 +1091,7 @@
     window.selectAllObjects = CommandsModule.selectAllObjects;
     window.showContextMenu = CommandsModule.showContextMenu;
     window.hideContextMenu = CommandsModule.hideContextMenu;
+    window.formatActiveText = CommandsModule.formatActiveText;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => CommandsModule.init());

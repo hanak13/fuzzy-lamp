@@ -354,6 +354,274 @@
 
         // Self-load sticker assets
         loadStickers();
+
+        // ---------------------------------------------------------------------
+        // Media & Image Upload System (PNG, JPG, SVG onto Canvas)
+        // ---------------------------------------------------------------------
+        initMediaSystem();
+    }
+
+    let uploadedMediaList = [];
+    try {
+        const storedMedia = localStorage.getItem('whiteboard_uploaded_media');
+        if (storedMedia) uploadedMediaList = JSON.parse(storedMedia);
+    } catch (e) {
+        uploadedMediaList = [];
+    }
+
+    function saveUploadedMedia() {
+        try {
+            const trimmed = uploadedMediaList.slice(0, 20);
+            localStorage.setItem('whiteboard_uploaded_media', JSON.stringify(trimmed));
+        } catch (e) {
+            console.warn('Could not save media to localStorage:', e);
+        }
+    }
+
+    function renderMediaGallery() {
+        const mediaGalleryEl = document.getElementById('media-gallery');
+        const mediaCountBadge = document.getElementById('media-count-badge');
+        if (!mediaGalleryEl) return;
+        mediaGalleryEl.innerHTML = '';
+
+        if (!uploadedMediaList || uploadedMediaList.length === 0) {
+            if (mediaCountBadge) mediaCountBadge.textContent = '0';
+            const emptyEl = document.createElement('div');
+            emptyEl.id = 'empty-media-msg';
+            emptyEl.style.cssText = 'grid-column: 1 / -1; text-align: center; padding: 20px 10px; color: var(--text-muted); font-size: 11px;';
+            emptyEl.innerHTML = 'No images uploaded yet.<br>Click "Browse" or drop images to add them.';
+            mediaGalleryEl.appendChild(emptyEl);
+            return;
+        }
+
+        if (mediaCountBadge) mediaCountBadge.textContent = String(uploadedMediaList.length);
+
+        uploadedMediaList.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'media-thumb-card';
+            card.title = `Click to add "${item.name}" to canvas`;
+
+            const img = document.createElement('img');
+            img.src = item.url;
+            img.alt = item.name;
+            img.className = 'media-thumb-img';
+
+            const name = document.createElement('span');
+            name.className = 'media-thumb-name';
+            name.textContent = item.name;
+
+            const btnDel = document.createElement('button');
+            btnDel.className = 'media-thumb-delete';
+            btnDel.innerHTML = '&times;';
+            btnDel.title = 'Remove from uploaded list';
+            btnDel.addEventListener('click', (e) => {
+                e.stopPropagation();
+                uploadedMediaList.splice(idx, 1);
+                saveUploadedMedia();
+                renderMediaGallery();
+            });
+
+            card.appendChild(img);
+            card.appendChild(name);
+            card.appendChild(btnDel);
+
+            card.addEventListener('click', () => {
+                addImageToCanvas(item.url, null, null, item.name);
+            });
+
+            mediaGalleryEl.appendChild(card);
+        });
+    }
+
+    function addImageToCanvas(dataUrl, targetX, targetY, fileName) {
+        if (!dataUrl) return;
+        const canvas = getCanvas();
+        if (!canvas) return;
+
+        fabric.Image.fromURL(dataUrl, (img) => {
+            if (!img) {
+                if (typeof window.showToast === 'function') window.showToast('Failed to load image onto canvas');
+                return;
+            }
+
+            let posX = targetX;
+            let posY = targetY;
+
+            const currentFrameRatio = window.WhiteboardApp.currentFrameRatio || window.currentFrameRatio || 'infinite';
+            const slideFrameRect = window.WhiteboardApp.slideFrameRect || window.slideFrameRect;
+
+            if (posX === null || posX === undefined || posY === null || posY === undefined) {
+                if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+                    posX = slideFrameRect.left + slideFrameRect.getScaledWidth() / 2;
+                    posY = slideFrameRect.top + slideFrameRect.getScaledHeight() / 2;
+                } else {
+                    const vpt = canvas.viewportTransform;
+                    const zoom = canvas.getZoom() || 1;
+                    posX = (-vpt[4] + canvas.getWidth() / 2) / zoom;
+                    posY = (-vpt[5] + canvas.getHeight() / 2) / zoom;
+                }
+            }
+
+            const maxW = Math.min(canvas.getWidth() * 0.65, 600);
+            const maxH = Math.min(canvas.getHeight() * 0.65, 500);
+            const imgW = img.width || 400;
+            const imgH = img.height || 300;
+            const scale = Math.min(maxW / imgW, maxH / imgH, 1);
+
+            const genUid = window.generateUid || (() => 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
+
+            img.set({
+                left: posX,
+                top: posY,
+                originX: 'center',
+                originY: 'center',
+                scaleX: scale,
+                scaleY: scale,
+                cornerColor: '#2563eb',
+                cornerSize: 10,
+                transparentCorners: false,
+                hasRotatingPoint: true,
+                hasControls: true,
+                selectable: true,
+                shapeUid: genUid(),
+                imageName: fileName || 'Uploaded Image'
+            });
+
+            img.connectedLines = [];
+            canvas.add(img);
+
+            if (typeof window.constrainObjectToSlideFrame === 'function') {
+                window.constrainObjectToSlideFrame(img);
+            }
+
+            if (typeof window.setMode === 'function') window.setMode('select');
+            canvas.setActiveObject(img);
+            canvas.renderAll();
+            if (typeof window.saveState === 'function') window.saveState();
+            if (typeof window.showToast === 'function') window.showToast(`Added image: "${fileName || 'Image'}"`);
+
+            const exists = uploadedMediaList.some(m => m.name === fileName && m.url === dataUrl);
+            if (!exists) {
+                uploadedMediaList.unshift({
+                    name: fileName || 'Uploaded Image',
+                    url: dataUrl
+                });
+                saveUploadedMedia();
+                renderMediaGallery();
+            }
+        });
+    }
+
+    function processImageFiles(files, dropX, dropY) {
+        if (!files || files.length === 0) return;
+        Array.from(files).forEach((file) => {
+            const isValid = file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|svg|webp|gif)$/i);
+            if (!isValid) {
+                if (typeof window.showToast === 'function') window.showToast(`Skipped non-image file: ${file.name}`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                addImageToCanvas(dataUrl, dropX, dropY, file.name);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function initMediaSystem() {
+        const mediaFileInput = document.getElementById('media-file-input');
+        const btnBrowseMedia = document.getElementById('btn-browse-media');
+        const mediaUploadBox = document.getElementById('media-upload-box');
+        const canvasContainer = document.getElementById('canvas-container');
+
+        if (btnBrowseMedia && mediaFileInput) {
+            btnBrowseMedia.addEventListener('click', () => {
+                mediaFileInput.value = '';
+                mediaFileInput.click();
+            });
+        }
+
+        if (mediaUploadBox && mediaFileInput) {
+            mediaUploadBox.addEventListener('click', (e) => {
+                if (e.target !== btnBrowseMedia) {
+                    mediaFileInput.value = '';
+                    mediaFileInput.click();
+                }
+            });
+
+            mediaUploadBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                mediaUploadBox.style.borderColor = 'var(--primary-color)';
+            });
+
+            mediaUploadBox.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                mediaUploadBox.style.borderColor = '';
+            });
+
+            mediaUploadBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                mediaUploadBox.style.borderColor = '';
+                if (e.dataTransfer && e.dataTransfer.files) {
+                    processImageFiles(e.dataTransfer.files, null, null);
+                }
+            });
+        }
+
+        if (mediaFileInput) {
+            mediaFileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    processImageFiles(e.target.files, null, null);
+                }
+            });
+        }
+
+        if (canvasContainer) {
+            canvasContainer.addEventListener('dragover', (e) => {
+                if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
+                    e.preventDefault();
+                    canvasContainer.classList.add('drag-over-active');
+                }
+            });
+
+            canvasContainer.addEventListener('dragleave', () => {
+                canvasContainer.classList.remove('drag-over-active');
+            });
+
+            canvasContainer.addEventListener('drop', (e) => {
+                canvasContainer.classList.remove('drag-over-active');
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const canvas = getCanvas();
+                    const pointer = canvas ? canvas.getPointer(e) : { x: null, y: null };
+                    processImageFiles(e.dataTransfer.files, pointer.x, pointer.y);
+                    e.preventDefault();
+                }
+            });
+        }
+
+        window.addEventListener('paste', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (activeTag === 'input' || activeTag === 'textarea') return;
+
+            if (e.clipboardData && e.clipboardData.items) {
+                const items = Array.from(e.clipboardData.items);
+                const imgItem = items.find(it => it.type.startsWith('image/'));
+                if (imgItem) {
+                    e.preventDefault();
+                    const file = imgItem.getAsFile();
+                    if (file) {
+                        processImageFiles([file], null, null);
+                    }
+                }
+            }
+        });
+
+        renderMediaGallery();
     }
 
     if (document.readyState === 'loading') {
@@ -369,7 +637,10 @@
         setStickyColor,
         loadStickers,
         renderStickersGallery,
-        addStickerToCanvas
+        addStickerToCanvas,
+        renderMediaGallery,
+        addImageToCanvas,
+        processImageFiles
     };
 
     window.WhiteboardApp.notes = NotesModule;
@@ -380,5 +651,8 @@
     window.loadStickers = loadStickers;
     window.renderStickersGallery = renderStickersGallery;
     window.addStickerToCanvas = addStickerToCanvas;
+    window.renderMediaGallery = renderMediaGallery;
+    window.addImageToCanvas = addImageToCanvas;
+    window.processImageFiles = processImageFiles;
 
 })(window);

@@ -976,6 +976,14 @@
     window.switchBoard = BoardsModule.switchBoard;
     window.initBoards = BoardsModule.init;
     window.reconnectLoadedObjects = BoardsModule.reconnectLoadedObjects;
+    window.saveBoard = () => {
+        BoardsModule.saveActiveBoardToServer(true);
+        if (typeof window.showToast === 'function') window.showToast('Board saved (Ctrl + S)');
+    };
+    window.saveBoardAs = () => {
+        const activeId = BoardsModule.activeBoardId || (window.WhiteboardApp && window.WhiteboardApp.boards && window.WhiteboardApp.boards.activeBoardId) || 'board_main';
+        BoardsModule.downloadBoardJSON(activeId);
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => BoardsModule.init());
