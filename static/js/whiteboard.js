@@ -1465,6 +1465,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof renderMediaGallery === 'function') {
                 renderMediaGallery();
             }
+        } else if (panelId === 'layers') {
+            if (typeof renderObjectsList === 'function') {
+                renderObjectsList();
+            }
+            const objSearch = document.getElementById('objects-search');
+            if (objSearch) {
+                setTimeout(() => objSearch.focus(), 50);
+            }
         }
     }
 
@@ -4300,6 +4308,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSelectionUI() {
         const activeObjs = canvas.getActiveObjects();
         btnDelete.disabled = (!activeObjs || activeObjs.length === 0);
+        if (typeof updateObjectsCountBadges === 'function') {
+            updateObjectsCountBadges();
+        }
 
         const activeObj = canvas.getActiveObject();
         if (activeObj) {
@@ -4494,7 +4505,491 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+        if (typeof debouncedUpdateObjectsList === 'function') {
+            debouncedUpdateObjectsList();
+        }
     });
+
+    // -------------------------------------------------------------------------
+    // 14b. Canvas Objects & Layers Management System
+    // -------------------------------------------------------------------------
+    const btnTopbarObjects = document.getElementById('btn-topbar-objects');
+    const topbarObjectsCount = document.getElementById('topbar-objects-count');
+    const sidebarObjectsBadge = document.getElementById('sidebar-objects-badge');
+    const drawerObjectsCount = document.getElementById('drawer-objects-count');
+    const btnRefreshObjects = document.getElementById('btn-refresh-objects');
+    const objectsSearchInput = document.getElementById('objects-search');
+    const btnClearObjectsSearch = document.getElementById('btn-clear-objects-search');
+    const objFilterChips = document.querySelectorAll('.obj-filter-chip');
+    const filterCountAll = document.getElementById('filter-count-all');
+    const btnObjectsDeleteSelected = document.getElementById('btn-objects-delete-selected');
+    const objectsSelectedCount = document.getElementById('objects-selected-count');
+    const btnObjectsClearAll = document.getElementById('btn-objects-clear-all');
+    const objectsListWrapper = document.getElementById('objects-list-wrapper');
+
+    let currentObjectsFilter = 'all';
+    let currentObjectsSearch = '';
+    let objectListDebounceTimer = null;
+
+    function getUserCanvasObjects() {
+        if (!canvas) return [];
+        return canvas.getObjects().filter(o => {
+            if (!o) return false;
+            if (o.isSlideFrame || o.isGridLine) return false;
+            if (o === stepBoxPreviewRect || o === connectorPreviewLine) return false;
+            if (o.isArrowHead) return false;
+            return true;
+        });
+    }
+
+    function getObjectMetadata(obj) {
+        if (!obj.__uid) {
+            obj.__uid = 'obj_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        }
+
+        const width = Math.round((obj.width || 0) * (obj.scaleX || 1));
+        const height = Math.round((obj.height || 0) * (obj.scaleY || 1));
+        const left = Math.round(obj.left || 0);
+        const top = Math.round(obj.top || 0);
+
+        if (obj.isStepBox) {
+            const stepNum = (obj.stepBoxCurrentStep || 0) + 1;
+            const totalSteps = obj.stepBoxSteps ? obj.stepBoxSteps.length : 1;
+            return {
+                type: 'stepbox',
+                typeName: 'Step Box',
+                title: obj.stepBoxName || 'Step Box',
+                meta: `Step ${stepNum}/${totalSteps} • ${width}×${height}px`,
+                icon: '📦',
+                badgeClass: 'badge-stepbox'
+            };
+        }
+
+        if (obj.isStickyNote) {
+            let noteText = '';
+            if (obj._objects) {
+                const textChild = obj._objects.find(o => o.type === 'textbox' || o.type === 'i-text' || o.type === 'text');
+                if (textChild && textChild.text) noteText = textChild.text.trim();
+            }
+            return {
+                type: 'notes',
+                typeName: 'Sticky Note',
+                title: noteText.length > 0 ? (noteText.length > 28 ? noteText.substring(0, 28) + '…' : noteText) : 'Sticky Note',
+                meta: `Sticky Note (${obj.stickyColor || 'yellow'}) • ${left}, ${top}`,
+                icon: '📝',
+                badgeClass: 'badge-note'
+            };
+        }
+
+        if (obj.isSticker) {
+            return {
+                type: 'images',
+                typeName: 'Sticker',
+                title: obj.imageName || 'Sticker',
+                meta: `Sticker • ${width}×${height}px`,
+                icon: '🎨',
+                badgeClass: 'badge-sticker'
+            };
+        }
+
+        if (obj.type === 'image') {
+            return {
+                type: 'images',
+                typeName: 'Image',
+                title: obj.imageName || 'Uploaded Image',
+                meta: `Image • ${width}×${height}px`,
+                icon: '🖼️',
+                badgeClass: 'badge-image'
+            };
+        }
+
+        if (obj.type === 'i-text' || obj.type === 'textbox' || obj.type === 'text') {
+            const textVal = (obj.text || '').trim();
+            return {
+                type: 'text',
+                typeName: 'Text',
+                title: textVal.length > 0 ? (textVal.length > 28 ? textVal.substring(0, 28) + '…' : textVal) : 'Empty Text',
+                meta: `Font: ${obj.fontSize || 20}px • ${left}, ${top}`,
+                icon: '🔤',
+                badgeClass: 'badge-text'
+            };
+        }
+
+        if (obj.isConnector || obj.isFreeLine || obj.type === 'line') {
+            const hasArrow = obj.hasArrow || !!obj.arrowHead;
+            return {
+                type: 'shapes',
+                typeName: hasArrow ? 'Arrow Connector' : 'Line Connector',
+                title: hasArrow ? 'Arrow Connector' : 'Line Connector',
+                meta: `Color: ${obj.stroke || '#000'} • Width: ${obj.strokeWidth || 2}px`,
+                icon: '↗️',
+                badgeClass: 'badge-connector'
+            };
+        }
+
+        if (obj.type === 'path') {
+            const isHighlighter = (obj.stroke && (obj.stroke.includes('rgba') || obj.opacity < 1));
+            return {
+                type: 'drawings',
+                typeName: isHighlighter ? 'Highlighter' : 'Pen Stroke',
+                title: isHighlighter ? 'Highlighter Stroke' : 'Pen Stroke',
+                meta: `Color: ${obj.stroke || '#1e293b'} • Width: ${obj.strokeWidth || 2}px`,
+                icon: isHighlighter ? '🖍️' : '✏️',
+                badgeClass: isHighlighter ? 'badge-highlighter' : 'badge-pen'
+            };
+        }
+
+        if (obj.isShapeGroup || obj.isMergedShape || obj.shapeId) {
+            let shapeName = obj.shapeName || obj.shapeId || 'Shape';
+            if (obj._objects) {
+                const textChild = obj._objects.find(o => o.type === 'text' || o.type === 'i-text' || o.type === 'textbox');
+                if (textChild && textChild.text && textChild.text.trim()) {
+                    shapeName += `: "${textChild.text.trim().substring(0, 18)}"`;
+                }
+            }
+            return {
+                type: 'shapes',
+                typeName: 'Shape',
+                title: shapeName,
+                meta: `Shape • ${width}×${height}px`,
+                icon: '🔷',
+                badgeClass: 'badge-shape'
+            };
+        }
+
+        const typeCap = obj.type ? obj.type.charAt(0).toUpperCase() + obj.type.slice(1) : 'Object';
+        return {
+            type: 'shapes',
+            typeName: typeCap,
+            title: `${typeCap} (${width}×${height}px)`,
+            meta: `Position: ${left}, ${top}`,
+            icon: '📐',
+            badgeClass: 'badge-generic'
+        };
+    }
+
+    function updateObjectsCountBadges() {
+        const objects = getUserCanvasObjects();
+        const total = objects.length;
+
+        if (topbarObjectsCount) topbarObjectsCount.textContent = total;
+        if (drawerObjectsCount) drawerObjectsCount.textContent = total;
+        if (filterCountAll) filterCountAll.textContent = total;
+
+        if (sidebarObjectsBadge) {
+            sidebarObjectsBadge.textContent = total;
+            sidebarObjectsBadge.style.display = total > 0 ? 'flex' : 'none';
+        }
+
+        // Selected count
+        const activeObjs = canvas ? canvas.getActiveObjects() : [];
+        const selCount = activeObjs.filter(o => !o.isSlideFrame && !o.isGridLine && o !== stepBoxPreviewRect && o !== connectorPreviewLine).length;
+        if (objectsSelectedCount) objectsSelectedCount.textContent = selCount;
+        if (btnObjectsDeleteSelected) btnObjectsDeleteSelected.disabled = (selCount === 0);
+    }
+
+    function selectAndPanToObject(obj) {
+        if (!obj || !canvas) return;
+        canvas.setActiveObject(obj);
+
+        // Center on screen
+        const center = obj.getCenterPoint();
+        const zoom = canvas.getZoom();
+        const vpt = canvas.viewportTransform;
+        vpt[4] = (canvas.getWidth() / 2) - (center.x * zoom);
+        vpt[5] = (canvas.getHeight() / 2) - (center.y * zoom);
+        canvas.setViewportTransform(vpt);
+        if (typeof updateGrid === 'function') updateGrid();
+
+        canvas.requestRenderAll();
+        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
+    }
+
+    function toggleObjectVisibility(obj) {
+        if (!obj || !canvas) return;
+        obj.visible = !obj.visible;
+        if (!obj.visible && canvas.getActiveObject() === obj) {
+            canvas.discardActiveObject();
+        }
+        canvas.requestRenderAll();
+        saveState();
+        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
+        showToast(obj.visible ? 'Object visible' : 'Object hidden');
+    }
+
+    function toggleObjectLock(obj) {
+        if (!obj || !canvas) return;
+        const isCurrentlyLocked = !!obj.lockMovementX;
+        const newLock = !isCurrentlyLocked;
+
+        obj.lockMovementX = newLock;
+        obj.lockMovementY = newLock;
+        obj.lockRotation = newLock;
+        obj.lockScalingX = newLock;
+        obj.lockScalingY = newLock;
+        obj.hasControls = !newLock;
+
+        canvas.requestRenderAll();
+        saveState();
+        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
+        showToast(newLock ? 'Object locked' : 'Object unlocked');
+    }
+
+    function deleteSingleObjectFromList(obj) {
+        if (!obj || !canvas) return;
+        const meta = getObjectMetadata(obj);
+        deleteSingleObject(obj);
+        canvas.requestRenderAll();
+        saveState();
+        updateObjectsCountBadges();
+        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
+        showToast(`Deleted ${meta.typeName}`);
+    }
+
+    function deleteSelectedObjectsFromList() {
+        const activeObjs = canvas.getActiveObjects();
+        if (!activeObjs || activeObjs.length === 0) return;
+        deleteSelectedObjects();
+        updateObjectsCountBadges();
+        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
+        showToast('Selected objects deleted');
+    }
+
+    function clearAllCanvasObjects() {
+        const userObjects = getUserCanvasObjects();
+        if (userObjects.length === 0) {
+            showToast('No objects to delete');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete all ${userObjects.length} objects from this board?`)) {
+            return;
+        }
+
+        canvas.discardActiveObject();
+        userObjects.forEach(obj => {
+            deleteSingleObject(obj);
+        });
+
+        canvas.requestRenderAll();
+        saveState();
+        updateObjectsCountBadges();
+        renderObjectsList(currentObjectsFilter, currentObjectsSearch);
+        showToast('All objects deleted');
+    }
+
+    function renderObjectsList(filter = currentObjectsFilter, searchQuery = currentObjectsSearch) {
+        if (!objectsListWrapper) return;
+        currentObjectsFilter = filter;
+        currentObjectsSearch = searchQuery ? searchQuery.toLowerCase().trim() : '';
+
+        updateObjectsCountBadges();
+
+        const allObjects = getUserCanvasObjects();
+        // Top-most objects in canvas stacking order appear at the top of the list (reverse order)
+        let filtered = [...allObjects].reverse();
+
+        if (filter !== 'all') {
+            filtered = filtered.filter(obj => {
+                const meta = getObjectMetadata(obj);
+                return meta.type === filter;
+            });
+        }
+
+        if (searchQuery) {
+            filtered = filtered.filter(obj => {
+                const meta = getObjectMetadata(obj);
+                return meta.title.toLowerCase().includes(searchQuery) ||
+                       meta.typeName.toLowerCase().includes(searchQuery) ||
+                       meta.meta.toLowerCase().includes(searchQuery);
+            });
+        }
+
+        objectsListWrapper.innerHTML = '';
+
+        if (filtered.length === 0) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'objects-empty-state';
+            emptyEl.innerHTML = `
+                <div class="objects-empty-icon">${allObjects.length === 0 ? '🎨' : '🔍'}</div>
+                <div class="objects-empty-title">${allObjects.length === 0 ? 'No objects on canvas' : 'No matching objects'}</div>
+                <div class="objects-empty-sub">
+                    ${allObjects.length === 0 
+                        ? 'Draw, add shapes, sticky notes, text, or stickers to see and manage them here.'
+                        : 'Try searching with different keywords or switch the filter tab.'}
+                </div>
+            `;
+            objectsListWrapper.appendChild(emptyEl);
+            return;
+        }
+
+        const activeObjs = canvas ? canvas.getActiveObjects() : [];
+
+        filtered.forEach(obj => {
+            const meta = getObjectMetadata(obj);
+            const isSelected = activeObjs.includes(obj);
+            const isVisible = (obj.visible !== false);
+            const isLocked = !!obj.lockMovementX;
+
+            const card = document.createElement('div');
+            card.className = `object-item-card ${isSelected ? 'active' : ''} ${!isVisible ? 'is-hidden-obj' : ''}`;
+            card.dataset.uid = obj.__uid;
+
+            card.innerHTML = `
+                <div class="object-item-icon ${meta.badgeClass}">
+                    ${meta.icon}
+                </div>
+                <div class="object-item-details">
+                    <div class="object-item-title" title="${meta.title}">${meta.title}</div>
+                    <div class="object-item-meta">${meta.meta}</div>
+                </div>
+                <div class="object-item-actions">
+                    <button type="button" class="obj-row-btn btn-obj-visibility ${!isVisible ? 'is-hidden-eye' : ''}" title="${isVisible ? 'Hide object' : 'Show object'}">
+                        ${isVisible ? `
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        ` : `
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        `}
+                    </button>
+                    <button type="button" class="obj-row-btn btn-obj-lock ${isLocked ? 'is-active-lock' : ''}" title="${isLocked ? 'Unlock object' : 'Lock object'}">
+                        ${isLocked ? `
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        ` : `
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                            </svg>
+                        `}
+                    </button>
+                    <button type="button" class="obj-row-btn danger btn-obj-delete" title="Delete this object">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            // Click to select & pan to object
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.obj-row-btn')) return;
+                selectAndPanToObject(obj);
+            });
+
+            // Visibility toggle
+            card.querySelector('.btn-obj-visibility').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleObjectVisibility(obj);
+            });
+
+            // Lock toggle
+            card.querySelector('.btn-obj-lock').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleObjectLock(obj);
+            });
+
+            // Delete object button
+            card.querySelector('.btn-obj-delete').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteSingleObjectFromList(obj);
+            });
+
+            objectsListWrapper.appendChild(card);
+        });
+    }
+
+    function debouncedUpdateObjectsList() {
+        updateObjectsCountBadges();
+        if (shapesPanel && !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers') {
+            clearTimeout(objectListDebounceTimer);
+            objectListDebounceTimer = setTimeout(() => {
+                renderObjectsList();
+            }, 80);
+        }
+    }
+
+    // Top bar Objects button toggles the Objects drawer
+    if (btnTopbarObjects) {
+        btnTopbarObjects.addEventListener('click', () => {
+            openDrawerPanel('layers');
+        });
+    }
+
+    if (btnRefreshObjects) {
+        btnRefreshObjects.addEventListener('click', () => {
+            renderObjectsList();
+            showToast('Objects refreshed');
+        });
+    }
+
+    if (objectsSearchInput) {
+        objectsSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            if (btnClearObjectsSearch) {
+                btnClearObjectsSearch.style.display = query.length > 0 ? 'inline-flex' : 'none';
+            }
+            renderObjectsList(currentObjectsFilter, query);
+        });
+    }
+
+    if (btnClearObjectsSearch) {
+        btnClearObjectsSearch.addEventListener('click', () => {
+            if (objectsSearchInput) objectsSearchInput.value = '';
+            btnClearObjectsSearch.style.display = 'none';
+            renderObjectsList(currentObjectsFilter, '');
+        });
+    }
+
+    objFilterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            objFilterChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            const filter = chip.dataset.filter || 'all';
+            renderObjectsList(filter, objectsSearchInput ? objectsSearchInput.value : '');
+        });
+    });
+
+    if (btnObjectsDeleteSelected) {
+        btnObjectsDeleteSelected.addEventListener('click', deleteSelectedObjectsFromList);
+    }
+
+    if (btnObjectsClearAll) {
+        btnObjectsClearAll.addEventListener('click', clearAllCanvasObjects);
+    }
+
+    // Canvas sync listeners
+    canvas.on('object:added', () => debouncedUpdateObjectsList());
+    canvas.on('object:modified', () => debouncedUpdateObjectsList());
+    canvas.on('selection:created', () => {
+        updateObjectsCountBadges();
+        if (shapesPanel && !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers') {
+            renderObjectsList();
+        }
+    });
+    canvas.on('selection:updated', () => {
+        updateObjectsCountBadges();
+        if (shapesPanel && !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers') {
+            renderObjectsList();
+        }
+    });
+    canvas.on('selection:cleared', () => {
+        updateObjectsCountBadges();
+        if (shapesPanel && !shapesPanel.classList.contains('hidden') && activeDrawerPanel === 'layers') {
+            renderObjectsList();
+        }
+    });
+
+    // Initial badge update
+    setTimeout(updateObjectsCountBadges, 500);
 
     // -------------------------------------------------------------------------
     // 15. Property Handlers (Fill, Border, Stroke Size, Font Size, Bold, Italic)
@@ -7939,8 +8434,12 @@ document.addEventListener('DOMContentLoaded', () => {
             addBuiltinShape('rectangle');
             return;
         }
-        if (!isCtrl && (key === 'o' || key === 'O')) {
+        if (!isCtrl && (key === 'c' || key === 'C')) {
             addBuiltinShape('circle');
+            return;
+        }
+        if (!isCtrl && (key === 'o' || key === 'O')) {
+            openDrawerPanel('layers');
             return;
         }
         if (!isCtrl && (key === 'l' || key === 'L')) {
