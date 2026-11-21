@@ -61,15 +61,7 @@
             canvas.freeDrawingBrush.strokeLineCap = 'round';
             canvas.freeDrawingBrush.strokeLineJoin = 'round';
         } else if (currentMode === 'eraser') {
-            if (eraserSubMode === 'brush') {
-                canvas.isDrawingMode = true;
-                canvas.freeDrawingBrush.color = 'rgba(235, 238, 242, 0.85)';
-                canvas.freeDrawingBrush.width = eraserSize;
-                canvas.freeDrawingBrush.strokeLineCap = 'round';
-                canvas.freeDrawingBrush.strokeLineJoin = 'round';
-            } else {
-                canvas.isDrawingMode = false;
-            }
+            canvas.isDrawingMode = false;
         } else {
             canvas.isDrawingMode = false;
         }
@@ -192,20 +184,13 @@
         const canvas = getCanvas();
 
         if (window.currentMode === 'eraser') {
+            canvas.isDrawingMode = false;
+            canvas.defaultCursor = 'crosshair';
             if (window.eraserSubMode === 'brush') {
-                if (canvas) {
-                    canvas.isDrawingMode = true;
-                    updateBrushSettings();
-                    canvas.defaultCursor = 'crosshair';
-                }
                 if (typeof window.showToast === 'function') {
                     window.showToast(`Brush Eraser (${window.eraserSize || 24}px)`);
                 }
             } else {
-                if (canvas) {
-                    canvas.isDrawingMode = false;
-                    canvas.defaultCursor = 'crosshair';
-                }
                 if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
                 if (typeof window.showToast === 'function') {
                     window.showToast('Circle / Area Erase: Circle or draw a boundary around what to erase');
@@ -358,6 +343,9 @@
             objs.forEach(obj => {
                 if (!obj || obj.isSlideFrame || obj.isStepBox || obj.isGridLine ||
                     obj === window.stepBoxPreviewRect || obj === window.connectorPreviewLine) return;
+
+                // Protect imported media / image objects from area erase
+                if (obj.type === 'image' || obj.isImage || obj.imageName) return;
 
                 const bound = obj.getBoundingRect ? obj.getBoundingRect(true, true) : null;
                 if (!bound) return;

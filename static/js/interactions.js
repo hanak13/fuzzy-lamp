@@ -38,6 +38,175 @@
             }
         },
 
+        // Geometry helpers for stroke erasing
+        sqr(x) { return x * x; },
+        dist2(v, w) { return (v.x - w.x) * (v.x - w.x) + (v.y - w.y) * (v.y - w.y); },
+
+        distToSegmentSquared(p, v, w) {
+            const l2 = (v.x - w.x) * (v.x - w.x) + (v.y - w.y) * (v.y - w.y);
+            if (l2 === 0) return (p.x - v.x) * (p.x - v.x) + (p.y - v.y) * (p.y - v.y);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            const projX = v.x + t * (w.x - v.x);
+            const projY = v.y + t * (w.y - v.y);
+            return (p.x - projX) * (p.x - projX) + (p.y - projY) * (p.y - projY);
+        },
+
+        segmentsIntersect(a, b, c, d) {
+            const ccw = (p1, p2, p3) => (p3.y - p1.y) * (p2.x - p1.x) > (p2.y - p1.y) * (p3.x - p1.x);
+            return (ccw(a, c, d) !== ccw(b, c, d)) && (ccw(a, b, c) !== ccw(a, b, d));
+        },
+
+        distBetweenSegmentsSquared(a, b, c, d) {
+            if (InteractionsModule.segmentsIntersect(a, b, c, d)) return 0;
+            return Math.min(
+                InteractionsModule.distToSegmentSquared(a, c, d),
+                InteractionsModule.distToSegmentSquared(b, c, d),
+                InteractionsModule.distToSegmentSquared(c, a, b),
+                InteractionsModule.distToSegmentSquared(d, a, b)
+            );
+        },
+
+        getPathPolyline(pathObj) {
+            if (!pathObj.path || !Array.isArray(pathObj.path)) return [];
+            if (pathObj._cachedCanvasPoints && !pathObj.dirty) {
+                return pathObj._cachedCanvasPoints;
+            }
+            const matrix = pathObj.calcTransformMatrix ? pathObj.calcTransformMatrix() : [1, 0, 0, 1, 0, 0];
+            const offsetX = (pathObj.pathOffset && pathObj.pathOffset.x) || 0;
+            const offsetY = (pathObj.pathOffset && pathObj.pathOffset.y) || 0;
+            const points = [];
+
+            const transform = (x, y) => {
+                return fabric.util.transformPoint({ x: x - offsetX, y: y - offsetY }, matrix);
+            };
+
+            const pathData = pathObj.path;
+            for (let i = 0; i < pathData.length; i++) {
+                const cmd = pathData[i];
+                if (!cmd || cmd.length < 3) continue;
+                const op = cmd[0];
+                if (op === 'M' || op === 'L') {
+                    points.push(transform(cmd[1], cmd[2]));
+                } else if (op === 'Q') {
+                    const cpX = cmd[1], cpY = cmd[2], endX = cmd[3], endY = cmd[4];
+                    const prev = points[points.length - 1] || transform(cpX, cpY);
+                    const midX = 0.25 * prev.x + 0.5 * cpX + 0.25 * endX;
+                    const midY = 0.25 * prev.y + 0.5 * cpY + 0.25 * endY;
+                    points.push(transform(midX, midY));
+                    points.push(transform(endX, endY));
+                } else if (op === 'C') {
+                    const endX = cmd[5], endY = cmd[6];
+                    points.push(transform(endX, endY));
+                }
+            }
+            pathObj._cachedCanvasPoints = points;
+            return points;
+        },
+
+        eraseStrokesBetween(p1, p2, radius) {
+            const canvas = InteractionsModule.getCanvas();
+            if (!canvas) return;
+
+            const allObjects = canvas.getObjects();
+            if (!allObjects || allObjects.length === 0) return;
+
+            const margin = radius + 64;
+            const minX = Math.min(p1.x, p2.x) - margin;
+            const maxX = Math.max(p1.x, p2.x) + margin;
+            const minY = Math.min(p1.y, p2.y) - margin;
+            const maxY = Math.max(p1.y, p2.y) + margin;
+
+            const toRemove = [];
+
+            for (let i = 0; i < allObjects.length; i++) {
+                const obj = allObjects[i];
+                if (!obj) continue;
+
+                // Strictly protect media / image objects, sticky notes, slide frames, shapes, text, etc.
+                if (obj.type === 'image' || obj.isImage || obj.imageName) continue;
+                if (obj.isSlideFrame || obj.isGridLine || obj.isStepBox || obj.stepBoxOwnerId) continue;
+                if (obj.isStickyNote || obj.isShapeGroup || obj.type === 'textbox' || obj.type === 'i-text') continue;
+                if (obj === window.stepBoxPreviewRect || obj === window.connectorPreviewLine || obj === window.areaErasePreview) continue;
+
+                // Only target paths (pen, highlighter) and connector / free lines
+                const isPath = obj.type === 'path';
+                const isLine = obj.isConnector || obj.isFreeLine || obj.type === 'line';
+                if (!isPath && !isLine) continue;
+
+                // Broad-phase AABB test
+                const bound = obj.getBoundingRect ? obj.getBoundingRect(true, true) : null;
+                if (bound) {
+                    if (bound.left > maxX || bound.left + bound.width < minX ||
+                        bound.top > maxY || bound.top + bound.height < minY) {
+                        continue;
+                    }
+                }
+
+                const strokeHalfWidth = (obj.strokeWidth || 2) / 2;
+                const maxDistSq = (radius + strokeHalfWidth) * (radius + strokeHalfWidth);
+
+                let hit = false;
+                if (isPath) {
+                    const points = InteractionsModule.getPathPolyline(obj);
+                    if (points.length === 0) {
+                        if (bound) {
+                            const center = { x: bound.left + bound.width / 2, y: bound.top + bound.height / 2 };
+                            if (InteractionsModule.distToSegmentSquared(center, p1, p2) <= maxDistSq) {
+                                hit = true;
+                            }
+                        }
+                    } else if (points.length === 1) {
+                        if (InteractionsModule.distToSegmentSquared(points[0], p1, p2) <= maxDistSq) {
+                            hit = true;
+                        }
+                    } else {
+                        for (let k = 0; k < points.length - 1; k++) {
+                            if (InteractionsModule.distBetweenSegmentsSquared(p1, p2, points[k], points[k + 1]) <= maxDistSq) {
+                                hit = true;
+                                break;
+                            }
+                        }
+                    }
+                } else if (isLine) {
+                    const matrix = obj.calcTransformMatrix ? obj.calcTransformMatrix() : [1, 0, 0, 1, 0, 0];
+                    let pA, pB;
+                    if (obj.calcLinePoints) {
+                        const lp = obj.calcLinePoints();
+                        pA = fabric.util.transformPoint({ x: lp.x1, y: lp.y1 }, matrix);
+                        pB = fabric.util.transformPoint({ x: lp.x2, y: lp.y2 }, matrix);
+                    } else {
+                        pA = { x: obj.x1 || 0, y: obj.y1 || 0 };
+                        pB = { x: obj.x2 || 0, y: obj.y2 || 0 };
+                    }
+                    if (InteractionsModule.distBetweenSegmentsSquared(p1, p2, pA, pB) <= maxDistSq) {
+                        hit = true;
+                    }
+                }
+
+                if (hit) {
+                    toRemove.push(obj);
+                }
+            }
+
+            if (toRemove.length > 0) {
+                toRemove.forEach(obj => {
+                    if (obj.arrowHead) {
+                        try { canvas.remove(obj.arrowHead); } catch (e) {}
+                    }
+                    if (obj.startArrowHead) {
+                        try { canvas.remove(obj.startArrowHead); } catch (e) {}
+                    }
+                    if (obj.isConnector && typeof window.detachConnector === 'function') {
+                        try { window.detachConnector(obj); } catch (e) {}
+                    }
+                    canvas.remove(obj);
+                });
+                window._erasedStrokesCount = (window._erasedStrokesCount || 0) + toRemove.length;
+                canvas.requestRenderAll();
+            }
+        },
+
         init() {
             const canvas = InteractionsModule.getCanvas();
             if (!canvas) {
@@ -89,15 +258,9 @@
                 }
 
                 if (currentMode === 'eraser') {
-                    path.set({
-                        stroke: '#000000',
-                        globalCompositeOperation: 'destination-out',
-                        selectable: false,
-                        evented: false,
-                        objectCaching: false
-                    });
-                    canvas.renderAll();
-                    if (typeof window.saveState === 'function') window.saveState();
+                    canvas.remove(path);
+                    canvas.requestRenderAll();
+                    return;
                 } else if (currentMode === 'highlighter') {
                     const hexToRgba = (hex, alpha) => {
                         let c = hex.replace('#', '');
@@ -167,8 +330,19 @@
                     return;
                 }
 
+                // Brush Eraser mode: Erase strokes under pointer directly without adding objects or erasing media
+                const eraserSubMode = (window.WhiteboardApp && window.WhiteboardApp.eraserSubMode) || window.eraserSubMode || 'brush';
+                if (currentMode === 'eraser' && eraserSubMode === 'brush' && !shouldPan && !isRightClick) {
+                    window.isErasingStrokes = true;
+                    window._erasedStrokesCount = 0;
+                    const pointer = canvas.getPointer(opt.e);
+                    window._lastErasePoint = { x: pointer.x, y: pointer.y };
+                    const eraserRadius = ((window.WhiteboardApp && window.WhiteboardApp.eraserSize) || window.eraserSize || 24) / 2;
+                    InteractionsModule.eraseStrokesBetween(window._lastErasePoint, window._lastErasePoint, eraserRadius);
+                    return;
+                }
+
                 // Area Eraser mode
-                const eraserSubMode = window.WhiteboardApp.eraserSubMode || window.eraserSubMode || 'brush';
                 if (currentMode === 'eraser' && eraserSubMode === 'area' && !shouldPan && !isRightClick) {
                     window.isErasingArea = true;
                     const pointer = canvas.getPointer(opt.e);
@@ -458,6 +632,15 @@
                 const eraserCursorPreview = document.getElementById('eraser-cursor-preview');
                 const eraserSize = window.WhiteboardApp.eraserSize || window.eraserSize || 24;
 
+                // Stroke erasing while dragging in brush eraser mode
+                if (window.isErasingStrokes && currentMode === 'eraser' && eraserSubMode === 'brush') {
+                    const pointer = canvas.getPointer(opt.e);
+                    const eraserRadius = eraserSize / 2;
+                    const fromPt = window._lastErasePoint || pointer;
+                    InteractionsModule.eraseStrokesBetween(fromPt, pointer, eraserRadius);
+                    window._lastErasePoint = { x: pointer.x, y: pointer.y };
+                }
+
                 if (currentMode === 'eraser' && eraserSubMode === 'brush' && eraserCursorPreview) {
                     const evt = opt.e;
                     if (evt) {
@@ -489,6 +672,16 @@
                     InteractionsModule.updateCursorForMode();
                 }
 
+                if (window.isErasingStrokes) {
+                    window.isErasingStrokes = false;
+                    window._lastErasePoint = null;
+                    if (window._erasedStrokesCount > 0) {
+                        canvas.requestRenderAll();
+                        if (typeof window.saveState === 'function') window.saveState();
+                        if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
+                        window._erasedStrokesCount = 0;
+                    }
+                }
                 if (window.isErasingArea && typeof window.finalizeAreaErase === 'function') {
                     window.finalizeAreaErase();
                     return;
@@ -577,6 +770,16 @@
                     }
                     window.stepBoxStartPoint = null;
                     if (typeof window.setMode === 'function') window.setMode('select');
+                }
+                if (window.isErasingStrokes) {
+                    window.isErasingStrokes = false;
+                    window._lastErasePoint = null;
+                    if (window._erasedStrokesCount > 0) {
+                        canvas.requestRenderAll();
+                        if (typeof window.saveState === 'function') window.saveState();
+                        if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
+                        window._erasedStrokesCount = 0;
+                    }
                 }
                 if (window.isErasingArea && typeof window.finalizeAreaErase === 'function') {
                     window.finalizeAreaErase();
@@ -695,6 +898,7 @@
     };
 
     window.WhiteboardApp.interactions = InteractionsModule;
+    window.eraseStrokesBetween = InteractionsModule.eraseStrokesBetween;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => InteractionsModule.init());

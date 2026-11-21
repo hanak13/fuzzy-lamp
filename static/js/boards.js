@@ -981,8 +981,8 @@
         if (typeof window.showToast === 'function') window.showToast('Board saved (Ctrl + S)');
     };
     window.saveBoardAs = () => {
-        const activeId = BoardsModule.activeBoardId || (window.WhiteboardApp && window.WhiteboardApp.boards && window.WhiteboardApp.boards.activeBoardId) || 'board_main';
-        BoardsModule.downloadBoardJSON(activeId);
+        const activeId = BoardsModule.getActiveBoardId() || (window.WhiteboardApp && window.WhiteboardApp.activeBoardId) || 'board_main';
+        BoardsModule.downloadBoard(activeId);
     };
 
     if (document.readyState === 'loading') {

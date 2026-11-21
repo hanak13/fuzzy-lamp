@@ -31,7 +31,7 @@ Click **Fork** on GitHub to create your own copy.
 ### 2. Clone your fork
 
 ```bash
-git clone https://github.com/<your-username>/fuzzy-lamp.git
+git clone https://github.com/hanak13/fuzzy-lamp.git
 cd fuzzy-lamp
 ```
 

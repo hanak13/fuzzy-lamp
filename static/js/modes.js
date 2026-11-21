@@ -156,6 +156,7 @@
         } else if (mode === 'eraser') {
             canvas.discardActiveObject();
             canvas.selection = false;
+            canvas.isDrawingMode = false;
             canvas.defaultCursor = 'crosshair';
             canvas.forEachObject(obj => {
                 obj.selectable = false;
@@ -169,13 +170,8 @@
             const eraserSubMode = window.eraserSubMode || (window.WhiteboardApp && window.WhiteboardApp.eraserSubMode) || 'brush';
             if (typeof window.setEraserSubMode === 'function') {
                 window.setEraserSubMode(eraserSubMode);
-            } else if (eraserSubMode === 'brush') {
-                canvas.isDrawingMode = true;
-                if (typeof window.updateBrushSettings === 'function') window.updateBrushSettings();
-            } else {
-                canvas.isDrawingMode = false;
-                if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
             }
+            canvas.isDrawingMode = false;
             canvas.renderAll();
         } else if (mode === 'text' || mode === 'sticky') {
             canvas.isDrawingMode = false;
