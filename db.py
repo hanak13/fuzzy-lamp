@@ -9,11 +9,22 @@ import time
 import sqlite3
 from typing import List, Dict, Optional, Any
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "whiteboard.db")
+DB_PATH = os.environ.get(
+    "WHITEBOARD_DB_PATH",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "whiteboard.db")
+)
+# Ensure database directory exists if custom path is configured
+os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
 
 
 def get_connection() -> sqlite3.Connection:
     """Return a connection with Row factory enabled."""
+    if os.path.isdir(DB_PATH):
+        raise RuntimeError(
+            f"Database path '{DB_PATH}' is a directory, not a file. "
+            "If using Docker bind mounts, create the file before running (e.g. 'touch whiteboard.db' on Linux/macOS "
+            "or 'type nul > whiteboard.db' on Windows) so Docker does not auto-create it as a directory."
+        )
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn

@@ -112,11 +112,35 @@ Open **http://127.0.0.1:8000** in your browser.
 
 ## 🐳 Docker
 
-```bash
-# Build
-docker build -t whiteboard .
+### 1. Build Image
 
-# Run (data is lost when the container stops — mount a volume to persist)
+```bash
+docker build -t whiteboard .
+```
+
+### 2. Run Container
+
+#### Option A: Using a Named Volume (Recommended)
+Named volumes handle file creation and permissions automatically without host-path quirks:
+
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -v whiteboard_data:/app \
+  -v "$(pwd)/stickers:/app/stickers" \
+  --name whiteboard \
+  whiteboard
+```
+
+#### Option B: Bind Mount to Local File
+> ⚠️ **Important:** On a fresh clone, `whiteboard.db` does not exist on your host yet. If you mount a non-existent file with `-v`, Docker will create a **directory** named `whiteboard.db` instead of a file, causing the app to fail on startup. Ensure the file exists first:
+
+**macOS / Linux:**
+```bash
+# 1. Pre-create the database file
+touch whiteboard.db
+
+# 2. Run container
 docker run -d \
   -p 8000:8000 \
   -v "$(pwd)/whiteboard.db:/app/whiteboard.db" \
@@ -125,7 +149,25 @@ docker run -d \
   whiteboard
 ```
 
-Then open **http://localhost:8000**.
+**Windows (PowerShell):**
+```powershell
+# 1. Pre-create the database file
+New-Item -ItemType File -Name whiteboard.db -Force
+
+# 2. Run container
+docker run -d -p 8000:8000 -v "${PWD}/whiteboard.db:/app/whiteboard.db" -v "${PWD}/stickers:/app/stickers" --name whiteboard whiteboard
+```
+
+**Windows (Command Prompt):**
+```cmd
+:: 1. Pre-create the database file
+type nul > whiteboard.db
+
+:: 2. Run container
+docker run -d -p 8000:8000 -v "%cd%/whiteboard.db:/app/whiteboard.db" -v "%cd%/stickers:/app/stickers" --name whiteboard whiteboard
+```
+
+Then open **http://localhost:8000** in your browser.
 
 > **Tip:** Use `docker compose` for persistent deployments — a sample `compose.yml` is on the roadmap.
 
