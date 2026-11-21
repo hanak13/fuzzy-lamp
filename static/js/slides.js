@@ -46,6 +46,24 @@
     ];
     let currentSlideIndex = 0;
 
+    function syncSharedSlideState() {
+        window.WhiteboardApp = window.WhiteboardApp || {};
+        window.WhiteboardApp.currentFrameRatio = currentFrameRatio;
+        window.WhiteboardApp.slideFrameRect = slideFrameRect;
+        window.WhiteboardApp.boardSlides = boardSlides;
+        window.WhiteboardApp.currentSlideIndex = currentSlideIndex;
+
+        window.currentFrameRatio = currentFrameRatio;
+        window.slideFrameRect = slideFrameRect;
+        window.boardSlides = boardSlides;
+        window.currentSlideIndex = currentSlideIndex;
+
+        window.__currentFrameRatio = currentFrameRatio;
+        window.__slideFrameRect = slideFrameRect;
+        window.__boardSlides = boardSlides;
+        window.__currentSlideIndex = currentSlideIndex;
+    }
+
     function getCanvas() {
         return window.__canvas || (window.WhiteboardApp && window.WhiteboardApp.canvas);
     }
@@ -94,6 +112,7 @@
 
         const nonFrameObjects = canvas.getObjects().filter(o => !o.isSlideFrame);
         boardSlides[currentSlideIndex].objects = nonFrameObjects.map(o => o.toJSON(getExtraProps()));
+        syncSharedSlideState();
     }
 
     function loadSlide(index) {
@@ -109,6 +128,7 @@
         toRemove.forEach(o => canvas.remove(o));
 
         currentSlideIndex = index;
+        syncSharedSlideState();
         const targetSlide = boardSlides[currentSlideIndex];
 
         if (targetSlide && Array.isArray(targetSlide.objects) && targetSlide.objects.length > 0) {
@@ -262,6 +282,7 @@
                 window.__slideFrameRect = null;
             }
 
+            syncSharedSlideState();
             canvas.getObjects().forEach(o => applySlideClip(o));
 
             if (frameModeLabel) frameModeLabel.textContent = 'Canvas: Infinite';
@@ -316,6 +337,7 @@
         });
 
         updateSlideNavigationUI();
+        syncSharedSlideState();
 
         if (shouldFit) {
             fitSlideView();
@@ -402,6 +424,8 @@
                 frameModeDropdown.classList.add('hidden');
             });
         }
+
+        syncSharedSlideState();
     }
 
     if (document.readyState === 'loading') {
@@ -413,10 +437,14 @@
     const SlidesModule = {
         SLIDE_PRESETS,
         get currentFrameRatio() { return currentFrameRatio; },
+        set currentFrameRatio(val) { currentFrameRatio = val; syncSharedSlideState(); },
         get slideFrameRect() { return slideFrameRect; },
+        set slideFrameRect(val) { slideFrameRect = val; syncSharedSlideState(); },
         get boardSlides() { return boardSlides; },
-        set boardSlides(val) { boardSlides = val; },
+        set boardSlides(val) { boardSlides = val; syncSharedSlideState(); },
         get currentSlideIndex() { return currentSlideIndex; },
+        set currentSlideIndex(val) { currentSlideIndex = val; syncSharedSlideState(); },
+        syncSharedSlideState,
         setFrameMode,
         fitSlideView,
         applySlideClip,

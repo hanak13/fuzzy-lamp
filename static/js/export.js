@@ -150,14 +150,16 @@
             if (!canvas) return null;
             const slideCaptures = [];
 
-            const currentRatio = ExportModule.getCurrentFrameRatio();
-            const slideFrame = window.__slideFrameRect || (window.WhiteboardApp && window.WhiteboardApp.slideFrameRect);
-            const boardSlides = window.__boardSlides || (window.WhiteboardApp && window.WhiteboardApp.boardSlides) || [];
+            const currentRatio = (window.WhiteboardApp && window.WhiteboardApp.currentFrameRatio) || window.currentFrameRatio || window.__currentFrameRatio || 'infinite';
+            const slideFrame = (window.WhiteboardApp && window.WhiteboardApp.slideFrameRect) || window.slideFrameRect || window.__slideFrameRect;
+            const boardSlides = (window.WhiteboardApp && window.WhiteboardApp.boardSlides) || window.boardSlides || window.__boardSlides || [];
 
             // 1. If in Fixed Width / Slide Mode, capture all slides in boardSlides
             if (currentRatio !== 'infinite' && slideFrame) {
                 if (typeof window.saveCurrentSlide === 'function') window.saveCurrentSlide();
-                const originalSlideIndex = window.__currentSlideIndex || 0;
+                const originalSlideIndex = (window.WhiteboardApp && window.WhiteboardApp.currentSlideIndex !== undefined)
+                    ? window.WhiteboardApp.currentSlideIndex
+                    : (window.currentSlideIndex !== undefined ? window.currentSlideIndex : (window.__currentSlideIndex || 0));
 
                 const prevVpt = canvas.viewportTransform.slice();
                 canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);

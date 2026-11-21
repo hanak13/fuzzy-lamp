@@ -780,6 +780,8 @@
         },
 
         async init() {
+            if (BoardsModule._isInitialized) return;
+            BoardsModule._isInitialized = true;
             isBoardLoading = true;
             BoardsModule.updateAutosaveIndicator('saving', 'Loading...');
 

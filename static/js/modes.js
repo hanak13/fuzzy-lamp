@@ -15,6 +15,8 @@
     window.WhiteboardApp = window.WhiteboardApp || {};
 
     let currentMode = 'select';
+    window.currentMode = 'select';
+    window.WhiteboardApp.currentMode = 'select';
 
     function getCanvas() {
         return window.__canvas || (window.WhiteboardApp && window.WhiteboardApp.canvas);
@@ -263,6 +265,7 @@
         if (fsBtnSelect) fsBtnSelect.addEventListener('click', () => setMode('select'));
 
         initTheme();
+        setMode('select');
     }
 
     if (document.readyState === 'loading') {

@@ -665,6 +665,10 @@
                 renderTemplatesList();
             });
         }
+
+        // Self-load shape definitions and templates
+        loadShapes();
+        loadTemplates();
     }
 
     if (document.readyState === 'loading') {

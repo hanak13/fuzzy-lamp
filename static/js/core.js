@@ -211,6 +211,29 @@
             opt.e.stopPropagation();
         });
 
+        // Top-level canvas overlay rendering hook (Step Box borders & Slide Frame guidelines)
+        canvas.on('after:render', (opt) => {
+            const ctx = (opt && opt.ctx) ? opt.ctx : canvas.getContext();
+            if (!ctx) return;
+            const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+            ctx.save();
+            ctx.transform(vpt[0], vpt[1], vpt[2], vpt[3], vpt[4], vpt[5]);
+
+            if (window.WhiteboardApp && window.WhiteboardApp.steps && typeof window.WhiteboardApp.steps.renderStepBoxOverlays === 'function') {
+                window.WhiteboardApp.steps.renderStepBoxOverlays(ctx);
+            } else if (typeof window.renderStepBoxOverlays === 'function') {
+                window.renderStepBoxOverlays(ctx);
+            }
+
+            if (window.WhiteboardApp && window.WhiteboardApp.slides && typeof window.WhiteboardApp.slides.renderSlideFrameOverlays === 'function') {
+                window.WhiteboardApp.slides.renderSlideFrameOverlays(ctx);
+            } else if (typeof window.renderSlideFrameOverlays === 'function') {
+                window.renderSlideFrameOverlays(ctx);
+            }
+
+            ctx.restore();
+        });
+
         // Zoom button event bindings
         const btnIn = dom.btnZoomIn;
         const btnOut = dom.btnZoomOut;

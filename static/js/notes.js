@@ -351,6 +351,9 @@
                 }
             });
         }
+
+        // Self-load sticker assets
+        loadStickers();
     }
 
     if (document.readyState === 'loading') {

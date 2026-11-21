@@ -582,6 +582,115 @@
                     window.finalizeAreaErase();
                 }
             });
+
+            // 7. Transform Synchronization (Connectors and Step Boxes)
+            canvas.on('object:moving', (opt) => {
+                const target = opt.target;
+                if (!target) return;
+
+                if (target.isStepBox) {
+                    const curLeft = target.left;
+                    const curTop = target.top;
+                    const lastLeft = target._lastMovingLeft !== undefined ? target._lastMovingLeft : curLeft;
+                    const lastTop = target._lastMovingTop !== undefined ? target._lastMovingTop : curTop;
+                    const dx = curLeft - lastLeft;
+                    const dy = curTop - lastTop;
+                    target._lastMovingLeft = curLeft;
+                    target._lastMovingTop = curTop;
+
+                    canvas.forEachObject(o => {
+                        if (o.stepBoxOwnerId === target.stepBoxId && o !== target) {
+                            o.left += dx;
+                            o.top += dy;
+                            o.setCoords();
+                            if (o.connectedLines && typeof window.updateConnectedLinesFor === 'function') {
+                                window.updateConnectedLinesFor(o);
+                            }
+                        }
+                    });
+
+                    if (typeof window.updateStepBoxFloatingControls === 'function') {
+                        window.updateStepBoxFloatingControls(target);
+                    }
+                } else {
+                    if (typeof window.constrainObjectToSlideFrame === 'function') {
+                        window.constrainObjectToSlideFrame(target);
+                    }
+                    if (target.connectedLines && typeof window.updateConnectedLinesFor === 'function') {
+                        window.updateConnectedLinesFor(target);
+                    }
+                }
+            });
+
+            canvas.on('object:scaling', (opt) => {
+                const target = opt.target;
+                if (!target) return;
+                if (target.isStepBox && typeof window.updateStepBoxFloatingControls === 'function') {
+                    window.updateStepBoxFloatingControls(target);
+                }
+            });
+
+            canvas.on('object:modified', (opt) => {
+                const target = opt.target;
+                if (!target) return;
+
+                if (target.isStepBox) {
+                    delete target._lastMovingLeft;
+                    delete target._lastMovingTop;
+
+                    const sx = target.scaleX || 1;
+                    const sy = target.scaleY || 1;
+                    if (sx !== 1 || sy !== 1) {
+                        const ow = target.width;
+                        const oh = target.height;
+                        const nw = Math.max(80, Math.round(ow * sx));
+                        const nh = Math.max(60, Math.round(oh * sy));
+                        const ox = target.left;
+                        const oy = target.top;
+
+                        canvas.forEachObject(o => {
+                            if (o.stepBoxOwnerId === target.stepBoxId && o !== target) {
+                                const relX = o.left - ox;
+                                const relY = o.top - oy;
+                                o.left = ox + relX * (nw / ow);
+                                o.top = oy + relY * (nh / oh);
+                                o.scaleX = (o.scaleX || 1) * (nw / ow);
+                                o.scaleY = (o.scaleY || 1) * (nh / oh);
+                                o.setCoords();
+                                if (o.connectedLines && typeof window.updateConnectedLinesFor === 'function') {
+                                    window.updateConnectedLinesFor(o);
+                                }
+                            }
+                        });
+
+                        target.set({
+                            width: nw,
+                            height: nh,
+                            scaleX: 1,
+                            scaleY: 1
+                        });
+                        target.setCoords();
+                        target.dirty = true;
+                        canvas.requestRenderAll();
+                    }
+                    if (typeof window.updateStepBoxFloatingControls === 'function') {
+                        window.updateStepBoxFloatingControls(target);
+                    }
+                } else {
+                    if (typeof window.findStepBoxContaining === 'function') {
+                        const parentBox = window.findStepBoxContaining(target);
+                        if (parentBox) {
+                            target.stepBoxOwnerId = parentBox.stepBoxId;
+                        } else if (target.stepBoxOwnerId) {
+                            target.stepBoxOwnerId = null;
+                        }
+                    }
+                }
+
+                if (typeof window.saveState === 'function') {
+                    window.saveState();
+                }
+            });
         }
     };
 

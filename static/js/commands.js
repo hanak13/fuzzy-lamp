@@ -516,6 +516,83 @@
             if (btnUndo) btnUndo.addEventListener('click', CommandsModule.undo);
             if (btnRedo) btnRedo.addEventListener('click', CommandsModule.redo);
 
+            // Quick action buttons: Add Box and Clear Canvas
+            const btnAddBox = document.getElementById('btn-add-box');
+            const btnClear = document.getElementById('btn-clear');
+            const quickColors = ['#60a5fa', '#34d399', '#f87171', '#fbbf24', '#a78bfa', '#f472b6'];
+            let quickColorIndex = 0;
+
+            if (btnAddBox) {
+                btnAddBox.addEventListener('click', () => {
+                    const canvas = CommandsModule.getCanvas();
+                    if (!canvas) return;
+                    const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+                    const centerX = (-vpt[4] + canvas.getWidth() / 2) / canvas.getZoom();
+                    const centerY = (-vpt[5] + canvas.getHeight() / 2) / canvas.getZoom();
+
+                    const color = quickColors[quickColorIndex % quickColors.length];
+                    quickColorIndex++;
+
+                    const generateUid = window.generateUid || (() => 'uid_' + Math.random().toString(36).substr(2, 9));
+                    const currentMode = window.WhiteboardApp.currentMode || window.currentMode || 'select';
+
+                    const rect = new fabric.Rect({
+                        left: centerX - 60,
+                        top: centerY - 40,
+                        width: 120,
+                        height: 80,
+                        rx: 8,
+                        ry: 8,
+                        fill: color,
+                        stroke: '#334155',
+                        strokeWidth: 2,
+                        selectable: currentMode === 'select',
+                        shapeUid: generateUid()
+                    });
+
+                    rect.connectedLines = [];
+                    canvas.add(rect);
+
+                    if (currentMode === 'select') {
+                        canvas.setActiveObject(rect);
+                    }
+                    canvas.renderAll();
+                    CommandsModule.saveState();
+                });
+            }
+
+            if (btnClear) {
+                btnClear.addEventListener('click', () => {
+                    const canvas = CommandsModule.getCanvas();
+                    if (!canvas || canvas.getObjects().length === 0) return;
+
+                    const currentFrameRatio = window.WhiteboardApp.currentFrameRatio || window.currentFrameRatio || 'infinite';
+                    const slideFrameRect = window.WhiteboardApp.slideFrameRect || window.slideFrameRect;
+
+                    if (currentFrameRatio !== 'infinite' && slideFrameRect) {
+                        const toRemove = canvas.getObjects().filter(o => !o.isSlideFrame);
+                        toRemove.forEach(o => canvas.remove(o));
+                        const slides = window.WhiteboardApp.boardSlides || window.boardSlides;
+                        const curIdx = window.WhiteboardApp.currentSlideIndex || window.currentSlideIndex || 0;
+                        if (slides && slides[curIdx]) {
+                            slides[curIdx].objects = [];
+                        }
+                    } else {
+                        canvas.clear();
+                    }
+
+                    const stepBoxFloatingBar = document.getElementById('stepbox-floating-bar');
+                    if (stepBoxFloatingBar) {
+                        stepBoxFloatingBar.style.display = 'none';
+                    }
+                    window.__activeStepBox = null;
+                    if (window.WhiteboardApp) window.WhiteboardApp.activeStepBox = null;
+
+                    CommandsModule.saveState();
+                    if (typeof window.showToast === 'function') window.showToast('Canvas cleared');
+                });
+            }
+
             // Canvas change listeners for history
             const canvas = CommandsModule.getCanvas();
             if (canvas) {
