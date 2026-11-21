@@ -337,6 +337,11 @@ document.addEventListener('DOMContentLoaded', () => {
         fireRightClick: true
     });
 
+    // Expose canvas for modular sub-scripts (objects.js, export.js, steps.js, shapes.js, tools.js)
+    window.__canvas = canvas;
+    window.WhiteboardApp = window.WhiteboardApp || {};
+    window.WhiteboardApp.canvas = canvas;
+
     window.addEventListener('resize', () => {
         canvas.setWidth(window.innerWidth);
         canvas.setHeight(window.innerHeight);
@@ -2996,6 +3001,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setMode(mode) {
         currentMode = mode;
+        window.currentMode = mode;
 
         Object.entries(toolButtons).forEach(([key, btn]) => {
             if (btn) btn.classList.toggle('active', key === mode);
@@ -3156,6 +3162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             canvas.renderAll();
         }
     }
+    window.setMode = setMode;
 
     if (btnSelect) btnSelect.addEventListener('click', () => setMode('select'));
     if (btnPan) btnPan.addEventListener('click', () => setMode('pan'));
@@ -5292,6 +5299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toastEl.classList.add('hidden');
         }, 2200);
     }
+    window.showToast = showToast;
 
     const shortcutsModal = document.getElementById('shortcuts-modal');
     const btnShortcutsToggle = document.getElementById('btn-shortcuts-toggle');
@@ -8820,6 +8828,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveActiveBoardDebounced();
         }
     }
+    window.saveState = saveState;
 
     function undo() {
         if (undoStack.length <= 1) return;
@@ -8836,6 +8845,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveActiveBoardDebounced();
         }
     }
+    window.saveState = saveState;
 
     function redo() {
         if (redoStack.length === 0) return;
@@ -8851,6 +8861,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveActiveBoardDebounced();
         }
     }
+    window.saveState = saveState;
 
     function loadCanvasState(jsonState) {
         isProcessingHistory = true;

@@ -186,7 +186,13 @@ fuzzy-lamp/
 │
 ├── static/
 │   ├── css/style.css    # All application styles + dark-mode variables
-│   ├── js/whiteboard.js # Main client-side application (~7 500 lines)
+│   ├── js/
+│   │   ├── tools.js     # Brushes, highlighter, dual eraser, connector arrows
+│   │   ├── shapes.js    # Shape library loader, custom shapes, templates gallery
+│   │   ├── steps.js     # Step Box sequential diagrams & step manager modal
+│   │   ├── objects.js   # Objects & layers drawer, inspection, locking, visibility
+│   │   ├── export.js    # PNG, SVG, PDF, and PowerPoint PPTX presentation exports
+│   │   └── whiteboard.js # Main client-side coordinator & canvas event controller
 │   ├── shapes.json      # Shape library (280+ SVG path definitions)
 │   ├── templates.json   # Starter template layouts
 │   └── vendor/
