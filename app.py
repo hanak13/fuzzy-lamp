@@ -11,7 +11,7 @@ import time
 from typing import List, Optional
 
 from fastapi import FastAPI, Request, UploadFile, File, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pptx import Presentation
@@ -83,8 +83,16 @@ def sanitize_filename(filename: str) -> str:
 # -----------------------------------------------------------------------------
 # HTML Pages
 # -----------------------------------------------------------------------------
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request, board: Optional[str] = None):
+@app.get("/")
+async def index(request: Request):
+    """
+    Redirect root to the Boards dashboard page.
+    """
+    return RedirectResponse(url="/boards", status_code=302)
+
+
+@app.get("/whiteboard", response_class=HTMLResponse)
+async def whiteboard(request: Request, board: Optional[str] = None):
     """
     Serve the main whiteboard canvas page.
     Optionally accepts a ?board=<id> parameter.
