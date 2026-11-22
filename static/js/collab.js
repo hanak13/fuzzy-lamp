@@ -432,6 +432,9 @@
 
             isApplyingRemoteChange = true;
             try {
+                if (objData && objData.textBaseline === 'alphabetical') {
+                    objData.textBaseline = 'alphabetic';
+                }
                 fabric.util.enlivenObjects([objData], (enlivenedObjects) => {
                     enlivenedObjects.forEach((newObj) => {
                         ensureObjectId(newObj);

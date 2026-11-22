@@ -418,4 +418,43 @@
     window.zoomToSelection = zoomToSelection;
     window.goToOrigin = goToOrigin;
 
+    // Global Fabric textBaseline sanitization: convert non-standard 'alphabetical' -> 'alphabetic'
+    if (window.fabric && window.fabric.Text) {
+        const origTextInit = window.fabric.Text.prototype.initialize;
+        window.fabric.Text.prototype.initialize = function(text, options) {
+            if (options && options.textBaseline === 'alphabetical') {
+                options.textBaseline = 'alphabetic';
+            }
+            return origTextInit.call(this, text, options);
+        };
+        const origSet = window.fabric.Text.prototype._set;
+        window.fabric.Text.prototype._set = function(key, value) {
+            if (key === 'textBaseline' && value === 'alphabetical') {
+                value = 'alphabetic';
+            }
+            return origSet.call(this, key, value);
+        };
+    }
+
+    // Modal accessibility synchronization: ensures aria-hidden matches visibility
+    // to prevent browser "Blocked aria-hidden on an element because its descendant retained focus"
+    function initModalAccessibilityObserver() {
+        const syncModalAria = (el) => {
+            const isHidden = el.classList.contains('hidden');
+            el.setAttribute('aria-hidden', isHidden ? 'true' : 'false');
+        };
+        const modals = document.querySelectorAll('.modal-overlay');
+        modals.forEach(modal => {
+            syncModalAria(modal);
+            const observer = new MutationObserver(() => syncModalAria(modal));
+            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initModalAccessibilityObserver);
+    } else {
+        initModalAccessibilityObserver();
+    }
+
 })(window);

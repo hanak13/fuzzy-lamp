@@ -173,6 +173,19 @@
             }, 3000);
         },
 
+        sanitizeBoardPayload(payload) {
+            if (!payload) return payload;
+            const fix = (obj) => {
+                if (!obj || typeof obj !== 'object') return;
+                if (obj.textBaseline === 'alphabetical') obj.textBaseline = 'alphabetic';
+                if (Array.isArray(obj.objects)) obj.objects.forEach(fix);
+            };
+            if (Array.isArray(payload.objects)) {
+                payload.objects.forEach(fix);
+            }
+            return payload;
+        },
+
         reconnectLoadedObjects() {
             const canvas = BoardsModule.getCanvas();
             if (!canvas) return;
@@ -504,7 +517,7 @@
                     ? parsedData
                     : { version: '5.3.0', objects: infiniteObjs };
 
-                canvas.loadFromJSON(loadPayload, () => {
+                canvas.loadFromJSON(BoardsModule.sanitizeBoardPayload(loadPayload), () => {
                     BoardsModule.reconnectLoadedObjects();
                     canvas.renderAll();
                     isBoardLoading = false;
@@ -942,7 +955,7 @@
                         : { version: '5.3.0', objects: infiniteObjs };
 
                     if (canvas) {
-                        canvas.loadFromJSON(loadPayload, () => {
+                        canvas.loadFromJSON(BoardsModule.sanitizeBoardPayload(loadPayload), () => {
                             BoardsModule.reconnectLoadedObjects();
                             canvas.renderAll();
                             isBoardLoading = false;
