@@ -21,7 +21,8 @@
     const EXTRA_PROPS = [
         'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
         'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId',
-        'isStickyNote', 'stickyColor', 'isSticker', 'imageName'
+        'isStickyNote', 'stickyColor', 'isSticker', 'imageName',
+        'isIcon', 'iconName', 'iconCategory', 'iconSvg'
     ];
 
     const BoardsModule = {
@@ -214,6 +215,11 @@
                     if (window.WhiteboardApp) window.WhiteboardApp.currentFrameRatio = ratio;
                     document.body.classList.add('slide-mode-active');
                     obj.dirty = true;
+                }
+
+                if (obj.isIcon) {
+                    obj.set('objectCaching', false);
+                    obj.set('strokeUniform', true);
                 }
 
                 const currentMode = window.WhiteboardApp.currentMode || window.currentMode || 'select';

@@ -120,6 +120,18 @@
                 };
             }
 
+            if (obj.isIcon) {
+                const iconName = obj.iconName || 'Vector Icon';
+                return {
+                    type: 'shapes',
+                    typeName: 'Vector Icon',
+                    title: `Icon: ${iconName}`,
+                    meta: `${obj.iconCategory || 'Icon'} • ${width}×${height}px`,
+                    icon: '⭐',
+                    badgeClass: 'badge-icon'
+                };
+            }
+
             if (obj.isConnector || obj.isFreeLine || obj.type === 'line') {
                 const hasArrow = obj.hasArrow || !!obj.arrowHead;
                 const strokeColor = (typeof obj.stroke === 'string') ? obj.stroke : '#000';

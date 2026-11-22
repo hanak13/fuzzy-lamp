@@ -118,6 +118,12 @@
                 }
                 canvas.renderAll();
                 if (typeof window.saveState === 'function') window.saveState();
+            } else if (activeObj.isIcon) {
+                if (typeof window.setIconStrokeWidth === 'function') {
+                    window.setIconStrokeWidth(activeObj, window.strokeSize);
+                }
+                canvas.renderAll();
+                if (typeof window.saveState === 'function') window.saveState();
             } else if (!activeObj.isSlideFrame && !activeObj.isGridLine && (activeObj.type === 'rect' || activeObj.type === 'circle' || activeObj.type === 'triangle' || activeObj.type === 'polygon' || activeObj.type === 'path')) {
                 activeObj.set('strokeWidth', window.strokeSize);
                 canvas.renderAll();

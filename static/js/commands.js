@@ -19,7 +19,8 @@
     const EXTRA_PROPS = [
         'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
         'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId',
-        'isStickyNote', 'stickyColor', 'isSticker', 'imageName'
+        'isStickyNote', 'stickyColor', 'isSticker', 'imageName',
+        'isIcon', 'iconName', 'iconCategory', 'iconSvg'
     ];
 
     const CommandsModule = {

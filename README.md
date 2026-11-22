@@ -1,6 +1,6 @@
-# ✏️ Whiteboard `v0.1.1`
+# ✏️ Whiteboard `v0.1.2`
 
-[![Version](https://img.shields.io/badge/version-v0.1.1-blue.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-v0.1.2-blue.svg)](README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com)
 [![Fabric.js](https://img.shields.io/badge/Fabric.js-5.3-orange.svg)](http://fabricjs.com)
@@ -15,7 +15,17 @@
 
 ---
 
-## 🚀 What's New in v0.1.1
+## 🚀 What's New in v0.1.2
+
+- ⭐ **Offline Vector Icons Library**: Built-in library of 120+ Lucide vector icons across 8 categories (Arrows, Files, Communication, Devices, Business, Weather, People, Symbols) with fast real-time search matching names and tags.
+- 🎯 **Recent Icons & Sharp Vector Scaling**: Quick-access row for the last 12 used icons in `localStorage`, drag-and-drop placement, and pixel-perfect vector sharpness (`objectCaching: false`) when resized or zoomed.
+- 🎨 **Live Toolbar Style Integration**: Fully customizable stroke color (COLOR), body fill (FILL / transparent), and stroke width (SIZE) for placed icons.
+- 🛠️ **Diagramming & UI Polish**: Fixed Step Box solid borders, box deletion controls, Shapes Library drawer close button, and connector line arrowhead transform coordinates.
+- 📦 **Save & Export Parity**: Icons persist across board loads, work inside Step Boxes and Slide Presentations, and export accurately to PNG, SVG, PDF, and PPTX.
+
+---
+
+## 🚀 What's New in v0.1.1 (Archive)
 
 - 🧹 **Real Stroke Eraser Engine**: Eraser now acts as a natural stroke eraser without creating canvas objects. Drawing on top of imported media or images can now be erased cleanly without damaging or punching holes in the underlying media.
 - 🎨 **Adaptive Shape & Flowchart Contrast**: Newly added shapes and flowchart symbols automatically invert their stroke and text colors opposite to the board background (crisp dark text on light boards, bright white text on dark boards).
@@ -34,6 +44,7 @@
 | **Shapes** | 280 + engineering shapes — flowcharts, UML, cloud architecture, networking, DevOps, circuit logic, industrial automation, and more |
 | **Flowcharts** | Dedicated flowchart category with connector snap, decision diamonds, process boxes, and annotations |
 | **Line & Arrow Connectors** | Straight lines and arrow connectors with snap-to-shape anchors |
+| **Vector Icons** | 120+ Lucide vector icons across 8 categories (Arrows, Files, Communication, Devices, Business, Weather, People, Symbols), with search, recent row, and live stroke/fill customization |
 | **Stickers** | Built-in emoji sticker gallery + upload your own PNG / SVG / GIF stickers |
 | **Templates** | One-click flowchart, mind-map, and wireframe starter layouts |
 | **Step Boxes** | Scoped multi-step sequential diagrams — think PowerPoint animation inside a container box |
@@ -266,6 +277,8 @@ Please read **[CONTRIBUTING.md](CONTRIBUTING.md)** before opening a pull request
 
 ---
 
-## 📄 License
+## 📄 License & Credits
 
-This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for the full text.
+- **Whiteboard Application**: Licensed under the **MIT License** — see [LICENSE](LICENSE) for the full text.
+- **Vector Icons**: [Lucide Icons](https://lucide.dev) licensed under the **ISC License** — see [static/vendor/icons/LICENSE](static/vendor/icons/LICENSE). Copyright (c) Lucide Icons and Contributors.
+- **Fabric.js**: Licensed under the MIT License.

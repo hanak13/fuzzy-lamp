@@ -139,6 +139,26 @@ One-click starter layouts: flowchart skeleton, mind-map hub, and wireframe grid.
 
 Upload PNG, JPG, or SVG images from your computer to place them on the canvas. See [§ 8 Image Upload](#8-image-upload) for all upload methods.
 
+### Icons Library
+
+An offline-first library of 120+ Lucide vector icons for architectural diagrams, system wireframes, and UI mockups.
+
+- **Categories**: Browse curated icons across 8 categories:
+  - **Arrows**: Navigation, flow, and directional indicators
+  - **Files**: Documents, folders, clipboards, archives, and cloud storage
+  - **Communication**: Email, chat bubbles, calls, notifications, audio, and volume
+  - **Devices**: Screens, laptops, smartphones, servers, CPUs, and databases
+  - **Business**: Charts, metrics, shopping, tags, goals, currency, and calculators
+  - **Weather**: Sun, moon, clouds, rain, snow, lightning, and temperatures
+  - **People**: Users, teams, avatars, expressions, and reactions
+  - **Symbols**: Badges, locks, keys, security shields, time, and system settings
+- **Search**: Fast real-time filtering matching both icon names and descriptive keywords/tags.
+- **Placement**: Click any icon card to drop it into the center of the current viewport, or drag and drop it onto a specific canvas location.
+- **Sharp Vector Scaling**: Placed icons are native Fabric.js vector objects (`objectCaching: false`) that remain razor sharp at any scale or zoom factor.
+- **Customization**: Select an icon to change its **COLOR** (stroke color), **FILL** (transparent or color fill), and **SIZE** (stroke width) directly from the top toolbar.
+- **Recent Icons**: Automatically remembers the last 12 icons used in `localStorage` for quick access across sessions.
+- **Saving & Export**: Icons save into board state, restore seamlessly on load, work inside Step Boxes and slide presentations, and render accurately in PNG, SVG, PDF, and PPTX exports.
+
 ### Layers
 
 A list of all objects on the current canvas in stacking order. Click an item to select it on the canvas; use the up / down arrows to reorder.

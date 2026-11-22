@@ -759,7 +759,12 @@
         <div id="drawer-panel-icons" class="drawer-panel-content" style="display: none;">
             <div class="shapes-panel-header">
                 <div class="shapes-panel-title">
-                    <span>Icons</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polygon points="12 8 8 12 12 16 16 12 12 8"/>
+                    </svg>
+                    <span>Icons Library</span>
+                    <span id="icons-count-pill" class="objects-count-pill">122</span>
                 </div>
                 <button class="shapes-panel-close btn-close-drawer" title="Close drawer">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -768,10 +773,52 @@
                     </svg>
                 </button>
             </div>
-            <div class="drawer-placeholder-box">
-                <div class="placeholder-icon">⭐</div>
-                <h4>Vector Icons</h4>
-                <p>UI icons, symbols, and tech stack logos for diagrams and wireframes.</p>
+
+            <div class="shapes-search-wrapper">
+                <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="icons-search" placeholder="Search icons (e.g. arrow, user, cloud)..." autocomplete="off">
+                <button id="btn-clear-icons-search" class="clear-search-btn" title="Clear search" style="display: none;">&times;</button>
+            </div>
+
+            <!-- Category Filter Chips with Scroll Navigation -->
+            <div class="shapes-categories-container icons-categories-container">
+                <button type="button" id="btn-icon-cat-prev" class="cat-nav-btn" title="Scroll categories left">&lsaquo;</button>
+                <div class="shapes-categories" id="icons-categories">
+                    <button type="button" class="category-chip icon-cat-chip active" data-category="all">All</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Arrows">Arrows</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Files">Files</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Communication">Communication</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Devices">Devices</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Business">Business</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Weather">Weather</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="People">People</button>
+                    <button type="button" class="category-chip icon-cat-chip" data-category="Symbols">Symbols</button>
+                </div>
+                <button type="button" id="btn-icon-cat-next" class="cat-nav-btn" title="Scroll categories right">&rsaquo;</button>
+            </div>
+
+            <!-- Recent Icons Row -->
+            <div id="icons-recent-container" class="icons-recent-container" style="display: none;">
+                <div class="icons-recent-header">
+                    <span>Recent Icons</span>
+                    <button type="button" id="btn-clear-recent-icons" class="btn-text-action" title="Clear recent icons">Clear</button>
+                </div>
+                <div id="icons-recent-row" class="icons-recent-row">
+                    <!-- Populated dynamically from localStorage -->
+                </div>
+            </div>
+
+            <!-- Scrollable Icons Grid -->
+            <div class="icons-grid-container">
+                <div id="icons-grid" class="icons-grid">
+                    <!-- Populated dynamically from static/icons.json -->
+                </div>
+                <div id="icons-empty-state" class="drawer-empty-state" style="display: none;">
+                    <p>No icons found matching your search</p>
+                </div>
             </div>
         </div>
 
@@ -1459,6 +1506,7 @@
     <script src="/static/js/steps.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/objects.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/interactions.js?v={{ asset_version or '20261121_10' }}"></script>
+    <script src="/static/js/icons.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/commands.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/boards.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/export.js?v={{ asset_version or '20261121_10' }}"></script>

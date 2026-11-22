@@ -65,7 +65,11 @@
         'relTop',
         'isSlideFrame',
         'slideFrameRatio',
-        'imageName'
+        'imageName',
+        'isIcon',
+        'iconName',
+        'iconCategory',
+        'iconSvg'
     ];
 
     const STICKY_COLORS = {

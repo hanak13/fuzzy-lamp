@@ -92,6 +92,8 @@
             if (typeof window.renderStickersGallery === 'function') window.renderStickersGallery();
         } else if (panelId === 'media') {
             if (typeof window.renderMediaGallery === 'function') window.renderMediaGallery();
+        } else if (panelId === 'icons') {
+            if (typeof window.renderIconsPanel === 'function') window.renderIconsPanel();
         } else if (panelId === 'layers') {
             if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
             if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
@@ -210,6 +212,23 @@
                     if (colorPreview) colorPreview.style.backgroundColor = shape.stroke;
                 }
             }
+        } else if (target.isIcon) {
+            if (propLineGroup) propLineGroup.style.display = 'none';
+            if (propFillGroup) propFillGroup.style.display = 'inline-flex';
+            if (propTextGroup) propTextGroup.style.display = 'none';
+            if (propSizeGroup) propSizeGroup.style.display = 'inline-flex';
+
+            updateFillUI(target.fill || 'transparent');
+            const iconStroke = target.stroke || (target.getObjects && target.getObjects()[0] ? target.getObjects()[0].stroke : null);
+            if (colorPicker && iconStroke && iconStroke.startsWith('#')) {
+                colorPicker.value = iconStroke;
+                if (colorPreview) colorPreview.style.backgroundColor = iconStroke;
+            }
+            const strokeSizeVal = document.getElementById('stroke-size-val');
+            const sliderStrokeSize = document.getElementById('slider-stroke-size');
+            const sw = target.strokeWidth || 2;
+            if (strokeSizeVal) strokeSizeVal.textContent = sw + 'px';
+            if (sliderStrokeSize) sliderStrokeSize.value = sw;
         }
     }
 
@@ -254,6 +273,12 @@
                         canvas.renderAll();
                         if (typeof window.saveState === 'function') window.saveState();
                     }
+                } else if (activeObj && activeObj.isIcon) {
+                    if (typeof window.setIconFillColor === 'function') {
+                        window.setIconFillColor(activeObj, 'transparent');
+                    }
+                    canvas.renderAll();
+                    if (typeof window.saveState === 'function') window.saveState();
                 }
             });
         }
@@ -272,6 +297,12 @@
                         canvas.renderAll();
                         if (typeof window.saveState === 'function') window.saveState();
                     }
+                } else if (activeObj && activeObj.isIcon) {
+                    if (typeof window.setIconFillColor === 'function') {
+                        window.setIconFillColor(activeObj, window.currentFillColor);
+                    }
+                    canvas.renderAll();
+                    if (typeof window.saveState === 'function') window.saveState();
                 }
             });
         }
@@ -297,6 +328,12 @@
                     }
                 } else if (activeObj && activeObj.type === 'i-text') {
                     activeObj.set('fill', newColor);
+                    canvas.renderAll();
+                    if (typeof window.saveState === 'function') window.saveState();
+                } else if (activeObj && activeObj.isIcon) {
+                    if (typeof window.setIconStrokeColor === 'function') {
+                        window.setIconStrokeColor(activeObj, newColor);
+                    }
                     canvas.renderAll();
                     if (typeof window.saveState === 'function') window.saveState();
                 }

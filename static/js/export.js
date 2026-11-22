@@ -119,7 +119,8 @@
                 'id', 'isStickyNote', 'stickyColor', 'isConnector', 'startObjectId', 'endObjectId',
                 'startAnchor', 'endAnchor', 'hasArrow', 'arrowHead', 'startArrowHead', 'shapeId',
                 'shapeName', 'isShapeGroup', 'isSticker', 'isSlideFrame', 'isStepBox', 'stepBoxId',
-                'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isMergedShape'
+                'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isMergedShape',
+                'isIcon', 'iconName', 'iconCategory', 'iconSvg'
             ];
 
             const svgContent = canvas.toSVG({
@@ -509,7 +510,7 @@
             else if (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line') baseName = 'line_arrow';
 
             if (format === 'svg') {
-                const EXTRA_PROPS = window.EXTRA_PROPS || ['shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName'];
+                const EXTRA_PROPS = window.EXTRA_PROPS || ['shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName', 'isIcon', 'iconName', 'iconCategory', 'iconSvg'];
                 activeObj.clone((cloned) => {
                     const b = cloned.getBoundingRect(true, true);
                     const padding = 20;
