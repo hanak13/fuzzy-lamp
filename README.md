@@ -113,7 +113,7 @@ fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
 jinja2>=3.1.3
 python-pptx>=1.0.2
-reportlab>=5.1.0
+reportlab>=4.0.0
 pillow>=10.0.0
 ```
 

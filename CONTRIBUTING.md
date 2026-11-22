@@ -126,7 +126,7 @@ git push origin feat/your-feature-name
 
 ### JavaScript (`static/js/*.js`)
 
-- Code is split across 13 modular subsystems in `static/js/` (`core.js`, `tools.js`, `shapes.js`, `notes.js`, `ui.js`, `slides.js`, `modes.js`, `steps.js`, `objects.js`, `interactions.js`, `commands.js`, `boards.js`, `export.js`).
+- Code is split across 15 modular subsystems in `static/js/` (`core.js`, `tools.js`, `shapes.js`, `notes.js`, `icons.js`, `ui.js`, `slides.js`, `modes.js`, `steps.js`, `objects.js`, `interactions.js`, `commands.js`, `boards.js`, `export.js`, `collab.js`).
 - 4-space indentation, single quotes for strings.
 - No `var` — use `const` and `let`.
 - No `console.log` in committed code; `console.error` / `console.warn` are acceptable for real error paths.
