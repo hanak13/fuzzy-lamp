@@ -589,15 +589,41 @@
         },
 
         initUI() {
+            const btnDownloadMenu = document.getElementById('btn-download-menu');
+            const downloadDropdown = document.getElementById('download-dropdown');
+
+            if (btnDownloadMenu && downloadDropdown) {
+                btnDownloadMenu.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    downloadDropdown.classList.toggle('hidden');
+                });
+
+                document.addEventListener('click', () => {
+                    downloadDropdown.classList.add('hidden');
+                });
+            }
+
             const btnDownloadPng = document.getElementById('btn-download-png');
             const btnDownloadSvg = document.getElementById('btn-download-svg');
             const btnDownloadPdf = document.getElementById('btn-download-pdf');
             const btnDownloadPptx = document.getElementById('btn-download-pptx');
+            const btnDownloadJson = document.getElementById('btn-download-json');
 
             if (btnDownloadPng) btnDownloadPng.addEventListener('click', ExportModule.exportCanvasAsPNG);
             if (btnDownloadSvg) btnDownloadSvg.addEventListener('click', ExportModule.exportCanvasAsSVG);
             if (btnDownloadPdf) btnDownloadPdf.addEventListener('click', ExportModule.exportAsPDF);
             if (btnDownloadPptx) btnDownloadPptx.addEventListener('click', ExportModule.exportAsPPTX);
+            if (btnDownloadJson) {
+                btnDownloadJson.addEventListener('click', () => {
+                    if (downloadDropdown) downloadDropdown.classList.add('hidden');
+                    if (typeof window.downloadCurrentBoard === 'function') {
+                        window.downloadCurrentBoard();
+                    } else if (typeof window.WhiteboardApp.boards?.downloadBoard === 'function') {
+                        const curId = (window.WhiteboardApp.boards.getActiveBoardId && window.WhiteboardApp.boards.getActiveBoardId()) || 'board_main';
+                        window.WhiteboardApp.boards.downloadBoard(curId);
+                    }
+                });
+            }
 
             // Expose globally
             window.exportCanvasAsPNG = ExportModule.exportCanvasAsPNG;

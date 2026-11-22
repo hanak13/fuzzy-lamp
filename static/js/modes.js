@@ -226,20 +226,29 @@
     // Theme Management
     // -------------------------------------------------------------------------
     function initTheme() {
-        const themeBtn = document.getElementById('theme-toggle');
-        const savedTheme = localStorage.getItem('whiteboard_theme');
+        const themeBtn = document.getElementById('btn-theme-toggle') || document.getElementById('theme-toggle');
+        const moonIcon = document.getElementById('theme-icon-moon');
+        const sunIcon = document.getElementById('theme-icon-sun');
 
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.body.classList.add('dark-theme');
-            if (themeBtn) themeBtn.classList.add('active');
+        function applyTheme(isDark) {
+            document.body.classList.toggle('dark-theme', isDark);
+            if (themeBtn) themeBtn.classList.toggle('active', isDark);
+            if (moonIcon) moonIcon.style.display = isDark ? 'none' : 'block';
+            if (sunIcon) sunIcon.style.display = isDark ? 'block' : 'none';
+            localStorage.setItem('whiteboard_theme', isDark ? 'dark' : 'light');
+            if (typeof window.updateGrid === 'function') window.updateGrid();
         }
+
+        const savedTheme = localStorage.getItem('whiteboard_theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initialDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+
+        applyTheme(initialDark);
 
         if (themeBtn) {
             themeBtn.addEventListener('click', () => {
-                const isDark = document.body.classList.toggle('dark-theme');
-                themeBtn.classList.toggle('active', isDark);
-                localStorage.setItem('whiteboard_theme', isDark ? 'dark' : 'light');
-                if (typeof window.updateGrid === 'function') window.updateGrid();
+                const isDark = !document.body.classList.contains('dark-theme');
+                applyTheme(isDark);
             });
         }
     }
