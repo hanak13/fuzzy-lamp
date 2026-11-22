@@ -157,6 +157,13 @@
 
         updateSlideNavigationUI();
         fitSlideView();
+
+        if (window.WhiteboardApp && window.WhiteboardApp.collab && !window.WhiteboardApp.collab.isApplyingRemote()) {
+            window.WhiteboardApp.collab.send({
+                type: 'slide_changed',
+                slideIndex: index
+            });
+        }
     }
 
     function addNewSlide() {

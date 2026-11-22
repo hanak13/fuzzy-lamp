@@ -173,9 +173,11 @@
                 for (let i = 0; i < boardSlides.length; i++) {
                     await new Promise(resolve => {
                         if (typeof window.loadSlide === 'function') window.loadSlide(i);
-                        setTimeout(resolve, 180);
+                        requestAnimationFrame(() => {
+                            canvas.requestRenderAll();
+                            setTimeout(resolve, 120);
+                        });
                     });
-                    canvas.requestRenderAll();
 
                     const dataUrl = canvas.toDataURL({
                         format: 'png',
@@ -247,9 +249,11 @@
                 for (let i = 0; i < primaryBox.stepBoxSteps.length; i++) {
                     await new Promise(res => {
                         if (typeof window.loadStepBoxStep === 'function') window.loadStepBoxStep(primaryBox, i);
-                        setTimeout(res, 180);
+                        requestAnimationFrame(() => {
+                            canvas.requestRenderAll();
+                            setTimeout(res, 120);
+                        });
                     });
-                    canvas.requestRenderAll();
 
                     const dataUrl = canvas.toDataURL({
                         format: 'png',
@@ -510,7 +514,7 @@
             else if (activeObj.isConnector || activeObj.isFreeLine || activeObj.type === 'line') baseName = 'line_arrow';
 
             if (format === 'svg') {
-                const EXTRA_PROPS = window.EXTRA_PROPS || ['shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName', 'isIcon', 'iconName', 'iconCategory', 'iconSvg'];
+                const EXTRA_PROPS = window.EXTRA_PROPS || ['id', 'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName', 'isIcon', 'iconName', 'iconCategory', 'iconSvg'];
                 activeObj.clone((cloned) => {
                     const b = cloned.getBoundingRect(true, true);
                     const padding = 20;

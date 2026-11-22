@@ -1,6 +1,6 @@
-# ✏️ Whiteboard `v0.1.2`
+# ✏️ Whiteboard `v0.3.0`
 
-[![Version](https://img.shields.io/badge/version-v0.1.2-blue.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-v0.3.0-blue.svg)](README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com)
 [![Fabric.js](https://img.shields.io/badge/Fabric.js-5.3-orange.svg)](http://fabricjs.com)
@@ -15,7 +15,18 @@
 
 ---
 
-## 🚀 What's New in v0.1.2
+## 🚀 What's New in v0.3.0
+
+- 📡 **Offline LAN Real-Time Collaboration**: Multi-user board sharing over local Wi-Fi / LAN with FastAPI WebSockets. Zero cloud or CDN dependencies.
+- 👑 **Master & Guest Roles**: The person who starts/creates the board becomes Master. All joiners default to View-Only Guests until granted edit access by Master.
+- 🔒 **Streamlined View-Only Experience**: Minimalist presentation interface for viewers with an invisible canvas shield preventing accidental touching/editing of objects while allowing smooth drag-to-pan and wheel zooming.
+- 📱 **QR Code & LAN Address Sharing**: Built-in offline QR code generator and local IP detection for instant smartphone, tablet, or laptop connection.
+- ⚡ **Dual Start/Stop Batch Script**: `run.bat` automatically toggles start or clean shutdown of background server processes.
+- 🔄 **Real-Time Live Sync**: Object additions, modifications, deletions, background changes, step box changes, and live throttled cursors with custom usernames and avatars.
+
+---
+
+## 🚀 What's New in v0.1.2 (Archive)
 
 - ⭐ **Offline Vector Icons Library**: Built-in library of 120+ Lucide vector icons across 8 categories (Arrows, Files, Communication, Devices, Business, Weather, People, Symbols) with fast real-time search matching names and tags.
 - 🎯 **Recent Icons & Sharp Vector Scaling**: Quick-access row for the last 12 used icons in `localStorage`, drag-and-drop placement, and pixel-perfect vector sharpness (`objectCaching: false`) when resized or zoomed.
@@ -57,7 +68,8 @@
 | **Keyboard Shortcuts** | 40 + shortcuts; press `?` for the built-in cheat sheet |
 | **Undo / Redo** | 50-step history (`Ctrl+Z` / `Ctrl+Y`) |
 | **Pan & Zoom** | Spacebar drag, mouse-wheel zoom, zoom widget, fit-to-canvas |
-| **Offline** | Zero CDN links — Fabric.js is vendored locally |
+| **LAN Collaboration** | Real-time Wi-Fi / LAN collaboration with live remote cursors, online presence avatars, granular object sync, designated saver coordination, QR code join, view-only links, and room passwords |
+| **Offline** | Zero CDN links — Fabric.js and Lucide icons are vendored locally |
 
 ---
 
@@ -119,7 +131,12 @@ python -m venv .venv
 .venv\Scripts\activate
 
 pip install -r requirements.txt
-uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+
+# Easiest: Double-click run.bat (automatically starts server, or stops it if already running)
+run.bat
+
+# Or run manually:
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 ### macOS / Linux
@@ -132,10 +149,42 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
-uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+
+# Run for Wi-Fi / LAN real-time collaboration:
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 Open **http://127.0.0.1:8000** in your browser.
+
+---
+
+## 📡 Collaborate on the Same Wi-Fi (LAN)
+
+The Whiteboard includes built-in real-time collaboration designed specifically for **local Wi-Fi or LAN networks** using FastAPI WebSockets. Zero cloud dependencies, zero external subscriptions, and completely offline.
+
+### 1. Host Starts the Server
+Start the whiteboard binding to `0.0.0.0` so other devices on your local network can reach it:
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+> [!IMPORTANT]
+> **Windows Firewall Note**: When prompted by Windows Defender Firewall, check **Private networks** (home/work) and click **Allow access**. Both the host and peers must be connected to the same Wi-Fi router / network subnet.
+
+### 2. Share with Collaborators
+- Click the blue **Share** button in the top-right toolbar.
+- The dialog automatically detects your computer's LAN IP (e.g., `http://192.168.1.5:8000/board/board_main`).
+- **Laptops / Desktops**: Click **Copy Link** to share via chat or email.
+- **Phones / Tablets**: Scan the on-screen **QR code** with the device's camera.
+
+### 3. Real-Time Collaboration Features
+- **Master (Host) & View-Only Guests**: The first user to start the board is the **👑 Master (Host)** with full editing control. Every new participant joins in **View-Only** mode by default. The Master can customize their display name, toggle *"Allow Guests to Edit"* globally, or grant individual edit permissions in the Collaborators roster.
+- **Live Remote Cursors**: See collaborators' cursors moving smoothly across the canvas in real time with distinct colors and friendly animal names (e.g. *Blue Fox*, *Clever Owl*), with a `👑` crown indicator for the Master.
+- **Granular Sync**: Object additions, modifications, and deletions sync instantly across clients without re-broadcasting entire boards.
+- **Designated Saver Coordination**: The first connected client is automatically elected as the room's designated saver to SQLite, eliminating database overwrite conflicts.
+- **View-Only Mode**: View-only participants see a streamlined interface showing only the board logo, active participants, fullscreen toggle, and the bottom-right zoom widget while drawing toolbars are cleanly hidden.
+- **Room Password Protection**: Set an optional room password in the Share modal; joiners must enter the password before their WebSocket connects.
+- **Independent Undo / Redo**: Each user keeps their own undo/redo history stack without altering other peers' work.
 
 ---
 
@@ -227,8 +276,10 @@ fuzzy-lamp/
 │   │   ├── objects.js   # Objects & layers drawer, inspection, locking, visibility
 │   │   ├── interactions.js # Canvas mouse events, pan, area erase, transform controls
 │   │   ├── commands.js  # Keyboard shortcuts, clipboard, context menu, undo/redo
+│   │   ├── icons.js     # Vector icons panel, Lucide library, recent row, live styling
 │   │   ├── boards.js    # SQLite multi-board manager, autosave loop, boards sidebar
-│   │   └── export.js    # PNG, SVG, PDF, and PowerPoint PPTX presentation exports
+│   │   ├── export.js    # PNG, SVG, PDF, and PowerPoint PPTX presentation exports
+│   │   └── collab.js    # LAN real-time WebSocket sync, remote cursors, saver election
 │   ├── shapes.json      # Shape library (280+ SVG path definitions)
 │   ├── templates.json   # Starter template layouts
 │   └── vendor/
@@ -256,9 +307,9 @@ fuzzy-lamp/
 - [ ] Board thumbnail previews on the boards landing page
 
 ### Medium-term
-- [ ] **Real-time collaboration** via WebSockets (FastAPI + `asyncio.Queue`)
 - [ ] User accounts and board ownership
 - [ ] Public / private board sharing with link
+- [ ] Rich text formatting for sticky notes
 
 ### Ideas & Stretch Goals
 - [ ] Mobile touch support improvements

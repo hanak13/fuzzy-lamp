@@ -4476,3 +4476,814 @@ body.dark-theme .icon-card-name,
 body.dark-theme .icon-recent-name {
     color: #94a3b8;
 }
+
+/* ==========================================================================
+   LAN Real-Time Collaboration Styles
+   Avatars, live cursors, share modal, view-only mode, and QR code
+   ========================================================================== */
+
+/* Top bar online users row */
+.collab-users-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    height: 32px;
+    border-radius: 16px;
+    background: var(--btn-hover);
+    border: 1px solid var(--toolbar-border);
+    transition: all 0.2s ease;
+}
+
+.collab-users-container.disconnected {
+    opacity: 0.6;
+    border-color: #f87171;
+}
+
+.collab-avatars {
+    display: flex;
+    align-items: center;
+    margin-left: -2px;
+}
+
+.collab-avatar-pill {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--toolbar-bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    margin-left: -6px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, z-index 0.15s ease;
+}
+
+.collab-avatar-pill:first-child {
+    margin-left: 0;
+}
+
+.collab-avatar-pill:hover {
+    transform: scale(1.18);
+    z-index: 10;
+}
+
+.collab-avatar-more {
+    background-color: #64748b;
+    font-size: 9px;
+}
+
+.collab-count-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    padding: 0 2px;
+}
+
+/* Top bar share button */
+.top-bar-action-btn.btn-share {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border: 1px solid #1d4ed8 !important;
+}
+
+.top-bar-action-btn.btn-share:hover {
+    background: #1d4ed8 !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.top-bar-action-btn.btn-share svg {
+    stroke: #ffffff;
+}
+
+/* View Only Badge */
+.view-only-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 14px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #fde68a;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+body.dark-theme .view-only-badge {
+    background: #78350f;
+    color: #fef3c7;
+    border-color: #92400e;
+}
+
+/* ==========================================================================
+   View-Only Mode (Minimalist View for Guests with Edit Access Disabled)
+   Rule: Show board logo, participants widget, fullscreen toggle, and zoom widget
+   ========================================================================== */
+body.view-only-mode #toolbar,
+body.view-only-mode .brand-divider,
+body.view-only-mode .btn-all-boards-link,
+body.view-only-mode .frame-mode-container,
+body.view-only-mode .download-menu-container,
+body.view-only-mode #btn-theme-toggle,
+body.view-only-mode #btn-share-board,
+body.view-only-mode #autosave-status,
+body.view-only-mode #btn-minimize-top-bar,
+body.view-only-mode .view-only-badge,
+body.view-only-mode #view-only-badge,
+body.view-only-mode #left-sidebar,
+body.view-only-mode .sidebar-dock,
+body.view-only-mode #fullscreen-presenter-bar,
+body.view-only-mode .fullscreen-presenter-bar,
+body.view-only-mode #panel-restore-buttons,
+body.view-only-mode .panel-restore-container,
+body.view-only-mode #bottom-dock,
+body.view-only-mode .bottom-dock,
+body.view-only-mode #right-boards-sidebar,
+body.view-only-mode .right-boards-sidebar,
+body.view-only-mode #shapes-panel,
+body.view-only-mode .sidebar-drawer,
+body.view-only-mode #stepbox-floating-bar,
+body.view-only-mode .stepbox-floating-bar,
+body.view-only-mode .stepbox-floating-controls,
+body.view-only-mode .slide-frame-banner,
+body.view-only-mode .restore-panel-btn,
+body.view-only-mode .restore-top-bar,
+body.view-only-mode .restore-left-sidebar,
+body.view-only-mode .restore-bottom-dock,
+body.view-only-mode #canvas-context-menu,
+body.view-only-mode .custom-context-menu,
+body.view-only-mode #zoom-widget,
+body.view-only-mode .zoom-control {
+    display: none !important;
+}
+
+body.view-only-mode .top-bar-container {
+    justify-content: space-between !important;
+    pointer-events: none;
+    z-index: 110 !important;
+}
+
+body.view-only-mode .top-bar-left.brand-badge,
+body.view-only-mode .top-bar-right,
+body.view-only-mode #btn-fullscreen-toggle,
+body.view-only-mode .collab-users-wrapper,
+body.view-only-mode .collab-users-container,
+body.view-only-mode .collab-users-dropdown {
+    pointer-events: auto !important;
+    z-index: 110 !important;
+}
+
+body.view-only-mode .top-bar-left.brand-badge {
+    padding: 0 16px;
+    cursor: default !important;
+}
+
+body.view-only-mode .brand-link {
+    pointer-events: none !important;
+    cursor: default !important;
+    text-decoration: none !important;
+}
+
+/* Invisible View-Only Shield: Covers canvas to prevent touching any object */
+.view-only-shield {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 90; /* Above canvas objects and cursors, below top bar and zoom widget */
+    background: transparent;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+body.view-only-mode .view-only-shield {
+    display: block !important;
+    pointer-events: auto !important;
+}
+
+body.view-only-mode .view-only-shield.is-panning {
+    cursor: grabbing !important;
+}
+
+/* Live remote cursors overlay */
+.collab-cursors-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.remote-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    transition: transform 0.04s linear;
+    will-change: transform;
+    z-index: 101;
+}
+
+.remote-cursor-pointer {
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.remote-cursor-label {
+    position: absolute;
+    top: 18px;
+    left: 12px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    line-height: 1.3;
+}
+
+/* Share modal card */
+.collab-share-card {
+    max-width: 500px;
+    width: 95%;
+}
+
+.collab-share-body {
+    padding: 16px 20px;
+}
+
+.collab-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--toolbar-border);
+    padding-bottom: 10px;
+}
+
+.collab-tab-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.collab-tab-btn.active {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #bfdbfe;
+}
+
+body.dark-theme .collab-tab-btn.active {
+    background: #1e3a8a;
+    color: #93c5fd;
+    border-color: #1e40af;
+}
+
+.collab-share-section {
+    margin-bottom: 12px;
+}
+
+.collab-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.collab-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.collab-input {
+    flex: 1;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid var(--toolbar-border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.collab-qr-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--btn-hover);
+    border: 1px solid var(--toolbar-border);
+}
+
+.collab-qr-frame {
+    padding: 6px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.collab-qr-frame img {
+    display: block;
+    border-radius: 4px;
+}
+
+.collab-qr-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.collab-qr-text strong {
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.collab-password-section {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--toolbar-border);
+}
+
+.collab-note {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+.collab-firewall-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 12px;
+    line-height: 1.4;
+    border: 1px solid #fde68a;
+}
+
+body.dark-theme .collab-firewall-alert {
+    background: #451a03;
+    color: #fde68a;
+    border-color: #78350f;
+}
+
+.collab-firewall-alert svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Password prompt modal */
+.collab-password-card {
+    max-width: 380px;
+    width: 90%;
+}
+
+.collab-prompt-error {
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+body.dark-theme .collab-prompt-error {
+    background: #450a0a;
+    color: #fca5a5;
+    border-color: #7f1d1d;
+}
+
+/* ==========================================================================
+   Master vs Guest Roles & Permissions Dropdown Styles
+   ========================================================================== */
+
+.collab-users-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.collab-users-container {
+    cursor: pointer;
+}
+
+.collab-avatar-pill.avatar-master {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 1.5px #f59e0b, 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.pill-crown {
+    font-size: 8px;
+    margin-right: 1px;
+}
+
+.remote-cursor-label.label-master {
+    border: 1.5px solid #f59e0b;
+    font-weight: 700;
+}
+
+/* Collaborators Dropdown */
+.collab-users-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 320px;
+    max-height: 480px;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInScale 0.15s ease-out;
+}
+
+.collab-users-dropdown.hidden {
+    display: none !important;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.collab-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--toolbar-border);
+}
+
+.collab-dropdown-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.collab-dropdown-close {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.collab-dropdown-close:hover {
+    background: var(--btn-hover);
+    color: var(--text-primary);
+}
+
+/* Dropdown Profile Section */
+.collab-dropdown-profile {
+    padding: 12px 14px;
+    background: var(--btn-hover);
+    border-bottom: 1px solid var(--toolbar-border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.collab-profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.collab-profile-badge.badge-master {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.collab-profile-badge.badge-guest {
+    background: #e2e8f0;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+body.dark-theme .collab-profile-badge.badge-master {
+    background: #78350f;
+    color: #fde68a;
+    border-color: #92400e;
+}
+
+body.dark-theme .collab-profile-badge.badge-guest {
+    background: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+.collab-name-edit-group {
+    display: flex;
+    gap: 6px;
+}
+
+.collab-name-input {
+    flex: 1;
+    height: 30px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid var(--toolbar-border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 12px;
+}
+
+.btn-collab-save-name {
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-collab-save-name:hover {
+    background: #1d4ed8;
+}
+
+/* Master Guest Controls Switch */
+.collab-dropdown-controls {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--toolbar-border);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+.collab-dropdown-switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.collab-switch-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.collab-switch-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.collab-switch-desc {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+/* iOS-style toggle switch */
+.collab-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.collab-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.collab-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px;
+}
+
+.collab-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.collab-switch input:checked + .collab-switch-slider {
+    background-color: #10b981;
+}
+
+.collab-switch input:checked + .collab-switch-slider:before {
+    transform: translateX(16px);
+}
+
+/* Users List */
+.collab-dropdown-users-list {
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 6px 0;
+}
+
+.collab-user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    transition: background 0.15s ease;
+}
+
+.collab-user-row:hover {
+    background: var(--btn-hover);
+}
+
+.collab-user-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.collab-user-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.collab-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.collab-user-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tag-you {
+    font-size: 10px;
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.collab-user-role {
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.role-master {
+    color: #d97706;
+}
+
+.role-guest {
+    color: var(--text-secondary);
+}
+
+.btn-toggle-perm {
+    border: none;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-toggle-perm.perm-can-edit {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.btn-toggle-perm.perm-can-edit:hover {
+    background: #bbf7d0;
+}
+
+.btn-toggle-perm.perm-view-only {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn-toggle-perm.perm-view-only:hover {
+    background: #fecaca;
+}
+
+.collab-perm-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.collab-perm-badge.perm-can-edit {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.collab-perm-badge.perm-view-only {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Permission box in Share Modal */
+.collab-permission-box {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--btn-hover);
+    border: 1px solid var(--toolbar-border);
+}
+
+.collab-permission-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.collab-permission-info strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.collab-permission-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.35;
+    display: block;
+}
+
+

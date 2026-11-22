@@ -399,6 +399,60 @@
                 <span id="theme-btn-label">Theme</span>
             </button>
 
+            <!-- LAN Collaboration Online Users Avatar Row & Collaborators Dropdown -->
+            <div class="collab-users-wrapper">
+                <div id="collab-users-container" class="collab-users-container" title="Connected Collaborators (Click to view & manage)">
+                    <div id="collab-avatars" class="collab-avatars"></div>
+                    <span id="collab-count" class="collab-count-badge">1</span>
+                </div>
+                <div id="collab-users-dropdown" class="collab-users-dropdown hidden">
+                    <div class="collab-dropdown-header">
+                        <div class="collab-dropdown-title">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            <span>Collaborators</span>
+                        </div>
+                        <button type="button" id="btn-close-collab-dropdown" class="collab-dropdown-close" title="Close">&times;</button>
+                    </div>
+
+                    <!-- Master Profile & Name Editing Row -->
+                    <div class="collab-dropdown-profile">
+                        <div class="collab-profile-badge" id="collab-my-role-badge">👑 Master</div>
+                        <div class="collab-name-edit-group">
+                            <input type="text" id="collab-dropdown-name-input" class="collab-name-input" placeholder="Your name...">
+                            <button type="button" id="btn-collab-dropdown-save-name" class="btn-collab-save-name">Save</button>
+                        </div>
+                    </div>
+
+                    <!-- Guest Edit Master Toggle (Only visible for Master) -->
+                    <div class="collab-dropdown-controls" id="collab-dropdown-guest-controls">
+                        <div class="collab-dropdown-switch-row">
+                            <div class="collab-switch-meta">
+                                <span class="collab-switch-title">Allow Guests to Edit</span>
+                                <span class="collab-switch-desc">If off, guests are restricted to View Only</span>
+                            </div>
+                            <label class="collab-switch">
+                                <input type="checkbox" id="collab-dropdown-guest-toggle">
+                                <span class="collab-switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Active Users List -->
+                    <div class="collab-dropdown-users-list" id="collab-dropdown-users-list">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share Button (LAN Collaboration & QR Code) -->
+            <button type="button" id="btn-share-board" class="top-bar-action-btn btn-share" title="Share board with LAN collaborators">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+                <span>Share</span>
+            </button>
+
             <!-- Auto-Save Status Indicator -->
             <div id="autosave-status" class="autosave-indicator" title="Changes auto-saved to SQLite database">
                 <span class="autosave-dot"></span>
@@ -991,6 +1045,9 @@
     <!-- Canvas Container -->
     <main id="canvas-container">
         <canvas id="whiteboard-canvas"></canvas>
+        <div id="collab-cursors-container" class="collab-cursors-container"></div>
+        <!-- Invisible View-Only Shield: Prevents touching or interacting with canvas objects -->
+        <div id="view-only-shield" class="view-only-shield" aria-hidden="true" title="View Only - Drag to pan, scroll to zoom"></div>
     </main>
 
     <!-- Slide Frame Banner & Presenter Controls (Appears when in Fixed Width / Slide Mode) -->
@@ -1133,17 +1190,6 @@
             <span class="fs-btn-label">Select</span>
         </button>
 
-        <!-- Objects & Layers Tool (View, Select, Lock, Delete) -->
-        <button type="button" id="fs-btn-objects" class="fs-bar-btn" title="View & Delete Canvas Objects (O)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-                <polyline points="2 17 12 22 22 17"/>
-                <polyline points="2 12 12 17 22 12"/>
-            </svg>
-            <span class="fs-btn-label">Objects</span>
-            <span id="fs-objects-badge" class="fs-badge" style="display: none;">0</span>
-        </button>
-
         <div class="fs-bar-sep"></div>
 
         <!-- 3. Minimize Presenter Dock Button -->
@@ -1200,8 +1246,11 @@
         </button>
         <button id="btn-reset-view" class="zoom-btn text-btn" title="Reset View & Zoom (Ctrl+0)">Reset</button>
         <button id="btn-zoom-fullscreen" class="zoom-btn" title="Toggle Fullscreen (F11)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg id="zoom-fullscreen-icon-expand" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+            <svg id="zoom-fullscreen-icon-compress" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
             </svg>
         </button>
         <button id="btn-shortcuts-toggle" class="zoom-btn" title="All Keyboard Shortcuts (? or Ctrl+/ or F1)">
@@ -1376,6 +1425,147 @@
             </div>
         </div>
     </div>
+
+    <!-- LAN Real-time Collaboration Share Modal -->
+    <div id="modal-share-board" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-card collab-share-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">📡</span>
+                    <div>
+                        <h3>Share Whiteboard (Wi-Fi / LAN)</h3>
+                        <div class="modal-hint">Collaborate in real time with anyone on the same local network</div>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-share-modal" class="modal-close-btn" title="Close (Escape)">&times;</button>
+            </div>
+            <div class="modal-body collab-share-body">
+                <!-- Share mode tabs: Can Edit vs View Only -->
+                <div class="collab-tabs">
+                    <button type="button" id="tab-share-edit" class="collab-tab-btn active">✏️ Can Edit</button>
+                    <button type="button" id="tab-share-view" class="collab-tab-btn">👁️ View Only</button>
+                </div>
+
+                <div class="collab-share-section">
+                    <label class="collab-label" for="share-link-edit">Collaboration Link (Full Editing)</label>
+                    <div class="collab-input-group">
+                        <input type="text" id="share-link-edit" class="collab-input" readonly>
+                        <button type="button" id="btn-copy-edit-link" class="btn modal-btn modal-btn-primary">Copy Link</button>
+                    </div>
+                </div>
+
+                <div class="collab-share-section" style="margin-top: 10px;">
+                    <label class="collab-label" for="share-link-view">Read-Only Link (View Only)</label>
+                    <div class="collab-input-group">
+                        <input type="text" id="share-link-view" class="collab-input" readonly>
+                        <button type="button" id="btn-copy-view-link" class="btn modal-btn modal-btn-secondary">Copy Link</button>
+                    </div>
+                </div>
+
+                <!-- QR Code Box -->
+                <div class="collab-qr-container">
+                    <div class="collab-qr-frame">
+                        <img id="share-qr-code-img" src="" alt="LAN Board QR Code" width="160" height="160">
+                    </div>
+                    <div class="collab-qr-text">
+                        <strong>Scan to join from mobile or tablet</strong>
+                        <p>Open your camera or QR scanner while connected to the same Wi-Fi / LAN network.</p>
+                    </div>
+                </div>
+
+                <!-- Master Display Name -->
+                <div class="collab-share-section" id="share-master-name-section">
+                    <label class="collab-label" for="share-master-name-input">👑 Your Name (Master / Host)</label>
+                    <div class="collab-input-group">
+                        <input type="text" id="share-master-name-input" class="collab-input" placeholder="Enter your name (e.g. Alice, Host)...">
+                        <button type="button" id="btn-save-master-name-modal" class="btn modal-btn modal-btn-secondary">Save</button>
+                    </div>
+                </div>
+
+                <!-- Guest Edit Permission Switch -->
+                <div class="collab-permission-box" id="share-guest-permission-box">
+                    <div class="collab-permission-header">
+                        <div class="collab-permission-info">
+                            <strong>Allow Guests to Edit</strong>
+                            <span class="collab-permission-sub">When disabled, guests join in View Only mode and cannot add or alter objects.</span>
+                        </div>
+                        <label class="collab-switch">
+                            <input type="checkbox" id="share-modal-guest-toggle">
+                            <span class="collab-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Room Password Configuration -->
+                <div class="collab-password-section">
+                    <label class="collab-label" for="share-room-password-input">Optional Room Password</label>
+                    <div class="collab-input-group">
+                        <input type="password" id="share-room-password-input" class="collab-input" placeholder="Set a password to lock this board...">
+                        <button type="button" id="btn-set-room-password" class="btn modal-btn modal-btn-secondary">Save Password</button>
+                    </div>
+                    <div class="collab-note">If set, joiners must enter this password before entering. Leave blank for open access.</div>
+                </div>
+
+                <div class="collab-firewall-alert">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span><strong>Network Note:</strong> Ensure Python is allowed through Windows Firewall on private networks.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn modal-btn modal-btn-primary" onclick="document.getElementById('modal-share-board').classList.add('hidden')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room Password Prompt Modal -->
+    <div id="modal-password-prompt" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-card collab-password-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">🔒</span>
+                    <div>
+                        <h3>Room Password Required</h3>
+                        <div class="modal-hint">This board is password-protected by the host</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="password-prompt-error" class="collab-prompt-error" style="display: none;"></div>
+                <div class="collab-share-section">
+                    <label class="collab-label" for="room-password-input">Enter Room Password</label>
+                    <input type="password" id="room-password-input" class="collab-input" placeholder="Password..." autocomplete="current-password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-submit-room-password" class="btn modal-btn modal-btn-primary">Join Board</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Session Display Name Modal -->
+    <div id="modal-join-board" class="modal-overlay hidden" aria-hidden="true">
+        <div class="modal-card collab-password-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="modal-title-icon">👋</span>
+                    <div>
+                        <h3 id="join-board-title">Join Whiteboard</h3>
+                        <div class="modal-hint">Enter your name to join this collaboration session</div>
+                    </div>
+                </div>
+            </div>
+            <form id="form-join-board" class="modal-body" onsubmit="event.preventDefault();">
+                <div class="collab-share-section">
+                    <label class="collab-label" for="join-user-name-input">Your Display Name</label>
+                    <input type="text" id="join-user-name-input" class="collab-input" placeholder="e.g. Alex, Sarah, David..." required maxlength="32" autocomplete="name">
+                </div>
+                <div class="modal-footer" style="padding: 14px 0 0; margin-top: 10px; border-top: 1px solid var(--toolbar-border); display: flex; justify-content: flex-end;">
+                    <button type="submit" id="btn-submit-join" class="btn modal-btn modal-btn-primary" style="padding: 9px 24px; font-weight: 600;">Join Board</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="toast" class="toast-notification hidden"></div>
 
     <!-- Step Box Floating Controls (Positioned directly under selected Step Box) -->
@@ -1510,5 +1700,6 @@
     <script src="/static/js/commands.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/boards.js?v={{ asset_version or '20261121_10' }}"></script>
     <script src="/static/js/export.js?v={{ asset_version or '20261121_10' }}"></script>
+    <script src="/static/js/collab.js?v={{ asset_version or '20261121_10' }}"></script>
 </body>
 </html>

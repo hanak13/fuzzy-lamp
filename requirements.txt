@@ -16,3 +16,6 @@ reportlab>=4.0.0
 
 # Image decoding for PDF/PPTX export pipelines (base64 PNG → ReportLab ImageReader)
 pillow>=10.0.0
+
+# Offline QR Code generation for LAN board sharing
+qrcode>=7.4.2

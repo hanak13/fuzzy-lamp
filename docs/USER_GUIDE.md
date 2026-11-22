@@ -18,6 +18,7 @@ Open the app at **http://127.0.0.1:8000** after following the setup steps in the
 9. [Dark Mode](#9-dark-mode)
 10. [Keyboard Shortcuts Reference](#10-keyboard-shortcuts-reference)
 11. [Minimising Panels](#11-minimising-panels)
+12. [Collaborate on the Same Wi-Fi (LAN)](#12-collaborate-on-the-same-wi-fi-lan)
 
 ---
 
@@ -343,3 +344,45 @@ Each of the three main UI panels has its own **Hide** button to maximise canvas 
 | Bottom drawing dock | **–** button on the right end of the dock | Floating **✎ Draw** in the bottom-right |
 
 Click any restore button to bring the panel back. All three can be minimised simultaneously for a fully clean drawing canvas.
+
+---
+
+## 12. Collaborate on the Same Wi-Fi (LAN)
+
+The Whiteboard supports peer-to-peer real-time collaboration across computers, laptops, tablets, and phones connected to the **same Wi-Fi router or local area network (LAN)**. It operates 100% offline with zero cloud dependency.
+
+### How the Host Starts
+
+1. Open your terminal in the whiteboard project directory.
+2. Start the server binding to `0.0.0.0` (all network interfaces):
+   ```bash
+   uvicorn app:app --host 0.0.0.0 --port 8000
+   ```
+3. Open your browser to **http://localhost:8000** or your LAN IP.
+4. Click the blue **Share** button in the top-right toolbar.
+
+### How Others Join & Default View-Only Access
+
+1. In the **Share** window:
+   - **From computers/laptops**: Click **Copy Link** to share the local network address (e.g. `http://192.168.1.5:8000/board/board_main`).
+   - **From phones/tablets**: Point the phone camera at the on-screen **QR code** while connected to the same Wi-Fi.
+2. **Master & Default View-Only Guests**:
+   - The creator who starts the board is automatically the **👑 Master (Host)** and holds full editing permissions.
+   - **Every new participant joins in View-Only mode by default**. They see a distraction-free presentation canvas with only the board logo, online participants roster, fullscreen toggle, and bottom-right zoom widget.
+   - The Master can allow all guests to edit by toggling **"Allow Guests to Edit"** (in the top-bar Collaborators dropdown or Share window), or grant individual edit permissions per user in the roster.
+3. Every collaborator receives a unique animal avatar name (e.g., *Blue Fox*, *Swift Falcon*) and distinct cursor color. The Master can set a custom name at any time.
+4. Remote cursors move live with smooth position interpolation and name tags.
+
+### Room Password Protection
+
+1. In the **Share** window, type a password into the **Optional Room Password** field and click **Save Password**.
+2. Any new peer joining the board will be prompted with a secure password modal before their WebSocket connection is accepted.
+3. To remove the password, clear the input and click **Save Password**.
+
+### Windows Firewall Note
+
+When running `uvicorn app:app --host 0.0.0.0 --port 8000` for the first time, Windows Defender Firewall may display an alert:
+- Check the box for **Private networks (such as your home or work network)**.
+- Click **Allow access**.
+- If peers cannot connect, ensure both devices are on the exact same Wi-Fi SSID and that "AP isolation" / "client isolation" is disabled on your router.
+

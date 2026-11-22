@@ -19,7 +19,7 @@
     let lastSavedTime = null;
 
     const EXTRA_PROPS = [
-        'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
+        'id', 'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
         'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId',
         'isStickyNote', 'stickyColor', 'isSticker', 'imageName',
         'isIcon', 'iconName', 'iconCategory', 'iconSvg'
@@ -74,6 +74,13 @@
             const canvas = BoardsModule.getCanvas();
             if (!canvas || !activeBoardId || isSavingBoard || isBoardLoading) return;
             if (!isBoardDirty && !force) return;
+
+            // In LAN collaboration, only the designated saver client auto-saves to SQLite to avoid overwrites
+            if (window.WhiteboardApp && window.WhiteboardApp.collab && !window.WhiteboardApp.collab.isSaver()) {
+                isBoardDirty = false;
+                BoardsModule.updateAutosaveIndicator('saved', 'Synced (LAN)');
+                return;
+            }
 
             isSavingBoard = true;
             BoardsModule.updateAutosaveIndicator('saving');
@@ -310,6 +317,9 @@
                 if (save) {
                     BoardsModule.markBoardDirty();
                     BoardsModule.saveActiveBoardDebounced();
+                    if (window.WhiteboardApp && window.WhiteboardApp.collab && typeof window.WhiteboardApp.collab.broadcastBoardBg === 'function') {
+                        window.WhiteboardApp.collab.broadcastBoardBg(color);
+                    }
                 }
             }
 
@@ -501,7 +511,12 @@
                     isBoardDirty = false;
                     if (typeof window.saveState === 'function') window.saveState();
                     BoardsModule.updateAutosaveIndicator('saved');
+                    if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
+                    if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
                     if (typeof window.showToast === 'function') window.showToast(`Switched to "${targetBoard.name}"`);
+                    if (window.WhiteboardApp && window.WhiteboardApp.collab && typeof window.WhiteboardApp.collab.switchBoard === 'function') {
+                        window.WhiteboardApp.collab.switchBoard(targetBoardId);
+                    }
                 });
             } catch (err) {
                 console.error('Error switching board from server:', err);
@@ -633,6 +648,9 @@
                             body: JSON.stringify({ name: val })
                         });
                         if (typeof window.showToast === 'function') window.showToast(`Renamed to "${board.name}"`);
+                        if (window.WhiteboardApp && window.WhiteboardApp.collab && typeof window.WhiteboardApp.collab.broadcastBoardRenamed === 'function') {
+                            window.WhiteboardApp.collab.broadcastBoardRenamed(val);
+                        }
                     } catch (err) {
                         console.error('Failed to rename board on server:', err);
                     }
@@ -932,6 +950,8 @@
                             if (typeof window.saveState === 'function') window.saveState();
                             isBoardDirty = false;
                             BoardsModule.updateAutosaveIndicator('saved');
+                            if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
+                            if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
                         });
                     }
                 }

@@ -25,7 +25,7 @@
             const mode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
             const isSpace = window.isSpacePressed || (window.WhiteboardApp && window.WhiteboardApp.isSpacePressed);
 
-            if (mode === 'pan' || isSpace) {
+            if (document.body.classList.contains('view-only-mode') || mode === 'pan' || isSpace) {
                 canvas.defaultCursor = 'grab';
             } else if (['pen', 'highlighter', 'eraser', 'line', 'arrow', 'stepbox'].includes(mode)) {
                 canvas.defaultCursor = 'crosshair';
@@ -318,7 +318,7 @@
                 const isMiddleClick = evt && evt.button === 1;
                 const currentMode = window.currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
                 const isSpacePressed = window.isSpacePressed || (window.WhiteboardApp && window.WhiteboardApp.isSpacePressed);
-                const shouldPan = currentMode === 'pan' || isSpacePressed || isMiddleClick;
+                const shouldPan = currentMode === 'pan' || isSpacePressed || isMiddleClick || document.body.classList.contains('view-only-mode');
 
                 if (shouldPan) {
                     window.isPanning = true;

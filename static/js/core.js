@@ -20,8 +20,9 @@
     const GRID_BASE_SIZE = 30;
     const MAX_HISTORY = 50;
 
-    // Extra properties to serialize in Fabric JSON history
+    // Extra properties to serialize in Fabric JSON history and LAN sync
     const EXTRA_PROPS = [
+        'id',
         'globalCompositeOperation',
         'objectCaching',
         'selectable',
@@ -260,6 +261,23 @@
             if (fullscreenIconExpand && fullscreenIconCompress) {
                 fullscreenIconExpand.style.display = isFull ? 'none' : 'block';
                 fullscreenIconCompress.style.display = isFull ? 'block' : 'none';
+            }
+            const zoomExpand = document.getElementById('zoom-fullscreen-icon-expand');
+            const zoomCompress = document.getElementById('zoom-fullscreen-icon-compress');
+            if (zoomExpand && zoomCompress) {
+                zoomExpand.style.display = isFull ? 'none' : 'block';
+                zoomCompress.style.display = isFull ? 'block' : 'none';
+            }
+            const label = document.getElementById('fullscreen-btn-label');
+            if (label) {
+                label.textContent = isFull ? 'Exit' : 'Fullscreen';
+            }
+            const zoomBtn = document.getElementById('btn-zoom-fullscreen');
+            if (zoomBtn) {
+                zoomBtn.title = isFull ? 'Exit Fullscreen (Escape or F11)' : 'Toggle Fullscreen (F11)';
+            }
+            if (btnFullscreenToggle) {
+                btnFullscreenToggle.title = isFull ? 'Exit Fullscreen (Escape or F11)' : 'Toggle Fullscreen (F11)';
             }
         });
 

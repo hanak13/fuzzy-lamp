@@ -81,7 +81,7 @@
         if (mode !== 'eraser') {
             if (propEraserGroup) propEraserGroup.style.display = 'none';
             if (eraserCursorPreview) eraserCursorPreview.style.display = 'none';
-            if (propSizeGroup) propSizeGroup.style.display = 'none';
+            if (propSizeGroup) propSizeGroup.style.display = (mode === 'pen' || mode === 'highlighter') ? 'inline-flex' : 'none';
             if (fsEraserModeGroup) fsEraserModeGroup.style.display = 'none';
             if (fsSizeDisplay) fsSizeDisplay.textContent = strokeSize + 'px';
             if (fsSizeSlider) {
@@ -90,7 +90,7 @@
                 fsSizeSlider.value = strokeSize;
             }
         } else {
-            if (propEraserGroup) propEraserGroup.style.display = 'none';
+            if (propEraserGroup) propEraserGroup.style.display = 'inline-flex';
             if (propSizeGroup) propSizeGroup.style.display = 'none';
             if (fsEraserModeGroup) fsEraserModeGroup.style.display = 'flex';
             if (fsSizeDisplay) fsSizeDisplay.textContent = eraserSize + 'px';

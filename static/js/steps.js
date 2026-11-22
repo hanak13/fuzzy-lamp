@@ -275,12 +275,18 @@
                     canvas.requestRenderAll();
                     StepsModule.updateFloatingControls(box);
                     if (typeof window.saveState === 'function') window.saveState();
+                    if (window.WhiteboardApp && window.WhiteboardApp.collab && !window.WhiteboardApp.collab.isApplyingRemote()) {
+                        window.WhiteboardApp.collab.broadcastStepChanged(box.stepBoxId, targetIdx);
+                    }
                 });
             } else {
                 box.dirty = true;
                 canvas.requestRenderAll();
                 StepsModule.updateFloatingControls(box);
                 if (typeof window.saveState === 'function') window.saveState();
+                if (window.WhiteboardApp && window.WhiteboardApp.collab && !window.WhiteboardApp.collab.isApplyingRemote()) {
+                    window.WhiteboardApp.collab.broadcastStepChanged(box.stepBoxId, targetIdx);
+                }
             }
         },
 

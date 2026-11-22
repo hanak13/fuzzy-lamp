@@ -15,7 +15,10 @@
         debounceTimer: null,
 
         getCanvas() {
-            return window.__canvas || (window.WhiteboardApp && window.WhiteboardApp.canvas);
+            return window.__canvas || 
+                   (window.WhiteboardApp && window.WhiteboardApp.canvas) || 
+                   window.canvas || 
+                   (window.WhiteboardApp && window.WhiteboardApp.core && window.WhiteboardApp.core.canvas);
         },
 
         getUserCanvasObjects() {
@@ -602,9 +605,11 @@
             canvas.on('object:added', () => ObjectsModule.debouncedUpdateList());
             canvas.on('object:removed', () => ObjectsModule.debouncedUpdateList());
             canvas.on('object:modified', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('path:created', () => ObjectsModule.debouncedUpdateList());
             canvas.on('selection:created', () => ObjectsModule.debouncedUpdateList());
             canvas.on('selection:updated', () => ObjectsModule.debouncedUpdateList());
             canvas.on('selection:cleared', () => ObjectsModule.debouncedUpdateList());
+            canvas.on('after:render', () => ObjectsModule.debouncedUpdateList());
         },
 
         toggleDrawer() {
@@ -737,6 +742,15 @@
     };
 
     window.WhiteboardApp.objects = ObjectsModule;
+    // Expose immediately so other modules can invoke count and render before DOMContentLoaded completes
+    window.getUserCanvasObjects = ObjectsModule.getUserCanvasObjects;
+    window.getObjectMetadata = ObjectsModule.getObjectMetadata;
+    window.updateObjectsCountBadges = ObjectsModule.updateCountBadges;
+    window.renderObjectsList = ObjectsModule.renderObjectsList;
+    window.debouncedUpdateObjectsList = ObjectsModule.debouncedUpdateList;
+    window.toggleObjectsDrawer = ObjectsModule.toggleDrawer;
+    window.deleteSingleObject = ObjectsModule.deleteSingleObject;
+    window.deleteSelectedObjects = ObjectsModule.deleteSelectedObjects;
 
     // Attach listeners on DOMContentLoaded
     if (document.readyState === 'loading') {

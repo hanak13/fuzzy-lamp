@@ -17,7 +17,7 @@
     let historyDebounceTimer = null;
 
     const EXTRA_PROPS = [
-        'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
+        'id', 'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
         'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId',
         'isStickyNote', 'stickyColor', 'isSticker', 'imageName',
         'isIcon', 'iconName', 'iconCategory', 'iconSvg'
@@ -59,6 +59,7 @@
         },
 
         saveStateDebounced(delay = 150) {
+            if (window.WhiteboardApp && window.WhiteboardApp.collab && window.WhiteboardApp.collab.isApplyingRemoteChange) return;
             if (historyDebounceTimer) clearTimeout(historyDebounceTimer);
             historyDebounceTimer = setTimeout(() => {
                 CommandsModule.saveState();
@@ -66,6 +67,7 @@
         },
 
         saveState() {
+            if (window.WhiteboardApp && window.WhiteboardApp.collab && window.WhiteboardApp.collab.isApplyingRemoteChange) return;
             if (historyDebounceTimer) {
                 clearTimeout(historyDebounceTimer);
                 historyDebounceTimer = null;
@@ -781,6 +783,11 @@
                             canvas.requestRenderAll();
                         }
                     }
+                    return;
+                }
+
+                // If in View-Only Mode, block editing shortcuts
+                if (document.body.classList.contains('view-only-mode')) {
                     return;
                 }
 
