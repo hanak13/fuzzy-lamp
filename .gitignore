@@ -51,8 +51,9 @@ build/
 .env
 .env.*
 
-# ── Windows helper scripts (dev only) ───────────────────
+# ── Windows helper scripts ──────────────────────────────
 *.bat
+!run.bat
 *.cmd
 
 # ── Local Agent Memory (Do Not Commit) ──────────────────

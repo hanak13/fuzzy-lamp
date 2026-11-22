@@ -121,7 +121,27 @@ pillow>=10.0.0
 
 ## 🚀 Setup & Run
 
-### Windows
+### ⚡ Quick Start: Smart Start / Stop (`run.bat` for Windows)
+
+The project includes **`run.bat`**, a convenient dual-purpose script for Windows that handles the entire lifecycle of the server with a single click:
+
+```bat
+run.bat
+```
+
+- **▶️ Starts when stopped**:
+  - Checks Python and package dependencies (works with standard Python or [`uv`](https://github.com/astral-sh/uv) if available).
+  - Starts the FastAPI/Uvicorn server bound to `0.0.0.0:8000` (ready for local and LAN collaboration).
+  - Automatically launches your default web browser to [http://127.0.0.1:8000](http://127.0.0.1:8000).
+- **⏹️ Stops when running**:
+  - If the application is already running on port 8000, running `run.bat` automatically stops the server process tree cleanly, terminates background uvicorn workers, and frees port 8000.
+- **Usage**: Simply double-click `run.bat` to launch the app, and double-click `run.bat` again whenever you want to close and stop the server!
+
+---
+
+### 💻 Manual Setup
+
+#### Windows (Command Prompt / PowerShell)
 
 ```bat
 git clone https://github.com/hanak13/fuzzy-lamp.git
@@ -132,14 +152,12 @@ python -m venv .venv
 
 pip install -r requirements.txt
 
-# Easiest: Double-click run.bat (automatically starts server, or stops it if already running)
+# Start with run.bat or uvicorn:
 run.bat
-
-# Or run manually:
-uvicorn app:app --host 0.0.0.0 --port 8000
+# or: uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-### macOS / Linux
+#### macOS / Linux
 
 ```bash
 git clone https://github.com/hanak13/fuzzy-lamp.git
