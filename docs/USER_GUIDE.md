@@ -279,7 +279,7 @@ Click the **Theme** button (moon/sun icon) in the top-right toolbar. The choice 
 
 | Shortcut | Action |
 |---|---|
-| `Ctrl` + scroll | Zoom in / out |
+| Mouse wheel / `+` / `-` | Zoom in / out |
 | `Space` + drag | Pan canvas |
 | `Ctrl + 0` | Reset zoom |
 | `Ctrl + 1` | Zoom to 100 % |
