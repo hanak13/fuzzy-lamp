@@ -152,8 +152,8 @@
                 </div>
             </div>
 
-            <!-- Writing / Stroke Size Stepper (Removed from top bar; located in the bottom movable dock) -->
-            <div id="prop-size-group" class="prop-item" style="display: none !important;" title="Writing / Stroke Size ([ to decrease, ] to increase)">
+            <!-- Writing / Stroke Size Stepper -->
+            <div id="prop-size-group" class="prop-item" style="display: none;" title="Writing / Stroke Size ([ to decrease, ] to increase)">
                 <span class="prop-label">Size</span>
                 <div class="stroke-size-stepper">
                     <button type="button" id="btn-stroke-size-dec" class="size-step-btn" title="Decrease Stroke Size ([)">−</button>
@@ -163,8 +163,8 @@
                 </div>
             </div>
 
-            <!-- Eraser Mode & Size Controls (Permanently removed from top bar; located in the bottom movable dock) -->
-            <div id="prop-eraser-group" class="prop-item-group" style="display: none !important;">
+            <!-- Eraser Mode & Size Controls -->
+            <div id="prop-eraser-group" class="prop-item-group" style="display: none;">
                 <div class="prop-item" title="Eraser Mode">
                     <span class="prop-label">Erase Mode</span>
                     <div class="eraser-mode-pills">
@@ -516,7 +516,7 @@
                     </svg>
                     <span>Shapes Library</span>
                 </div>
-                <button id="btn-close-shapes" class="shapes-panel-close" title="Close drawer">
+                <button id="btn-close-shapes" class="shapes-panel-close btn-close-drawer" title="Close drawer">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
@@ -1365,8 +1365,14 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span>Add Step</span>
         </button>
-        <button type="button" class="stepbox-ctrl-btn stepbox-btn-delete" id="btn-stepbox-del" title="Delete current step">
+        <button type="button" class="stepbox-ctrl-btn" id="btn-stepbox-del" title="Delete current step">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span>Del Step</span>
+        </button>
+        <div class="stepbox-divider"></div>
+        <button type="button" class="stepbox-ctrl-btn stepbox-btn-delete" id="btn-stepbox-delete-box" title="Delete entire Step Box (removes box and contained items)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            <span>Delete Box</span>
         </button>
     </div>
 

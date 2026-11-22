@@ -387,6 +387,8 @@
                         stroke: '#6366f1',
                         strokeWidth: 2,
                         strokeDashArray: [6, 4],
+                        strokeUniform: true,
+                        objectCaching: false,
                         rx: 6,
                         ry: 6,
                         selectable: false,
@@ -410,8 +412,16 @@
                     if (window.WhiteboardApp) window.WhiteboardApp.activeStepBox = clickedBox;
                     clickedBox._lastMovingLeft = clickedBox.left;
                     clickedBox._lastMovingTop = clickedBox.top;
+                    if (currentMode === 'select' && (!opt.target || opt.target === clickedBox)) {
+                        canvas.setActiveObject(clickedBox);
+                        canvas.requestRenderAll();
+                    }
                     if (typeof window.updateStepBoxFloatingControls === 'function') {
                         window.updateStepBoxFloatingControls(clickedBox);
+                    }
+                } else if (!opt.target || (!opt.target.isStepBox && !opt.target.stepBoxOwnerId)) {
+                    if (typeof window.hideStepBoxFloatingControls === 'function') {
+                        window.hideStepBoxFloatingControls();
                     }
                 }
 
@@ -711,7 +721,12 @@
                     if (typeof window.createStepBox === 'function') {
                         const newBox = window.createStepBox(left, top, width, height);
                         if (typeof window.setMode === 'function') window.setMode('select');
-                        canvas.setActiveObject(newBox);
+                        if (newBox) {
+                            canvas.setActiveObject(newBox);
+                            if (typeof window.updateStepBoxFloatingControls === 'function') {
+                                window.updateStepBoxFloatingControls(newBox);
+                            }
+                        }
                         canvas.requestRenderAll();
                         if (typeof window.saveState === 'function') window.saveState();
                         if (typeof window.showToast === 'function') window.showToast(`Created ${newBox.stepBoxName || 'Step Box'}`);
@@ -819,7 +834,7 @@
                     if (typeof window.constrainObjectToSlideFrame === 'function') {
                         window.constrainObjectToSlideFrame(target);
                     }
-                    if (target.connectedLines && typeof window.updateConnectedLinesFor === 'function') {
+                    if ((target.connectedLines || target.isFreeLine) && typeof window.updateConnectedLinesFor === 'function') {
                         window.updateConnectedLinesFor(target);
                     }
                 }
@@ -831,11 +846,25 @@
                 if (target.isStepBox && typeof window.updateStepBoxFloatingControls === 'function') {
                     window.updateStepBoxFloatingControls(target);
                 }
+                if ((target.connectedLines || target.isFreeLine) && typeof window.updateConnectedLinesFor === 'function') {
+                    window.updateConnectedLinesFor(target);
+                }
+            });
+
+            canvas.on('object:rotating', (opt) => {
+                const target = opt.target;
+                if (!target) return;
+                if ((target.connectedLines || target.isFreeLine) && typeof window.updateConnectedLinesFor === 'function') {
+                    window.updateConnectedLinesFor(target);
+                }
             });
 
             canvas.on('object:modified', (opt) => {
                 const target = opt.target;
                 if (!target) return;
+                if ((target.connectedLines || target.isFreeLine) && typeof window.updateConnectedLinesFor === 'function') {
+                    window.updateConnectedLinesFor(target);
+                }
 
                 if (target.isStepBox) {
                     delete target._lastMovingLeft;

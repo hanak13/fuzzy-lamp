@@ -227,6 +227,11 @@
             btn.addEventListener('click', closeDrawer);
         });
 
+        const btnCloseShapes = document.getElementById('btn-close-shapes');
+        if (btnCloseShapes) {
+            btnCloseShapes.addEventListener('click', closeDrawer);
+        }
+
         const btnToggleShapes = document.getElementById('btn-toggle-shapes');
         if (btnToggleShapes) {
             btnToggleShapes.addEventListener('click', () => {
@@ -430,13 +435,24 @@
             canvas.on('selection:created', (e) => {
                 const target = (e && e.selected && e.selected.length === 1) ? e.selected[0] : canvas.getActiveObject();
                 updatePropertiesUIForSelection(target);
+                if (target && target.isStepBox) {
+                    if (typeof window.updateStepBoxFloatingControls === 'function') window.updateStepBoxFloatingControls(target);
+                } else {
+                    if (typeof window.hideStepBoxFloatingControls === 'function') window.hideStepBoxFloatingControls();
+                }
             });
             canvas.on('selection:updated', (e) => {
                 const target = (e && e.selected && e.selected.length === 1) ? e.selected[0] : canvas.getActiveObject();
                 updatePropertiesUIForSelection(target);
+                if (target && target.isStepBox) {
+                    if (typeof window.updateStepBoxFloatingControls === 'function') window.updateStepBoxFloatingControls(target);
+                } else {
+                    if (typeof window.hideStepBoxFloatingControls === 'function') window.hideStepBoxFloatingControls();
+                }
             });
             canvas.on('selection:cleared', () => {
                 updatePropertiesUIForSelection(null);
+                if (typeof window.hideStepBoxFloatingControls === 'function') window.hideStepBoxFloatingControls();
             });
         }
 

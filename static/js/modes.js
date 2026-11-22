@@ -109,7 +109,7 @@
             canvas.selection = true;
             canvas.defaultCursor = 'default';
             canvas.forEachObject(obj => {
-                if (obj.globalCompositeOperation !== 'destination-out' && !obj.isArrowHead) {
+                if (obj.globalCompositeOperation !== 'destination-out' && !obj.isArrowHead && !obj.isSlideFrame && !obj.isGridLine) {
                     obj.selectable = true;
                     obj.evented = true;
                 }
@@ -189,16 +189,23 @@
             canvas.discardActiveObject();
             canvas.defaultCursor = 'crosshair';
             canvas.forEachObject(obj => {
-                if (obj.isShapeGroup) {
-                    obj.selectable = false;
-                    obj.evented = true;
-                } else {
-                    obj.selectable = false;
-                }
+                obj.selectable = false;
+                obj.evented = !obj.isGridLine && !obj.isSlideFrame && !obj.isArrowHead;
             });
             if (propLineGroup) propLineGroup.style.display = 'inline-flex';
             if (propFillGroup) propFillGroup.style.display = 'none';
             if (propTextGroup) propTextGroup.style.display = 'none';
+            const selectArrowHead = document.getElementById('select-arrow-head');
+            if (selectArrowHead) {
+                if (mode === 'arrow') {
+                    if (!window.currentArrowHeadStyle || window.currentArrowHeadStyle === 'none') {
+                        window.currentArrowHeadStyle = 'end';
+                    }
+                    selectArrowHead.value = window.currentArrowHeadStyle;
+                } else if (mode === 'line') {
+                    selectArrowHead.value = window.currentArrowHeadStyle || 'none';
+                }
+            }
             canvas.renderAll();
         } else if (mode === 'stepbox') {
             canvas.isDrawingMode = false;

@@ -23,12 +23,12 @@ Open the app at **http://127.0.0.1:8000** after following the setup steps in the
 
 ## 1. The Canvas
 
-The canvas is an infinite scrollable board. Use the scroll wheel (or trackpad two-finger swipe) to pan; hold `Ctrl` and scroll to zoom.
+The canvas is an infinite board. Scroll the mouse wheel to zoom into any point; hold `Space` + drag (or use the **Hand** tool) to pan.
 
 | Action | How |
 |---|---|
 | Pan | Hold `Space` + drag, or switch to the **Hand** tool |
-| Zoom in / out | `Ctrl` + scroll wheel, or `+` / `-` keys |
+| Zoom in / out | Mouse wheel scroll, or `+` / `-` keys |
 | Reset zoom | `Ctrl + 0`, or click **Reset** in the bottom-right zoom widget |
 | Fit all content | `Shift + 1` |
 | Go to origin | `Home` key |

@@ -295,6 +295,9 @@
             if (obj.isStepBox) {
                 const owned = canvas.getObjects().filter(o => o.stepBoxOwnerId === obj.stepBoxId && o !== obj);
                 owned.forEach(c => canvas.remove(c));
+                if (typeof window.hideStepBoxFloatingControls === 'function') {
+                    window.hideStepBoxFloatingControls();
+                }
             }
             if (obj.connectedLines && Array.isArray(obj.connectedLines)) {
                 obj.connectedLines.forEach(line => {
@@ -320,6 +323,12 @@
             if (!canvas) return;
             const activeObjs = canvas.getActiveObjects() ? canvas.getActiveObjects().slice() : [];
             if (!activeObjs || activeObjs.length === 0) {
+                if (window.__activeStepBox && canvas.contains(window.__activeStepBox)) {
+                    if (typeof window.deleteStepBox === 'function') {
+                        window.deleteStepBox(window.__activeStepBox);
+                        return;
+                    }
+                }
                 if (typeof window.showToast === 'function') window.showToast('No objects selected to delete');
                 return;
             }

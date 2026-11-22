@@ -21,6 +21,15 @@
         blue: { bg: '#bfdbfe', border: '#93c5fd', text: '#1e293b' }
     };
 
+    const MAX_MEDIA_FILE_SIZE = 10 * 1024 * 1024;
+
+    function formatFileSize(bytes) {
+        if (!bytes) return '0 B';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
     let currentStickyColor = 'yellow';
     let allStickers = [];
 
@@ -306,10 +315,18 @@
 
         async function handleStickerUpload(files) {
             if (!files || files.length === 0) return;
+            const validFiles = Array.from(files).filter(file => {
+                if (file.size > MAX_MEDIA_FILE_SIZE) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(`Skipped "${file.name}": ${formatFileSize(file.size)} exceeds the ${formatFileSize(MAX_MEDIA_FILE_SIZE)} limit`);
+                    }
+                    return false;
+                }
+                return true;
+            });
+            if (validFiles.length === 0) return;
             const formData = new FormData();
-            for (let i = 0; i < files.length; i++) {
-                formData.append('files', files[i]);
-            }
+            validFiles.forEach(file => formData.append('files', file));
             try {
                 if (typeof window.showToast === 'function') window.showToast('Uploading sticker...');
                 const res = await fetch('/api/stickers', {
@@ -515,6 +532,17 @@
     function processImageFiles(files, dropX, dropY) {
         if (!files || files.length === 0) return;
         Array.from(files).forEach((file) => {
+            if (file.size > MAX_MEDIA_FILE_SIZE) {
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`Skipped "${file.name}": ${formatFileSize(file.size)} exceeds the ${formatFileSize(MAX_MEDIA_FILE_SIZE)} limit`);
+                }
+                return;
+            }
+            if (file.size === 0) {
+                if (typeof window.showToast === 'function') window.showToast(`Skipped empty file: ${file.name}`);
+                return;
+            }
+
             const isValid = file.type.startsWith('image/') || file.name.match(/\.(png|jpe?g|svg|webp|gif)$/i);
             if (!isValid) {
                 if (typeof window.showToast === 'function') window.showToast(`Skipped non-image file: ${file.name}`);

@@ -14,6 +14,7 @@
     const redoStack = [];
     const MAX_HISTORY = 30;
     let isProcessingHistory = false;
+    let historyDebounceTimer = null;
 
     const EXTRA_PROPS = [
         'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
@@ -45,7 +46,29 @@
             if (btnRedo) btnRedo.disabled = redoStack.length === 0;
         },
 
+        resetHistoryWithState(initialJsonString) {
+            undoStack.length = 0;
+            redoStack.length = 0;
+            const canvas = CommandsModule.getCanvas();
+            const state = initialJsonString || (canvas ? JSON.stringify(canvas.toJSON(EXTRA_PROPS)) : '');
+            if (state) {
+                undoStack.push(state);
+            }
+            CommandsModule.updateHistoryButtons();
+        },
+
+        saveStateDebounced(delay = 150) {
+            if (historyDebounceTimer) clearTimeout(historyDebounceTimer);
+            historyDebounceTimer = setTimeout(() => {
+                CommandsModule.saveState();
+            }, delay);
+        },
+
         saveState() {
+            if (historyDebounceTimer) {
+                clearTimeout(historyDebounceTimer);
+                historyDebounceTimer = null;
+            }
             if (isProcessingHistory) return;
             const canvas = CommandsModule.getCanvas();
             if (!canvas) return;
@@ -681,9 +704,9 @@
                     if (addedObj && !addedObj.isSlideFrame && currentFrameRatio !== 'infinite') {
                         if (typeof window.applySlideClip === 'function') window.applySlideClip(addedObj);
                     }
-                    CommandsModule.saveState();
+                    CommandsModule.saveStateDebounced(150);
                 });
-                canvas.on('object:removed', () => CommandsModule.saveState());
+                canvas.on('object:removed', () => CommandsModule.saveStateDebounced(150));
             }
 
             // Global Keydown Handler
@@ -704,9 +727,13 @@
                         if (typeof window.closeExitSlideModal === 'function') window.closeExitSlideModal();
                         return;
                     }
-                    if (window.isSlidePageFullscreen) {
+                    if (window.isSlidePageFullscreen || document.body.classList.contains('slide-page-fullscreen')) {
                         e.preventDefault();
-                        if (typeof window.toggleSlidePageFullscreen === 'function') window.toggleSlidePageFullscreen(false);
+                        if (typeof window.toggleSlidePageFullscreen === 'function') {
+                            window.toggleSlidePageFullscreen(false);
+                        } else if (window.WhiteboardApp && window.WhiteboardApp.slides && typeof window.WhiteboardApp.slides.toggleSlidePageFullscreen === 'function') {
+                            window.WhiteboardApp.slides.toggleSlidePageFullscreen(false);
+                        }
                         return;
                     }
                     const shortcutsModal = document.getElementById('shortcuts-modal');
@@ -1099,12 +1126,19 @@
                     }
                 }
             });
+
+            // Initialize baseline history state if stack is empty
+            if (undoStack.length === 0 && canvas) {
+                CommandsModule.resetHistoryWithState();
+            }
         }
     };
 
     // Exports
     window.WhiteboardApp.commands = CommandsModule;
     window.saveState = CommandsModule.saveState;
+    window.saveStateDebounced = CommandsModule.saveStateDebounced;
+    window.resetHistoryWithState = CommandsModule.resetHistoryWithState;
     window.undo = CommandsModule.undo;
     window.redo = CommandsModule.redo;
     window.copySelected = CommandsModule.copySelected;

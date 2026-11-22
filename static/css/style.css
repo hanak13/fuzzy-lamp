@@ -28,6 +28,10 @@
     user-select: none;
 }
 
+input, textarea, select, [contenteditable="true"], [contenteditable] {
+    user-select: auto;
+}
+
 html, body {
     width: 100%;
     height: 100%;
@@ -270,7 +274,10 @@ html, body {
     z-index: 95;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 10px;
+    max-width: calc(100vw - 24px);
     padding: 6px 14px;
     background: rgba(15, 23, 42, 0.9);
     backdrop-filter: blur(12px);

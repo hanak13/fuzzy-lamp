@@ -230,19 +230,36 @@
             });
 
             const hasSlide = canvas.getObjects().some(o => o.isSlideFrame);
+            const slideFrameBanner = document.getElementById('slide-frame-banner');
             if (!hasSlide) {
                 window.currentFrameRatio = 'infinite';
                 if (window.WhiteboardApp) window.WhiteboardApp.currentFrameRatio = 'infinite';
                 document.body.classList.remove('slide-mode-active');
-                const slideFrameBanner = document.getElementById('slide-frame-banner');
-                if (slideFrameBanner) slideFrameBanner.classList.add('hidden');
+                if (slideFrameBanner) {
+                    slideFrameBanner.classList.add('hidden');
+                    slideFrameBanner.style.display = 'none';
+                }
                 const frameModeLabel = document.getElementById('frame-mode-label');
                 if (frameModeLabel) frameModeLabel.textContent = 'Canvas: Infinite';
+            } else {
+                document.body.classList.add('slide-mode-active');
+                if (slideFrameBanner) {
+                    slideFrameBanner.classList.remove('hidden');
+                    slideFrameBanner.style.display = 'flex';
+                }
+                if (typeof window.updateSlideNavigationUI === 'function') {
+                    window.updateSlideNavigationUI();
+                }
             }
 
             const stepBoxes = canvas.getObjects().filter(o => o.isStepBox);
             if (stepBoxes.length > 0 && typeof window.updateStepBoxFloatingControls === 'function') {
                 window.updateStepBoxFloatingControls(stepBoxes[stepBoxes.length - 1]);
+            }
+
+            // Reset undo/redo history to clean baseline state for loaded board
+            if (typeof window.resetHistoryWithState === 'function') {
+                window.resetHistoryWithState();
             }
         },
 

@@ -40,7 +40,7 @@
 
             const previewStepBox = window.__stepBoxPreviewRect || (window.WhiteboardApp && window.WhiteboardApp.stepBoxPreviewRect);
             const previewLine = window.__connectorPreviewLine || (window.WhiteboardApp && window.WhiteboardApp.connectorPreviewLine);
-            const objects = canvas.getObjects().filter(o => !o.isGridLine && o !== previewStepBox && o !== previewLine);
+            const objects = canvas.getObjects().filter(o => !o.isGridLine && !o.isSlideFrame && o !== previewStepBox && o !== previewLine);
             if (!objects || objects.length === 0) {
                 if (typeof window.showToast === 'function') window.showToast('Canvas is empty');
                 return;
@@ -109,7 +109,7 @@
 
             const previewStepBox = window.__stepBoxPreviewRect || (window.WhiteboardApp && window.WhiteboardApp.stepBoxPreviewRect);
             const previewLine = window.__connectorPreviewLine || (window.WhiteboardApp && window.WhiteboardApp.connectorPreviewLine);
-            const objects = canvas.getObjects().filter(o => !o.isGridLine && o !== previewStepBox && o !== previewLine);
+            const objects = canvas.getObjects().filter(o => !o.isGridLine && !o.isSlideFrame && o !== previewStepBox && o !== previewLine);
             if (!objects || objects.length === 0) {
                 if (typeof window.showToast === 'function') window.showToast('Canvas is empty');
                 return;
@@ -172,7 +172,7 @@
                 for (let i = 0; i < boardSlides.length; i++) {
                     await new Promise(resolve => {
                         if (typeof window.loadSlide === 'function') window.loadSlide(i);
-                        setTimeout(resolve, 90);
+                        setTimeout(resolve, 180);
                     });
                     canvas.requestRenderAll();
 
@@ -195,7 +195,7 @@
 
                 await new Promise(resolve => {
                     if (typeof window.loadSlide === 'function') window.loadSlide(originalSlideIndex);
-                    setTimeout(resolve, 80);
+                    setTimeout(resolve, 120);
                 });
 
                 canvas.setViewportTransform(prevVpt);
@@ -246,7 +246,7 @@
                 for (let i = 0; i < primaryBox.stepBoxSteps.length; i++) {
                     await new Promise(res => {
                         if (typeof window.loadStepBoxStep === 'function') window.loadStepBoxStep(primaryBox, i);
-                        setTimeout(res, 80);
+                        setTimeout(res, 180);
                     });
                     canvas.requestRenderAll();
 
@@ -269,7 +269,7 @@
 
                 await new Promise(res => {
                     if (typeof window.loadStepBoxStep === 'function') window.loadStepBoxStep(primaryBox, originalStep);
-                    setTimeout(res, 80);
+                    setTimeout(res, 120);
                 });
                 canvas.setViewportTransform(prevVpt);
                 canvas.requestRenderAll();

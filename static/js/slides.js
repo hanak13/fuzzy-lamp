@@ -286,7 +286,10 @@
             canvas.getObjects().forEach(o => applySlideClip(o));
 
             if (frameModeLabel) frameModeLabel.textContent = 'Canvas: Infinite';
-            if (slideFrameBanner) slideFrameBanner.style.display = 'none';
+            if (slideFrameBanner) {
+                slideFrameBanner.classList.add('hidden');
+                slideFrameBanner.style.display = 'none';
+            }
 
             canvas.renderAll();
             if (typeof window.showToast === 'function') window.showToast('Canvas set to Infinite');
@@ -301,7 +304,10 @@
 
         if (frameModeLabel) frameModeLabel.textContent = preset.shortName;
         if (slideFrameTitle) slideFrameTitle.textContent = preset.title;
-        if (slideFrameBanner) slideFrameBanner.style.display = 'flex';
+        if (slideFrameBanner) {
+            slideFrameBanner.classList.remove('hidden');
+            slideFrameBanner.style.display = 'flex';
+        }
 
         if (slideFrameRect) {
             canvas.remove(slideFrameRect);
@@ -348,6 +354,7 @@
 
     function toggleSlidePageFullscreen(force) {
         isSlidePageFullscreen = (typeof force === 'boolean') ? force : !isSlidePageFullscreen;
+        window.isSlidePageFullscreen = isSlidePageFullscreen;
         document.body.classList.toggle('slide-page-fullscreen', isSlidePageFullscreen);
 
         const slideFsIconExpand = document.getElementById('slide-fs-icon-expand');
@@ -524,6 +531,7 @@
         get currentSlideIndex() { return currentSlideIndex; },
         set currentSlideIndex(val) { currentSlideIndex = val; syncSharedSlideState(); },
         syncSharedSlideState,
+        updateSlideNavigationUI,
         setFrameMode,
         fitSlideView,
         applySlideClip,
@@ -543,6 +551,7 @@
     window.WhiteboardApp.slides = SlidesModule;
 
     // Backward compatibility direct window exports
+    window.updateSlideNavigationUI = updateSlideNavigationUI;
     window.setFrameMode = setFrameMode;
     window.fitSlideView = fitSlideView;
     window.applySlideClip = applySlideClip;

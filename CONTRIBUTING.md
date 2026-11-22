@@ -126,11 +126,12 @@ git push origin feat/your-feature-name
 
 ### JavaScript (`static/js/*.js`)
 
+- Code is split across 13 modular subsystems in `static/js/` (`core.js`, `tools.js`, `shapes.js`, `notes.js`, `ui.js`, `slides.js`, `modes.js`, `steps.js`, `objects.js`, `interactions.js`, `commands.js`, `boards.js`, `export.js`).
 - 4-space indentation, single quotes for strings.
 - No `var` — use `const` and `let`.
 - No `console.log` in committed code; `console.error` / `console.warn` are acceptable for real error paths.
-- DOM lookups happen once at the top of the IIFE and are stored in `const` variables.
-- Fabric.js event handlers go in the numbered section comments they belong to (e.g. `// 12. Freehand Brush & Eraser`).
+- DOM lookups happen once at the top of each module's IIFE or `initUI()` method.
+- Shared properties and cross-module APIs are namespaced under `window.WhiteboardApp` with clean backward-compatible window bindings.
 - Keep the `EXTRA_PROPS` array up to date with any new custom properties added to canvas objects.
 
 ### CSS (`static/css/style.css`)

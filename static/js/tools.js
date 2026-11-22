@@ -507,9 +507,15 @@
             p1 = pair.p1 || pair.from;
             p2 = pair.p2 || pair.to;
         } else {
-            const matrix = line.calcTransformMatrix();
-            p1 = fabric.util.transformPoint({ x: line.x1, y: line.y1 }, matrix);
-            p2 = fabric.util.transformPoint({ x: line.x2, y: line.y2 }, matrix);
+            const matrix = line.calcTransformMatrix ? line.calcTransformMatrix() : [1, 0, 0, 1, 0, 0];
+            if (typeof line.calcLinePoints === 'function') {
+                const lp = line.calcLinePoints();
+                p1 = fabric.util.transformPoint({ x: lp.x1, y: lp.y1 }, matrix);
+                p2 = fabric.util.transformPoint({ x: lp.x2, y: lp.y2 }, matrix);
+            } else {
+                p1 = { x: line.x1, y: line.y1 };
+                p2 = { x: line.x2, y: line.y2 };
+            }
         }
 
         const color = line.stroke || window.currentColor || '#1e293b';
@@ -534,9 +540,16 @@
 
     function updateFreeLineArrows(line) {
         if (!line || !line.canvas) return;
-        const matrix = line.calcTransformMatrix();
-        const p1 = fabric.util.transformPoint({ x: line.x1, y: line.y1 }, matrix);
-        const p2 = fabric.util.transformPoint({ x: line.x2, y: line.y2 }, matrix);
+        const matrix = line.calcTransformMatrix ? line.calcTransformMatrix() : [1, 0, 0, 1, 0, 0];
+        let p1, p2;
+        if (typeof line.calcLinePoints === 'function') {
+            const lp = line.calcLinePoints();
+            p1 = fabric.util.transformPoint({ x: lp.x1, y: lp.y1 }, matrix);
+            p2 = fabric.util.transformPoint({ x: lp.x2, y: lp.y2 }, matrix);
+        } else {
+            p1 = { x: line.x1, y: line.y1 };
+            p2 = { x: line.x2, y: line.y2 };
+        }
 
         if (line.arrowHead) {
             const angle = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI) + 90;
@@ -567,7 +580,9 @@
         const currentLinePattern = window.currentLinePattern || 'solid';
         const currentArrowHeadStyle = window.currentArrowHeadStyle || 'none';
         const dashArray = getDashArrayForPattern(currentLinePattern);
-        const arrowStyle = isArrow ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle) : (currentArrowHeadStyle === 'none' ? 'none' : 'none');
+        const arrowStyle = isArrow
+            ? (currentArrowHeadStyle === 'none' ? 'end' : currentArrowHeadStyle)
+            : (currentArrowHeadStyle || 'none');
 
         const line = new fabric.Line([p1.x, p1.y, p2.x, p2.y], {
             stroke: strokeColor,
