@@ -25,6 +25,12 @@
     let onlineUsers = [];
     const remoteCursors = {}; // userId -> { el, x, y, name, color, role }
 
+    // Teacher / Master viewport tracking
+    let masterViewport = null; // { x, y, width, height, screenWidth, screenHeight, zoom, master_name, master_id }
+    let lastViewportSendTime = 0;
+    let lastSentViewport = null;
+    const VIEWPORT_THROTTLE_MS = 60;
+
     // Throttled local cursor dispatch (~20 updates per second / 50ms)
     let lastCursorSendTime = 0;
     const CURSOR_THROTTLE_MS = 50;
@@ -266,7 +272,28 @@
                         CollabModule.removeViewOnlyMode();
                     }
 
+                    if (msg.master_viewport) {
+                        masterViewport = msg.master_viewport;
+                        CollabModule.updateTeacherScreenFrame();
+                        CollabModule.updateTeacherUIControls();
+                    }
+                    if (currentUser && currentUser.role === 'master') {
+                        setTimeout(() => CollabModule.broadcastMasterViewport(true), 250);
+                    }
+
                     CollabModule.updatePresenceUI();
+                    break;
+
+                case 'master_viewport':
+                    masterViewport = msg;
+                    CollabModule.updateTeacherScreenFrame();
+                    CollabModule.updateTeacherUIControls();
+                    break;
+
+                case 'master_viewport_cleared':
+                    masterViewport = null;
+                    CollabModule.updateTeacherScreenFrame();
+                    CollabModule.updateTeacherUIControls();
                     break;
 
                 case 'users':
@@ -295,6 +322,11 @@
                         const leavingUser = onlineUsers.find(u => u.id === msg.user_id);
                         onlineUsers = onlineUsers.filter(u => u.id !== msg.user_id);
                         CollabModule.removeRemoteCursor(msg.user_id);
+                        if (masterViewport && (masterViewport.master_id === msg.user_id || leavingUser?.role === 'master')) {
+                            masterViewport = null;
+                            CollabModule.updateTeacherScreenFrame();
+                            CollabModule.updateTeacherUIControls();
+                        }
                         if (leavingUser && typeof window.showToast === 'function') {
                             window.showToast(`${leavingUser.name} left the board`);
                         }
@@ -730,6 +762,178 @@
             Object.keys(remoteCursors).forEach(uid => CollabModule.removeRemoteCursor(uid));
         },
 
+        // --- Teacher Screen Broadcasting & Viewport Synchronization ---
+        broadcastMasterViewport(force = false) {
+            if (!currentUser || currentUser.role !== 'master') return;
+            const canvas = getCanvas();
+            if (!canvas) return;
+
+            const now = Date.now();
+            if (!force && now - lastViewportSendTime < VIEWPORT_THROTTLE_MS) return;
+
+            const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+            const zoom = canvas.getZoom();
+            const w = canvas.getWidth();
+            const h = canvas.getHeight();
+
+            const sceneX = -vpt[4] / zoom;
+            const sceneY = -vpt[5] / zoom;
+            const sceneW = w / zoom;
+            const sceneH = h / zoom;
+
+            // Check if meaningfully changed (> 1.5px or 0.005 zoom)
+            if (!force && lastSentViewport) {
+                const dx = Math.abs(sceneX - lastSentViewport.x);
+                const dy = Math.abs(sceneY - lastSentViewport.y);
+                const dw = Math.abs(sceneW - lastSentViewport.width);
+                const dh = Math.abs(sceneH - lastSentViewport.height);
+                const dz = Math.abs(zoom - lastSentViewport.zoom);
+                if (dx < 1.5 && dy < 1.5 && dw < 1.5 && dh < 1.5 && dz < 0.005) {
+                    return;
+                }
+            }
+
+            lastViewportSendTime = now;
+            lastSentViewport = { x: sceneX, y: sceneY, width: sceneW, height: sceneH, zoom: zoom };
+
+            CollabModule.send({
+                type: 'master_viewport',
+                x: Math.round(sceneX),
+                y: Math.round(sceneY),
+                width: Math.round(sceneW),
+                height: Math.round(sceneH),
+                screenWidth: Math.round(w),
+                screenHeight: Math.round(h),
+                zoom: parseFloat(zoom.toFixed(4)),
+                master_name: currentUser.name || 'Teacher'
+            });
+        },
+
+        updateTeacherScreenFrame() {
+            const frameEl = document.getElementById('teacher-screen-frame');
+            if (!frameEl) return;
+
+            // If user is Master or no active master viewport, hide frame
+            if (!masterViewport || (currentUser && currentUser.role === 'master')) {
+                frameEl.classList.add('hidden');
+                return;
+            }
+
+            const canvas = getCanvas();
+            if (!canvas) return;
+
+            const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+            const zoom = canvas.getZoom();
+
+            // Transform top-left from scene coords to guest screen coords
+            const pt = fabric.util.transformPoint(new fabric.Point(masterViewport.x, masterViewport.y), vpt);
+            const frameW = masterViewport.width * zoom;
+            const frameH = masterViewport.height * zoom;
+
+            frameEl.style.transform = `translate3d(${Math.round(pt.x)}px, ${Math.round(pt.y)}px, 0)`;
+            frameEl.style.width = `${Math.round(frameW)}px`;
+            frameEl.style.height = `${Math.round(frameH)}px`;
+
+            // Update badge label with Teacher's name
+            const nameEl = document.getElementById('teacher-screen-badge-name');
+            if (nameEl) {
+                nameEl.textContent = `${masterViewport.master_name || 'Teacher'}'s Screen`;
+            }
+
+            frameEl.classList.remove('hidden');
+        },
+
+        updateTeacherUIControls() {
+            const topBtn = document.getElementById('btn-return-teacher-view');
+            const floatingIndicator = document.getElementById('teacher-view-floating-indicator');
+
+            const isGuest = currentUser && currentUser.role !== 'master';
+            const hasTeacher = Boolean(masterViewport);
+
+            if (isGuest && hasTeacher) {
+                if (topBtn) topBtn.classList.remove('hidden');
+                if (floatingIndicator) floatingIndicator.classList.remove('hidden');
+            } else {
+                if (topBtn) topBtn.classList.add('hidden');
+                if (floatingIndicator) floatingIndicator.classList.add('hidden');
+            }
+        },
+
+        resetViewToTeacher(smooth = true) {
+            if (!masterViewport) {
+                if (typeof window.showToast === 'function') {
+                    window.showToast("Teacher's screen is not active yet", 'warning');
+                }
+                return;
+            }
+            const canvas = getCanvas();
+            if (!canvas) return;
+
+            // Target viewport calculation: fit teacher's screen comfortably into guest's window
+            const guestW = canvas.getWidth();
+            const guestH = canvas.getHeight();
+            const teacherW = masterViewport.width;
+            const teacherH = masterViewport.height;
+
+            if (teacherW <= 0 || teacherH <= 0) return;
+
+            // Scale factor to fit teacher's screen with comfortable breathing room
+            const scaleX = guestW / teacherW;
+            const scaleY = guestH / teacherH;
+            let targetZoom = Math.min(scaleX, scaleY) * 0.96;
+            targetZoom = Math.max(0.05, Math.min(5.0, targetZoom));
+
+            // Center teacher's bounding box in guest canvas
+            const teacherCenterX = masterViewport.x + teacherW / 2;
+            const teacherCenterY = masterViewport.y + teacherH / 2;
+
+            const targetPanX = (guestW / 2) - (teacherCenterX * targetZoom);
+            const targetPanY = (guestH / 2) - (teacherCenterY * targetZoom);
+
+            if (smooth) {
+                const startVpt = (canvas.viewportTransform || [1, 0, 0, 1, 0, 0]).slice();
+                const startZoom = startVpt[0];
+                const startPanX = startVpt[4];
+                const startPanY = startVpt[5];
+                const duration = 280; // ms
+                const startTime = performance.now();
+
+                const animateFrame = (now) => {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(1, elapsed / duration);
+                    // Ease out cubic
+                    const ease = 1 - Math.pow(1 - progress, 3);
+
+                    const curZoom = startZoom + (targetZoom - startZoom) * ease;
+                    const curPanX = startPanX + (targetPanX - startPanX) * ease;
+                    const curPanY = startPanY + (targetPanY - startPanY) * ease;
+
+                    canvas.setViewportTransform([curZoom, 0, 0, curZoom, curPanX, curPanY]);
+                    canvas.requestRenderAll();
+                    if (typeof window.updateGrid === 'function') window.updateGrid();
+                    if (typeof window.updateZoomDisplay === 'function') window.updateZoomDisplay();
+                    CollabModule.updateAllRemoteCursorPositions();
+                    CollabModule.updateTeacherScreenFrame();
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animateFrame);
+                    } else {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(`Centered on ${masterViewport.master_name || 'Teacher'}'s screen`);
+                        }
+                    }
+                };
+                requestAnimationFrame(animateFrame);
+            } else {
+                canvas.setViewportTransform([targetZoom, 0, 0, targetZoom, targetPanX, targetPanY]);
+                canvas.requestRenderAll();
+                if (typeof window.updateGrid === 'function') window.updateGrid();
+                if (typeof window.updateZoomDisplay === 'function') window.updateZoomDisplay();
+                CollabModule.updateAllRemoteCursorPositions();
+                CollabModule.updateTeacherScreenFrame();
+            }
+        },
+
         // --- Presence & Top Bar Avatars UI ---
         getConsolidatedUsers() {
             const userMap = new Map();
@@ -965,6 +1169,7 @@
             if (typeof window.hideContextMenu === 'function') {
                 window.hideContextMenu();
             }
+            CollabModule.updateTeacherUIControls();
         },
 
         removeViewOnlyMode() {
@@ -1004,6 +1209,7 @@
             if (typeof window.setMode === 'function') {
                 window.setMode('select');
             }
+            CollabModule.updateTeacherUIControls();
         },
 
         initViewOnlyShield() {
@@ -1222,10 +1428,42 @@
                 CollabModule.broadcastCursor(pointer.x, pointer.y);
             });
 
-            // Sync remote cursor screen positions when canvas pans or zooms
+            // Sync remote cursor screen positions and teacher screen frame when canvas pans or zooms
             canvas.on('after:render', () => {
                 CollabModule.updateAllRemoteCursorPositions();
+                if (currentUser && currentUser.role === 'master') {
+                    CollabModule.broadcastMasterViewport();
+                } else {
+                    CollabModule.updateTeacherScreenFrame();
+                }
             });
+
+            window.addEventListener('resize', () => {
+                if (currentUser && currentUser.role === 'master') {
+                    CollabModule.broadcastMasterViewport(true);
+                } else {
+                    CollabModule.updateTeacherScreenFrame();
+                }
+            });
+
+            // Wire reset view to teacher buttons
+            const btnReturnTeacher = document.getElementById('btn-return-teacher-view');
+            if (btnReturnTeacher) {
+                btnReturnTeacher.addEventListener('click', () => CollabModule.resetViewToTeacher(true));
+            }
+
+            const btnFloatingReturn = document.getElementById('btn-floating-return-teacher');
+            if (btnFloatingReturn) {
+                btnFloatingReturn.addEventListener('click', () => CollabModule.resetViewToTeacher(true));
+            }
+
+            const btnFrameReset = document.getElementById('btn-frame-reset-teacher');
+            if (btnFrameReset) {
+                btnFrameReset.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    CollabModule.resetViewToTeacher(true);
+                });
+            }
 
             // Toggle Collaborators dropdown on avatar bar click
             const collabContainer = document.getElementById('collab-users-container');

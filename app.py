@@ -477,6 +477,7 @@ class BoardRoom:
         self.password: Optional[str] = None
         self.master_token: Optional[str] = None  # secret token held by room Master
         self.guests_can_edit: bool = False  # Master control: new joins are view-only by default
+        self.master_viewport: Optional[dict] = None  # Teacher / Master visible screen boundary
         self.clients: Dict[str, RoomClient] = {}
 
     def get_users_list(self) -> List[dict]:
@@ -680,7 +681,8 @@ async def websocket_collab_endpoint(
         },
         "master_token": room.master_token if is_master else None,
         "guests_can_edit": room.guests_can_edit,
-        "has_password": bool(room.password)
+        "has_password": bool(room.password),
+        "master_viewport": room.master_viewport
     })
 
     # 2. Send current online user roster
@@ -719,6 +721,28 @@ async def websocket_collab_endpoint(
                     await room_manager.broadcast(
                         board_id=board_id,
                         message={"type": "password_status", "has_password": bool(room.password)}
+                    )
+                continue
+
+            # Teacher / Master viewport broadcast (where teacher is looking on screen)
+            if msg_type == "master_viewport":
+                if client.role == "master":
+                    room.master_viewport = {
+                        "type": "master_viewport",
+                        "x": data.get("x", 0),
+                        "y": data.get("y", 0),
+                        "width": data.get("width", 0),
+                        "height": data.get("height", 0),
+                        "screenWidth": data.get("screenWidth", 0),
+                        "screenHeight": data.get("screenHeight", 0),
+                        "zoom": data.get("zoom", 1.0),
+                        "master_name": client.name,
+                        "master_id": client.id
+                    }
+                    await room_manager.broadcast(
+                        board_id=board_id,
+                        message=room.master_viewport,
+                        exclude_client_id=client_id
                     )
                 continue
 
@@ -803,6 +827,16 @@ async def websocket_collab_endpoint(
     finally:
         leaving_client = room_manager.remove_client(board_id, client_id)
         if leaving_client:
+            # If leaving client was master, clear master viewport
+            if leaving_client.role == "master":
+                room = room_manager.rooms.get(board_id)
+                if room:
+                    room.master_viewport = None
+                await room_manager.broadcast(
+                    board_id=board_id,
+                    message={"type": "master_viewport_cleared", "user_id": client_id}
+                )
+
             # Broadcast leave to remaining users
             await room_manager.broadcast(
                 board_id=board_id,
