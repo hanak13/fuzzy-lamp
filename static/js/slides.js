@@ -117,7 +117,7 @@
 
     function loadSlide(index) {
         const canvas = getCanvas();
-        if (!canvas || index < 0 || index >= boardSlides.length) return;
+        if (!canvas || index < 0 || index >= boardSlides.length) return Promise.resolve();
 
         canvas.discardActiveObject();
         const stepBoxFloatingBar = document.getElementById('stepbox-floating-bar');
@@ -131,29 +131,33 @@
         syncSharedSlideState();
         const targetSlide = boardSlides[currentSlideIndex];
 
-        if (targetSlide && Array.isArray(targetSlide.objects) && targetSlide.objects.length > 0) {
-            fabric.util.enlivenObjects(targetSlide.objects, (enlivenedObjects) => {
-                enlivenedObjects.forEach(obj => {
-                    canvas.add(obj);
-                    applySlideClip(obj);
+        const renderDone = new Promise((resolve) => {
+            if (targetSlide && Array.isArray(targetSlide.objects) && targetSlide.objects.length > 0) {
+                fabric.util.enlivenObjects(targetSlide.objects, (enlivenedObjects) => {
+                    enlivenedObjects.forEach(obj => {
+                        canvas.add(obj);
+                        applySlideClip(obj);
+                    });
+                    if (slideFrameRect) {
+                        canvas.sendToBack(slideFrameRect);
+                    }
+                    if (typeof window.reconnectLoadedObjects === 'function') {
+                        window.reconnectLoadedObjects();
+                    }
+                    canvas.renderAll();
+                    if (typeof window.updateObjectsCountBadges === 'function') {
+                        window.updateObjectsCountBadges();
+                    }
+                    requestAnimationFrame(() => resolve());
                 });
-                if (slideFrameRect) {
-                    canvas.sendToBack(slideFrameRect);
-                }
-                if (typeof window.reconnectLoadedObjects === 'function') {
-                    window.reconnectLoadedObjects();
-                }
+            } else {
                 canvas.renderAll();
                 if (typeof window.updateObjectsCountBadges === 'function') {
                     window.updateObjectsCountBadges();
                 }
-            });
-        } else {
-            canvas.renderAll();
-            if (typeof window.updateObjectsCountBadges === 'function') {
-                window.updateObjectsCountBadges();
+                requestAnimationFrame(() => resolve());
             }
-        }
+        });
 
         updateSlideNavigationUI();
         fitSlideView();
@@ -164,6 +168,8 @@
                 slideIndex: index
             });
         }
+
+        return renderDone;
     }
 
     function addNewSlide() {

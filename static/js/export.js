@@ -171,13 +171,13 @@
                 const cropH = slideFrame.height;
 
                 for (let i = 0; i < boardSlides.length; i++) {
-                    await new Promise(resolve => {
-                        if (typeof window.loadSlide === 'function') window.loadSlide(i);
-                        requestAnimationFrame(() => {
-                            canvas.requestRenderAll();
-                            setTimeout(resolve, 120);
-                        });
-                    });
+                    if (typeof window.loadSlide === 'function') {
+                        await window.loadSlide(i);
+                    }
+                    await new Promise(resolve => requestAnimationFrame(() => {
+                        canvas.requestRenderAll();
+                        requestAnimationFrame(resolve);
+                    }));
 
                     const dataUrl = canvas.toDataURL({
                         format: 'png',
@@ -247,13 +247,13 @@
                 canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 
                 for (let i = 0; i < primaryBox.stepBoxSteps.length; i++) {
-                    await new Promise(res => {
-                        if (typeof window.loadStepBoxStep === 'function') window.loadStepBoxStep(primaryBox, i);
-                        requestAnimationFrame(() => {
-                            canvas.requestRenderAll();
-                            setTimeout(res, 120);
-                        });
-                    });
+                    if (typeof window.loadStepBoxStep === 'function') {
+                        await window.loadStepBoxStep(primaryBox, i);
+                    }
+                    await new Promise(res => requestAnimationFrame(() => {
+                        canvas.requestRenderAll();
+                        requestAnimationFrame(res);
+                    }));
 
                     const dataUrl = canvas.toDataURL({
                         format: 'png',

@@ -227,11 +227,11 @@
         },
 
         loadStepBoxStep(box, targetIdx) {
-            if (!box || !box.isStepBox || !box.stepBoxSteps) return;
-            if (targetIdx < 0 || targetIdx >= box.stepBoxSteps.length) return;
+            if (!box || !box.isStepBox || !box.stepBoxSteps) return Promise.resolve();
+            if (targetIdx < 0 || targetIdx >= box.stepBoxSteps.length) return Promise.resolve();
 
             const canvas = StepsModule.getCanvas();
-            if (!canvas) return;
+            if (!canvas) return Promise.resolve();
 
             StepsModule.saveStepBoxCurrentStep(box);
 
@@ -248,29 +248,8 @@
             const objectsToLoad = (stepRecord && Array.isArray(stepRecord.objects)) ? stepRecord.objects : [];
             const currentMode = window.__currentMode || (window.WhiteboardApp && window.WhiteboardApp.currentMode) || 'select';
 
-            if (objectsToLoad.length > 0) {
-                fabric.util.enlivenObjects(objectsToLoad, (enlivenedObjects) => {
-                    enlivenedObjects.forEach((obj, idx) => {
-                        const storedJson = objectsToLoad[idx];
-                        const relL = (storedJson && storedJson.relLeft !== undefined) ? storedJson.relLeft : (obj.left || 0);
-                        const relT = (storedJson && storedJson.relTop !== undefined) ? storedJson.relTop : (obj.top || 0);
-                        obj.set({
-                            left: box.left + relL,
-                            top: box.top + relT,
-                            stepBoxOwnerId: box.stepBoxId,
-                            selectable: currentMode === 'select'
-                        });
-                        obj.setCoords();
-                        canvas.add(obj);
-                    });
-
-                    // Re-link connectors to their shapes
-                    if (typeof window.reconnectLoadedObjects === 'function') {
-                        window.reconnectLoadedObjects();
-                    } else if (window.WhiteboardApp && window.WhiteboardApp.boards && typeof window.WhiteboardApp.boards.reconnectLoadedObjects === 'function') {
-                        window.WhiteboardApp.boards.reconnectLoadedObjects();
-                    }
-
+            return new Promise((resolve) => {
+                const finalizeStepLoad = () => {
                     box.dirty = true;
                     canvas.requestRenderAll();
                     StepsModule.updateFloatingControls(box);
@@ -278,16 +257,38 @@
                     if (window.WhiteboardApp && window.WhiteboardApp.collab && !window.WhiteboardApp.collab.isApplyingRemote()) {
                         window.WhiteboardApp.collab.broadcastStepChanged(box.stepBoxId, targetIdx);
                     }
-                });
-            } else {
-                box.dirty = true;
-                canvas.requestRenderAll();
-                StepsModule.updateFloatingControls(box);
-                if (typeof window.saveState === 'function') window.saveState();
-                if (window.WhiteboardApp && window.WhiteboardApp.collab && !window.WhiteboardApp.collab.isApplyingRemote()) {
-                    window.WhiteboardApp.collab.broadcastStepChanged(box.stepBoxId, targetIdx);
+                    requestAnimationFrame(() => resolve());
+                };
+
+                if (objectsToLoad.length > 0) {
+                    fabric.util.enlivenObjects(objectsToLoad, (enlivenedObjects) => {
+                        enlivenedObjects.forEach((obj, idx) => {
+                            const storedJson = objectsToLoad[idx];
+                            const relL = (storedJson && storedJson.relLeft !== undefined) ? storedJson.relLeft : (obj.left || 0);
+                            const relT = (storedJson && storedJson.relTop !== undefined) ? storedJson.relTop : (obj.top || 0);
+                            obj.set({
+                                left: box.left + relL,
+                                top: box.top + relT,
+                                stepBoxOwnerId: box.stepBoxId,
+                                selectable: currentMode === 'select'
+                            });
+                            obj.setCoords();
+                            canvas.add(obj);
+                        });
+
+                        // Re-link connectors to their shapes
+                        if (typeof window.reconnectLoadedObjects === 'function') {
+                            window.reconnectLoadedObjects();
+                        } else if (window.WhiteboardApp && window.WhiteboardApp.boards && typeof window.WhiteboardApp.boards.reconnectLoadedObjects === 'function') {
+                            window.WhiteboardApp.boards.reconnectLoadedObjects();
+                        }
+
+                        finalizeStepLoad();
+                    });
+                } else {
+                    finalizeStepLoad();
                 }
-            }
+            });
         },
 
         hideFloatingControls() {

@@ -47,11 +47,6 @@
             btn.classList.toggle('active', btn.dataset.panel === panelId);
         });
 
-        const btnToggleShapes = document.getElementById('btn-toggle-shapes');
-        if (btnToggleShapes) {
-            btnToggleShapes.classList.toggle('active', panelId === 'shapes' || panelId === 'flowchart');
-        }
-
         const drawerPanels = document.querySelectorAll('.drawer-panel-content');
         const fcSubPills = document.querySelectorAll('.fc-sub-pill');
         const categoryChips = document.querySelectorAll('.category-chip');
@@ -116,8 +111,6 @@
 
         const sidebarBtns = document.querySelectorAll('.sidebar-btn');
         sidebarBtns.forEach(btn => btn.classList.remove('active'));
-        const btnToggleShapes = document.getElementById('btn-toggle-shapes');
-        if (btnToggleShapes) btnToggleShapes.classList.remove('active');
         const fsBtnObj = document.getElementById('fs-btn-objects');
         if (fsBtnObj) fsBtnObj.classList.remove('active');
         const btnTopObj = document.getElementById('btn-topbar-objects');
@@ -249,13 +242,6 @@
         const btnCloseShapes = document.getElementById('btn-close-shapes');
         if (btnCloseShapes) {
             btnCloseShapes.addEventListener('click', closeDrawer);
-        }
-
-        const btnToggleShapes = document.getElementById('btn-toggle-shapes');
-        if (btnToggleShapes) {
-            btnToggleShapes.addEventListener('click', () => {
-                openDrawerPanel('shapes');
-            });
         }
 
         // Fill color picker & None button
