@@ -4865,6 +4865,15 @@ body.dark-theme .btn-return-teacher:hover {
     font-size: 11px;
 }
 
+.teacher-screen-frame.hidden,
+.btn-return-teacher.hidden,
+.teacher-view-pill.hidden,
+body.is-master-role #btn-return-teacher-view,
+body.is-master-role #teacher-view-floating-indicator,
+body.is-master-role #teacher-screen-frame {
+    display: none !important;
+}
+
 /* Share modal card */
 .collab-share-card {
     max-width: 500px;

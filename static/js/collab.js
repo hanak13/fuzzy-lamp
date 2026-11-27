@@ -847,15 +847,30 @@
             const topBtn = document.getElementById('btn-return-teacher-view');
             const floatingIndicator = document.getElementById('teacher-view-floating-indicator');
 
-            const isGuest = currentUser && currentUser.role !== 'master';
+            const isMaster = Boolean(currentUser && currentUser.role === 'master');
+            document.body.classList.toggle('is-master-role', isMaster);
+
+            const isGuest = Boolean(currentUser && currentUser.role !== 'master');
             const hasTeacher = Boolean(masterViewport);
 
             if (isGuest && hasTeacher) {
-                if (topBtn) topBtn.classList.remove('hidden');
-                if (floatingIndicator) floatingIndicator.classList.remove('hidden');
+                if (topBtn) {
+                    topBtn.classList.remove('hidden');
+                    topBtn.style.display = '';
+                }
+                if (floatingIndicator) {
+                    floatingIndicator.classList.remove('hidden');
+                    floatingIndicator.style.display = '';
+                }
             } else {
-                if (topBtn) topBtn.classList.add('hidden');
-                if (floatingIndicator) floatingIndicator.classList.add('hidden');
+                if (topBtn) {
+                    topBtn.classList.add('hidden');
+                    topBtn.style.display = 'none';
+                }
+                if (floatingIndicator) {
+                    floatingIndicator.classList.add('hidden');
+                    floatingIndicator.style.display = 'none';
+                }
             }
         },
 
