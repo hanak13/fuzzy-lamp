@@ -374,6 +374,10 @@
             <button type="button" id="btn-create-board-header" class="btn-new-board-page">
                 <span>+</span> New Board
             </button>
+            <button type="button" id="btn-import-board-header" class="btn-back-to-canvas" title="Import shared board (.wb.json / .json)">
+                Import Board
+            </button>
+            <input type="file" id="boards-page-import-input" accept=".json,.wb.json" style="display: none;">
             <a href="/whiteboard" class="btn-back-to-canvas">
                 Open Canvas &rarr;
             </a>
@@ -611,6 +615,57 @@
 
         document.getElementById('btn-create-board-header').addEventListener('click', handleCreateBoard);
         document.getElementById('boards-page-search').addEventListener('input', renderBoardsGrid);
+
+        const btnImportHeader = document.getElementById('btn-import-board-header');
+        const importInput = document.getElementById('boards-page-import-input');
+        if (btnImportHeader && importInput) {
+            btnImportHeader.addEventListener('click', () => {
+                importInput.value = '';
+                importInput.click();
+            });
+            importInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    let parsedData;
+                    try {
+                        parsedData = JSON.parse(ev.target.result);
+                    } catch (err) {
+                        showToast('Import failed: File is not valid JSON');
+                        return;
+                    }
+                    const isImportable = parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData) && (Array.isArray(parsedData.objects) || Array.isArray(parsedData.slides));
+                    if (!isImportable) {
+                        showToast('Import failed: Not a valid whiteboard file');
+                        return;
+                    }
+                    const boardName = (parsedData.boardName && typeof parsedData.boardName === 'string' && parsedData.boardName.trim())
+                        ? parsedData.boardName.trim()
+                        : (file.name.replace(/\.wb\.json$/i, '').replace(/\.[^/.]+$/, '').trim() || 'Imported Board');
+                    const importedBg = (parsedData.bgColor && typeof parsedData.bgColor === 'string') ? parsedData.bgColor : '#f8fafc';
+                    try {
+                        const res = await fetch('/api/boards', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: boardName,
+                                bg_color: importedBg,
+                                data: JSON.stringify(parsedData)
+                            })
+                        });
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const created = await res.json();
+                        showToast(`Imported "${boardName}"`);
+                        window.location.href = `/board/${created.id}`;
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Error importing board');
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
 
         // Boot
         fetchBoards();
