@@ -1,6 +1,6 @@
-# ✏️ Whiteboard `v0.3.1`
+# ✏️ Whiteboard `v0.4.0`
 
-[![Version](https://img.shields.io/badge/version-v0.3.1-blue.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-v0.4.0-blue.svg)](README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com)
 [![Fabric.js](https://img.shields.io/badge/Fabric.js-5.3-orange.svg)](http://fabricjs.com)
@@ -15,8 +15,9 @@
 
 ---
 
-## 🚀 What's New in v0.3.1
+## 🚀 What's New in v0.4.0
 
+- 🔗 **Share Board (LAN Collaboration, QR Code & Access Control)**: One-click **Share** modal with auto-detected Wi-Fi / LAN URLs, offline QR code generation, View-Only vs Edit links, optional room passwords, and per-user Master/Guest edit permissions.
 - 👑 **Master's Screen Frame & Return-to-Master View**: Guests can explore the board freely while seeing a live dashed boundary of the Master's screen, and click **Master's View** / **Reset** at any time to glide right back to what the Master is presenting.
 - 🕒 **Board Version History**: Save named snapshots from the **History** modal and restore any earlier board state safely (automatically creates a backup snapshot before restoring).
 - 🔴 **Laser Pointer & Presentation Timer**: Non-destructive fading red laser pointer overlay (`Esc` to exit) and a built-in Start/Pause/Reset timer for slide presentations.
