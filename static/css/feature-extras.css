@@ -1,0 +1,140 @@
+/* ==========================================================================
+   Presentation Extras: Laser Pointer, Slide Timer & Infinite-Canvas Minimap
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Laser Pointer Overlay
+   -------------------------------------------------------------------------- */
+.laser-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.laser-overlay.hidden {
+    display: none !important;
+}
+
+body.laser-mode #canvas-container,
+body.laser-mode .canvas-container {
+    cursor: none !important;
+}
+
+/* Laser buttons (slide banner + presenter dock) */
+#btn-laser-pointer.active,
+#btn-laser-slide.active {
+    background: rgba(239, 68, 68, 0.5);
+    border-color: #fca5a5;
+    color: #ffffff;
+}
+
+#fs-btn-laser.active {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.45);
+}
+
+/* --------------------------------------------------------------------------
+   Presentation Timer (inside slide banner)
+   -------------------------------------------------------------------------- */
+.slide-timer-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.slide-timer-display {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #38bdf8;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 10px;
+    padding: 3px 9px;
+    min-width: 52px;
+    text-align: center;
+}
+
+.slide-timer-btn {
+    min-width: 46px;
+    justify-content: center;
+}
+
+#btn-timer-toggle.running {
+    background: rgba(239, 68, 68, 0.35);
+    border-color: rgba(239, 68, 68, 0.55);
+    color: #fca5a5;
+}
+
+#btn-timer-toggle.running:hover {
+    background: rgba(239, 68, 68, 0.55);
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Infinite-Canvas Minimap
+   -------------------------------------------------------------------------- */
+.canvas-minimap {
+    position: fixed;
+    left: 84px;
+    bottom: 20px;
+    z-index: 100;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 12px;
+    box-shadow: var(--toolbar-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.canvas-minimap.hidden {
+    display: none !important;
+}
+
+.minimap-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 8px 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--toolbar-border);
+}
+
+.minimap-close {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1;
+    padding: 0 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.minimap-close:hover {
+    color: var(--danger-color);
+    background: var(--btn-hover);
+}
+
+#minimap-canvas {
+    display: block;
+    cursor: crosshair;
+    background: rgba(148, 163, 184, 0.06);
+}
+
+body.slide-page-fullscreen .canvas-minimap {
+    display: none !important;
+}

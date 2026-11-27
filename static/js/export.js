@@ -26,7 +26,11 @@
             return window.__currentFrameRatio || (window.WhiteboardApp && window.WhiteboardApp.currentFrameRatio) || 'infinite';
         },
 
-        exportCanvasAsPNG() {
+        exportCanvasAsPNG(options = {}) {
+            const opts = (options && typeof options === 'object') ? options : {};
+            const transparent = !!opts.transparent;
+            const selectionOnly = !!opts.selectionOnly;
+
             const dropdown = document.getElementById('download-dropdown');
             if (dropdown) dropdown.classList.add('hidden');
 
@@ -40,10 +44,27 @@
 
             const previewStepBox = window.__stepBoxPreviewRect || (window.WhiteboardApp && window.WhiteboardApp.stepBoxPreviewRect);
             const previewLine = window.__connectorPreviewLine || (window.WhiteboardApp && window.WhiteboardApp.connectorPreviewLine);
-            const objects = canvas.getObjects().filter(o => !o.isGridLine && !o.isSlideFrame && o !== previewStepBox && o !== previewLine);
-            if (!objects || objects.length === 0) {
-                if (typeof window.showToast === 'function') window.showToast('Canvas is empty');
-                return;
+
+            let objects;
+            let selectedObjects = null;
+            if (selectionOnly) {
+                const active = canvas.getActiveObject();
+                if (!active) {
+                    if (typeof window.showToast === 'function') window.showToast('Select an object or area first');
+                    return;
+                }
+                selectedObjects = (typeof canvas.getActiveObjects === 'function') ? canvas.getActiveObjects() : [active];
+                objects = selectedObjects.filter(o => !o.isGridLine && !o.isSlideFrame);
+                if (!objects || objects.length === 0) {
+                    if (typeof window.showToast === 'function') window.showToast('Selection is empty');
+                    return;
+                }
+            } else {
+                objects = canvas.getObjects().filter(o => !o.isGridLine && !o.isSlideFrame && o !== previewStepBox && o !== previewLine);
+                if (!objects || objects.length === 0) {
+                    if (typeof window.showToast === 'function') window.showToast('Canvas is empty');
+                    return;
+                }
             }
 
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -59,14 +80,36 @@
                 minX = 0; minY = 0; maxX = canvas.getWidth(); maxY = canvas.getHeight();
             }
 
-            const padding = 40;
-            const cropX = Math.max(0, minX - padding);
-            const cropY = Math.max(0, minY - padding);
-            const cropWidth = (maxX - minX) + padding * 2;
-            const cropHeight = (maxY - minY) + padding * 2;
-
+            const padding = selectionOnly ? 16 : 40;
             const prevVpt = canvas.viewportTransform.slice();
-            canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+            const prevBg = canvas.backgroundColor;
+
+            let cropX, cropY, cropWidth, cropHeight;
+            if (selectionOnly) {
+                const vpt = canvas.viewportTransform;
+                const zoom = vpt[0] || 1;
+                const screenMinX = vpt[4] + minX * zoom;
+                const screenMinY = vpt[5] + minY * zoom;
+                const screenMaxX = vpt[4] + maxX * zoom;
+                const screenMaxY = vpt[5] + maxY * zoom;
+                cropX = screenMinX - padding;
+                cropY = screenMinY - padding;
+                cropWidth = (screenMaxX - screenMinX) + padding * 2;
+                cropHeight = (screenMaxY - screenMinY) + padding * 2;
+            } else {
+                canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+                cropX = Math.max(0, minX - padding);
+                cropY = Math.max(0, minY - padding);
+                cropWidth = (maxX - minX) + padding * 2;
+                cropHeight = (maxY - minY) + padding * 2;
+            }
+
+            let bgColor = null;
+            if (!transparent) {
+                bgColor = (typeof window.getBoardBackgroundColor === 'function' && window.getBoardBackgroundColor()) || '#f8fafc';
+            }
+            canvas.backgroundColor = bgColor;
+            canvas.renderAll();
 
             const dataUrl = canvas.toDataURL({
                 format: 'png',
@@ -78,6 +121,7 @@
                 enableRetinaScaling: true
             });
 
+            canvas.backgroundColor = prevBg;
             canvas.setViewportTransform(prevVpt);
             canvas.requestRenderAll();
 
@@ -86,9 +130,14 @@
             const curBoard = Array.isArray(boards) ? boards.find(b => b.id === curBoardId) : null;
             const safeName = (curBoard ? curBoard.name : 'whiteboard').toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'whiteboard';
 
+            const date = new Date().toISOString().slice(0, 10);
+            let suffix = '';
+            if (selectionOnly) suffix += '-selection';
+            if (transparent) suffix += '-transparent';
+
             const a = document.createElement('a');
             a.href = dataUrl;
-            a.download = `${safeName}-${new Date().toISOString().slice(0, 10)}.png`;
+            a.download = `${safeName}${suffix}-${date}.png`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -613,7 +662,15 @@
             const btnDownloadPptx = document.getElementById('btn-download-pptx');
             const btnDownloadJson = document.getElementById('btn-download-json');
 
-            if (btnDownloadPng) btnDownloadPng.addEventListener('click', ExportModule.exportCanvasAsPNG);
+            if (btnDownloadPng) btnDownloadPng.addEventListener('click', () => ExportModule.exportCanvasAsPNG());
+            const btnDownloadPngTransparent = document.getElementById('btn-download-png-transparent');
+            const btnDownloadSelected = document.getElementById('btn-download-selected');
+            if (btnDownloadPngTransparent) {
+                btnDownloadPngTransparent.addEventListener('click', () => ExportModule.exportCanvasAsPNG({ transparent: true }));
+            }
+            if (btnDownloadSelected) {
+                btnDownloadSelected.addEventListener('click', () => ExportModule.exportCanvasAsPNG({ selectionOnly: true }));
+            }
             if (btnDownloadSvg) btnDownloadSvg.addEventListener('click', ExportModule.exportCanvasAsSVG);
             if (btnDownloadPdf) btnDownloadPdf.addEventListener('click', ExportModule.exportAsPDF);
             if (btnDownloadPptx) btnDownloadPptx.addEventListener('click', ExportModule.exportAsPPTX);
@@ -630,7 +687,9 @@
             }
 
             // Expose globally
-            window.exportCanvasAsPNG = ExportModule.exportCanvasAsPNG;
+            window.exportCanvasAsPNG = (opts) => ExportModule.exportCanvasAsPNG(opts);
+            window.exportCanvasAsPNGTransparent = () => ExportModule.exportCanvasAsPNG({ transparent: true });
+            window.exportCanvasSelection = () => ExportModule.exportCanvasAsPNG({ selectionOnly: true });
             window.exportCanvasAsSVG = ExportModule.exportCanvasAsSVG;
             window.exportAsPDF = ExportModule.exportAsPDF;
             window.exportAsPPTX = ExportModule.exportAsPPTX;

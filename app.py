@@ -75,6 +75,12 @@ class BoardRename(BaseModel):
     name: str
 
 
+class BoardVersionCreate(BaseModel):
+    label: Optional[str] = ""
+    data: Optional[str] = None
+    bg_color: Optional[str] = None
+
+
 class SlideExportItem(BaseModel):
     image_data: str
     title: Optional[str] = None
@@ -222,6 +228,58 @@ async def api_delete_board(board_id: str):
     if not success:
         raise HTTPException(status_code=400, detail="Cannot delete the only board or board not found")
     return JSONResponse({"success": True, "id": board_id})
+
+
+@app.get("/api/boards/{board_id}/versions")
+async def api_list_board_versions(board_id: str):
+    """List saved version snapshots for a board (newest first)."""
+    board = db.get_board(board_id)
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+    return JSONResponse({"versions": db.list_board_versions(board_id)})
+
+
+@app.post("/api/boards/{board_id}/versions")
+async def api_create_board_version(board_id: str, payload: BoardVersionCreate):
+    """Create a manual version snapshot for a board."""
+    board = db.get_board(board_id)
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+    data = payload.data if payload.data is not None else board["data"]
+    bg_color = payload.bg_color if payload.bg_color is not None else board["bg_color"]
+    version = db.create_board_version(
+        board_id=board_id,
+        data=data,
+        bg_color=bg_color,
+        label=payload.label or ""
+    )
+    return JSONResponse({"version": version}, status_code=201)
+
+
+@app.post("/api/boards/{board_id}/versions/{version_id}/restore")
+async def api_restore_board_version(board_id: str, version_id: int):
+    """Restore a board to a saved version snapshot after saving a safety backup."""
+    board = db.get_board(board_id)
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+    target_version = db.get_board_version(board_id, version_id)
+    if not target_version:
+        raise HTTPException(status_code=404, detail="Version snapshot not found")
+
+    # Safety backup of current state before overwriting
+    db.create_board_version(
+        board_id=board_id,
+        data=board["data"],
+        bg_color=board["bg_color"],
+        label="Auto-backup before restore"
+    )
+    db.update_board(
+        board_id=board_id,
+        data=target_version["data"],
+        bg_color=target_version["bg_color"]
+    )
+    updated = db.get_board(board_id)
+    return JSONResponse({"success": True, "board": updated})
 
 
 # -----------------------------------------------------------------------------

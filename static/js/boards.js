@@ -1035,6 +1035,143 @@
                 });
             }
 
+            // Version History Modal Wiring
+            const btnVersionHistory = document.getElementById('btn-version-history');
+            const modalVersionHistory = document.getElementById('modal-version-history');
+            const btnCloseVersionHistory = document.getElementById('btn-close-version-history');
+            const btnSaveSnapshot = document.getElementById('btn-save-version-snapshot');
+            const snapshotLabelInput = document.getElementById('version-snapshot-label');
+            const versionListEl = document.getElementById('version-history-list');
+
+            const formatVersionTime = (ts) => {
+                if (!ts) return '';
+                const d = new Date(ts * 1000);
+                return d.toLocaleString();
+            };
+
+            const loadVersionHistory = async () => {
+                if (!versionListEl || !activeBoardId) return;
+                versionListEl.innerHTML = '<div class="version-empty-state">Loading snapshots...</div>';
+                try {
+                    const res = await fetch(`/api/boards/${activeBoardId}/versions`);
+                    if (!res.ok) throw new Error('Failed to load versions');
+                    const payload = await res.json();
+                    const versions = payload.versions || [];
+                    if (versions.length === 0) {
+                        versionListEl.innerHTML = '<div class="version-empty-state">No snapshots saved yet. Click "Save Snapshot" to create one.</div>';
+                        return;
+                    }
+                    versionListEl.innerHTML = '';
+                    versions.forEach((v) => {
+                        const row = document.createElement('div');
+                        row.className = 'version-item';
+
+                        const info = document.createElement('div');
+                        info.className = 'version-item-info';
+
+                        const labelEl = document.createElement('div');
+                        labelEl.className = 'version-item-label';
+                        labelEl.textContent = v.label || `Snapshot #${v.id}`;
+
+                        const metaEl = document.createElement('div');
+                        metaEl.className = 'version-item-meta';
+                        metaEl.textContent = `${formatVersionTime(v.created_at)} · ${v.object_count} object${v.object_count === 1 ? '' : 's'}`;
+
+                        info.appendChild(labelEl);
+                        info.appendChild(metaEl);
+
+                        const restoreBtn = document.createElement('button');
+                        restoreBtn.type = 'button';
+                        restoreBtn.className = 'btn-restore-version';
+                        restoreBtn.textContent = 'Restore';
+                        restoreBtn.addEventListener('click', async () => {
+                            if (document.body.classList.contains('view-only-mode')) return;
+                            restoreBtn.disabled = true;
+                            restoreBtn.textContent = 'Restoring...';
+                            try {
+                                const rRes = await fetch(`/api/boards/${activeBoardId}/versions/${v.id}/restore`, { method: 'POST' });
+                                if (!rRes.ok) throw new Error('Restore failed');
+                                const rData = await rRes.json();
+                                const restoredBoard = rData.board;
+                                if (restoredBoard && canvas) {
+                                    isBoardLoading = true;
+                                    const parsedData = typeof restoredBoard.data === 'string'
+                                        ? JSON.parse(restoredBoard.data)
+                                        : (restoredBoard.data || { version: '5.3.0', objects: [] });
+                                    if (restoredBoard.bg_color) {
+                                        BoardsModule.setBoardBackgroundColor(restoredBoard.bg_color, false);
+                                    }
+                                    canvas.loadFromJSON(BoardsModule.sanitizeBoardPayload(parsedData), () => {
+                                        BoardsModule.reconnectLoadedObjects();
+                                        canvas.renderAll();
+                                        isBoardLoading = false;
+                                        isBoardDirty = false;
+                                        if (typeof window.resetHistoryWithState === 'function') window.resetHistoryWithState();
+                                        BoardsModule.updateAutosaveIndicator('saved');
+                                        if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
+                                        if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
+                                        if (modalVersionHistory) modalVersionHistory.classList.add('hidden');
+                                        if (typeof window.showToast === 'function') window.showToast('Board restored from snapshot');
+                                    });
+                                }
+                            } catch (err) {
+                                console.error('Version restore failed:', err);
+                                if (typeof window.showToast === 'function') window.showToast('Could not restore version');
+                            } finally {
+                                restoreBtn.disabled = false;
+                                restoreBtn.textContent = 'Restore';
+                            }
+                        });
+
+                        row.appendChild(info);
+                        row.appendChild(restoreBtn);
+                        versionListEl.appendChild(row);
+                    });
+                } catch (err) {
+                    console.error('Load versions failed:', err);
+                    versionListEl.innerHTML = '<div class="version-empty-state">Could not load version history.</div>';
+                }
+            };
+
+            if (btnVersionHistory && modalVersionHistory) {
+                btnVersionHistory.addEventListener('click', () => {
+                    modalVersionHistory.classList.remove('hidden');
+                    loadVersionHistory();
+                });
+            }
+            if (btnCloseVersionHistory && modalVersionHistory) {
+                btnCloseVersionHistory.addEventListener('click', () => modalVersionHistory.classList.add('hidden'));
+            }
+            if (modalVersionHistory) {
+                modalVersionHistory.addEventListener('click', (e) => {
+                    if (e.target === modalVersionHistory) modalVersionHistory.classList.add('hidden');
+                });
+            }
+            if (btnSaveSnapshot) {
+                btnSaveSnapshot.addEventListener('click', async () => {
+                    if (!activeBoardId || !canvas) return;
+                    btnSaveSnapshot.disabled = true;
+                    try {
+                        await BoardsModule.saveActiveBoardToServer(true);
+                        const label = snapshotLabelInput ? snapshotLabelInput.value.trim() : '';
+                        const res = await fetch(`/api/boards/${activeBoardId}/versions`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ label })
+                        });
+                        if (!res.ok) throw new Error('Snapshot failed');
+                        if (snapshotLabelInput) snapshotLabelInput.value = '';
+                        await loadVersionHistory();
+                        if (typeof window.showToast === 'function') window.showToast('Version snapshot saved');
+                    } catch (err) {
+                        console.error('Snapshot save failed:', err);
+                        if (typeof window.showToast === 'function') window.showToast('Failed to save snapshot');
+                    } finally {
+                        btnSaveSnapshot.disabled = false;
+                    }
+                });
+            }
+
             window.addEventListener('beforeunload', () => {
                 if (isBoardDirty && activeBoardId && !isBoardLoading && canvas) {
                     try {

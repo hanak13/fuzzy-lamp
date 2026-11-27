@@ -309,3 +309,96 @@ kbd {
     transform: translate(-50%, 15px);
 }
 
+/* Version History Modal */
+.version-history-card {
+    max-width: 520px;
+    width: 94%;
+}
+
+.version-history-body {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.version-snapshot-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.version-snapshot-input {
+    flex: 1;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--toolbar-border);
+    background: var(--bg-color);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.version-history-list {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.version-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--toolbar-border);
+    background: var(--bg-color);
+}
+
+.version-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.version-item-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.version-item-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.btn-restore-version {
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.btn-restore-version:hover {
+    background: #dbeafe;
+}
+
+.version-empty-state {
+    text-align: center;
+    padding: 24px 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
