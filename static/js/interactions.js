@@ -282,6 +282,35 @@
                 }
             });
 
+            // Long-press drag duplication state
+            let longPressTimer = null;
+            let longPressActive = false;
+            let longPressStartClient = null;
+            let longPressTarget = null;
+            let longPressDuplicated = false;
+            let longPressClonedObj = null;
+            const LONG_PRESS_MS = 450;
+            const LONG_PRESS_MOVE_TOLERANCE = 6;
+
+            function getClientXY(evt) {
+                if (!evt) return { x: 0, y: 0 };
+                if (evt.touches && evt.touches.length > 0) {
+                    return { x: evt.touches[0].clientX, y: evt.touches[0].clientY };
+                }
+                if (evt.changedTouches && evt.changedTouches.length > 0) {
+                    return { x: evt.changedTouches[0].clientX, y: evt.changedTouches[0].clientY };
+                }
+                return { x: evt.clientX || 0, y: evt.clientY || 0 };
+            }
+
+            function cancelLongPress() {
+                longPressActive = false;
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            }
+
             // 2. Mouse Down Event
             canvas.on('mouse:down', (opt) => {
                 const evt = opt.e;
@@ -363,6 +392,7 @@
                 const EXTRA_PROPS = window.EXTRA_PROPS || ['shapeUid', 'connectedLines', 'isConnector', 'isArrowHead', 'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId', 'isStickyNote', 'stickyColor', 'isSticker', 'imageName'];
                 if (evt && evt.altKey && opt.target && currentMode === 'select' && !opt.target.isConnector && !opt.target.isArrowHead) {
                     opt.target.clone((cloned) => {
+                        delete cloned.id;
                         if (cloned.shapeUid && typeof window.generateUid === 'function') cloned.shapeUid = window.generateUid();
                         cloned.connectedLines = [];
                         canvas.add(cloned);
@@ -371,6 +401,71 @@
                         if (typeof window.saveState === 'function') window.saveState();
                         if (typeof window.showToast === 'function') window.showToast('Duplicated with Alt+Drag');
                     }, EXTRA_PROPS);
+                } else if (
+                    !isRightClick &&
+                    !shouldPan &&
+                    currentMode === 'select' &&
+                    opt.target &&
+                    !opt.target.isConnector &&
+                    !opt.target.isArrowHead &&
+                    !opt.target.isSlideFrame &&
+                    !opt.target.isGridLine &&
+                    !opt.target.isStepBox &&
+                    !document.body.classList.contains('view-only-mode')
+                ) {
+                    // Long-Press Drag: Hold 450ms on an object without moving to duplicate and drag it
+                    cancelLongPress();
+                    longPressActive = true;
+                    longPressDuplicated = false;
+                    longPressClonedObj = null;
+                    longPressTarget = opt.target;
+                    longPressStartClient = getClientXY(evt);
+
+                    longPressTimer = setTimeout(() => {
+                        longPressTimer = null;
+                        if (!longPressActive || !longPressTarget) return;
+                        if (canvas._currentTransform && canvas._currentTransform.action !== 'drag') return;
+
+                        const targetToClone = longPressTarget;
+                        targetToClone.clone((clonedObj) => {
+                            if (!longPressActive) return;
+                            longPressDuplicated = true;
+                            longPressClonedObj = clonedObj;
+
+                            const prepClone = (obj) => {
+                                delete obj.id;
+                                if (obj.shapeUid && typeof window.generateUid === 'function') {
+                                    obj.shapeUid = window.generateUid();
+                                }
+                                obj.connectedLines = [];
+                            };
+
+                            if (clonedObj.type === 'activeSelection') {
+                                clonedObj.canvas = canvas;
+                                clonedObj.forEachObject((obj) => {
+                                    prepClone(obj);
+                                    canvas.add(obj);
+                                });
+                                clonedObj.setCoords();
+                            } else {
+                                prepClone(clonedObj);
+                                canvas.add(clonedObj);
+                            }
+
+                            if (canvas._currentTransform && canvas._currentTransform.target === targetToClone) {
+                                canvas._currentTransform.target = clonedObj;
+                                canvas._currentTransform.original.left = clonedObj.left;
+                                canvas._currentTransform.original.top = clonedObj.top;
+                            }
+                            canvas.setActiveObject(clonedObj);
+                            canvas.defaultCursor = 'copy';
+                            canvas.setCursor('copy');
+                            canvas.requestRenderAll();
+                            if (typeof window.showToast === 'function') {
+                                window.showToast('Duplicated! Drag to place');
+                            }
+                        }, EXTRA_PROPS);
+                    }, LONG_PRESS_MS);
                 }
 
                 // Step Box Tool: Drag to create a Step Box
@@ -576,8 +671,11 @@
                 }
             });
 
-            // 4. Shift + Drag: Maintain aspect ratio
+            // 4. Shift + Drag: Maintain aspect ratio; cancel long-press if resizing/rotating
             canvas.on('before:transform', (opt) => {
+                if (opt.transform && opt.transform.action !== 'drag') {
+                    cancelLongPress();
+                }
                 if (opt.e && opt.e.shiftKey && opt.transform) {
                     opt.transform.uniform = true;
                 }
@@ -585,6 +683,12 @@
 
             // 5. Mouse Move Event
             canvas.on('mouse:move', (opt) => {
+                if (longPressTimer && longPressStartClient && opt.e) {
+                    const pt = getClientXY(opt.e);
+                    if (Math.hypot(pt.x - longPressStartClient.x, pt.y - longPressStartClient.y) > LONG_PRESS_MOVE_TOLERANCE) {
+                        cancelLongPress();
+                    }
+                }
                 const isPanning = window.WhiteboardApp.isPanning || window.isPanning;
                 if (isPanning) {
                     const evt = opt.e;
@@ -762,8 +866,44 @@
                 }
             }
 
-            canvas.on('mouse:up', handleMouseUp);
+            canvas.on('mouse:up', (opt) => {
+                cancelLongPress();
+                if (longPressDuplicated && longPressClonedObj) {
+                    const endPt = getClientXY(opt && opt.e);
+                    const movedDist = longPressStartClient
+                        ? Math.hypot(endPt.x - longPressStartClient.x, endPt.y - longPressStartClient.y)
+                        : 0;
+                    if (movedDist < LONG_PRESS_MOVE_TOLERANCE) {
+                        longPressClonedObj.set({
+                            left: longPressClonedObj.left + 20,
+                            top: longPressClonedObj.top + 20
+                        });
+                    }
+                    longPressClonedObj.setCoords();
+                    longPressDuplicated = false;
+                    longPressClonedObj = null;
+                    longPressTarget = null;
+                    longPressStartClient = null;
+                    InteractionsModule.updateCursorForMode();
+                    canvas.requestRenderAll();
+                    if (typeof window.saveState === 'function') window.saveState();
+                    if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
+                    if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
+                } else {
+                    longPressTarget = null;
+                    longPressStartClient = null;
+                }
+                handleMouseUp(opt);
+            });
             window.addEventListener('mouseup', () => {
+                cancelLongPress();
+                longPressTarget = null;
+                longPressStartClient = null;
+                if (longPressDuplicated) {
+                    longPressDuplicated = false;
+                    longPressClonedObj = null;
+                    InteractionsModule.updateCursorForMode();
+                }
                 if (window.isPanning) {
                     window.isPanning = false;
                     if (window.WhiteboardApp) window.WhiteboardApp.isPanning = false;
