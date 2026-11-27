@@ -451,6 +451,77 @@
             if (typeof window.showToast === 'function') window.showToast(`Downloaded "${board.name}" (.json)`);
         },
 
+        async shareBoardAsFile(boardId) {
+            const targetId = boardId || activeBoardId;
+            const canvas = BoardsModule.getCanvas();
+            const board = boards.find(b => b.id === targetId) || { id: targetId, name: 'Whiteboard' };
+
+            let boardObj;
+            if (targetId === activeBoardId && canvas) {
+                boardObj = canvas.toJSON(EXTRA_PROPS);
+                boardObj.bgColor = board.bg_color || board.bgColor || '#f8fafc';
+                const currentFrameRatio = window.__currentFrameRatio || 'infinite';
+                if (currentFrameRatio !== 'infinite') {
+                    boardObj.currentFrameRatio = currentFrameRatio;
+                    boardObj.slides = window.boardSlides || [];
+                    boardObj.currentSlideIndex = window.currentSlideIndex || 0;
+                    boardObj.frameWidth = window.frameWidth;
+                    boardObj.frameHeight = window.frameHeight;
+                }
+            } else {
+                try {
+                    const res = await fetch(`/api/boards/${targetId}`);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const full = await res.json();
+                    boardObj = typeof full.data === 'string' ? JSON.parse(full.data) : full.data;
+                    boardObj.bgColor = full.bg_color || '#f8fafc';
+                } catch (e) {
+                    boardObj = { version: '5.3.0', objects: [], bgColor: '#f8fafc' };
+                }
+            }
+
+            boardObj.boardName = board.name;
+            boardObj.exportedAt = new Date().toISOString();
+
+            const safeName = (board.name || 'board').toLowerCase().replace(/[^a-z0-9_-]/g, '_') || 'board';
+            const fileName = `${safeName}.wb.json`;
+            const jsonText = JSON.stringify(boardObj, null, 2);
+            const blob = new Blob([jsonText], { type: 'application/json' });
+
+            // Use native OS Share sheet (WhatsApp / Telegram on mobile/supported desktop) when available
+            try {
+                if (typeof File !== 'undefined' && navigator.canShare && navigator.share) {
+                    const file = new File([blob], fileName, { type: 'application/json' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: `Whiteboard: ${board.name}`,
+                            text: `Import "${board.name}" in Whiteboard App`,
+                            files: [file]
+                        });
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(`Shared "${fileName}"`);
+                        }
+                        return;
+                    }
+                }
+            } catch (shareErr) {
+                if (shareErr && shareErr.name === 'AbortError') return;
+            }
+
+            // Fallback: Download portable .wb.json file ready to send via WhatsApp / Telegram
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            if (typeof window.showToast === 'function') {
+                window.showToast(`Created "${fileName}" — send via WhatsApp or Telegram!`);
+            }
+        },
+
         async switchBoard(targetBoardId) {
             if (targetBoardId === activeBoardId) return;
             const targetBoard = boards.find(b => b.id === targetBoardId);
@@ -710,7 +781,7 @@
                     return;
                 }
 
-                const isImportable = parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData) && Array.isArray(parsedData.objects);
+                const isImportable = parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData) && (Array.isArray(parsedData.objects) || Array.isArray(parsedData.slides));
                 if (!isImportable) {
                     if (typeof window.showToast === 'function') window.showToast('Import failed: JSON file is not an importable whiteboard board!');
                     return;
@@ -720,7 +791,9 @@
                     await BoardsModule.saveActiveBoardToServer(true);
                 }
 
-                let boardName = file.name.replace(/\.[^/.]+$/, '').trim() || 'Imported Board';
+                let boardName = (parsedData.boardName && typeof parsedData.boardName === 'string' && parsedData.boardName.trim())
+                    ? parsedData.boardName.trim()
+                    : (file.name.replace(/\.wb\.json$/i, '').replace(/\.[^/.]+$/, '').trim() || 'Imported Board');
                 const importedBg = (parsedData.bgColor && typeof parsedData.bgColor === 'string') ? parsedData.bgColor : '#f8fafc';
 
                 try {
@@ -1006,6 +1079,27 @@
                     boardFileInput.click();
                 });
                 boardFileInput.addEventListener('change', BoardsModule.handleImportBoardFile);
+            }
+
+            const btnShareBoardFile = document.getElementById('btn-share-board-file');
+            if (btnShareBoardFile) {
+                btnShareBoardFile.addEventListener('click', () => {
+                    BoardsModule.shareBoardAsFile(activeBoardId);
+                });
+            }
+
+            const btnImportSharedBoard = document.getElementById('btn-import-shared-board');
+            const sharedBoardFileInput = document.getElementById('shared-board-file-input');
+            if (btnImportSharedBoard && sharedBoardFileInput) {
+                btnImportSharedBoard.addEventListener('click', () => {
+                    sharedBoardFileInput.value = '';
+                    sharedBoardFileInput.click();
+                });
+                sharedBoardFileInput.addEventListener('change', (e) => {
+                    const modalShare = document.getElementById('modal-share-board');
+                    if (modalShare) modalShare.classList.add('hidden');
+                    BoardsModule.handleImportBoardFile(e);
+                });
             }
             if (boardsSearchEl) {
                 boardsSearchEl.addEventListener('input', () => {

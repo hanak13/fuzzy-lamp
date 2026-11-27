@@ -17,7 +17,7 @@
 
 ## 🚀 What's New in v0.4.0
 
-- 🔗 **Share Board (LAN Collaboration, QR Code & Access Control)**: One-click **Share** modal with auto-detected Wi-Fi / LAN URLs, offline QR code generation, View-Only vs Edit links, optional room passwords, and per-user Master/Guest edit permissions.
+- 📤 **Share Board File (WhatsApp / Telegram) & LAN Collaboration**: Export any board as a portable `.wb.json` file (with native OS Share sheet when supported) to send via WhatsApp or Telegram so recipients can import it directly, alongside one-click Wi-Fi / LAN QR code collaboration.
 - 👑 **Master's Screen Frame & Return-to-Master View**: Guests can explore the board freely while seeing a live dashed boundary of the Master's screen, and click **Master's View** / **Reset** at any time to glide right back to what the Master is presenting.
 - 🕒 **Board Version History**: Save named snapshots from the **History** modal and restore any earlier board state safely (automatically creates a backup snapshot before restoring).
 - 🔴 **Laser Pointer & Presentation Timer**: Non-destructive fading red laser pointer overlay (`Esc` to exit) and a built-in Start/Pause/Reset timer for slide presentations.

@@ -8,6 +8,41 @@
     padding: 16px 20px;
 }
 
+.share-file-card {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+body.dark-theme .share-file-card {
+    background: #1e293b;
+    border-color: #3b82f6;
+}
+
+.share-file-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.share-file-header span {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.share-file-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .collab-tabs {
     display: flex;
     gap: 8px;

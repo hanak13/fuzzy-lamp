@@ -1535,6 +1535,23 @@
                 <button type="button" id="btn-close-share-modal" class="modal-close-btn" title="Close (Escape)">&times;</button>
             </div>
             <div class="modal-body collab-share-body">
+                <!-- Share Board as Portable File (WhatsApp / Telegram / Offline) -->
+                <div class="share-file-card">
+                    <div class="share-file-header">
+                        <strong>📤 Share Board File (WhatsApp / Telegram)</strong>
+                        <span>Create a portable <code>.wb.json</code> file anyone can import</span>
+                    </div>
+                    <div class="share-file-actions">
+                        <button type="button" id="btn-share-board-file" class="btn modal-btn modal-btn-primary">
+                            <span>Create &amp; Share File</span>
+                        </button>
+                        <button type="button" id="btn-import-shared-board" class="btn modal-btn modal-btn-secondary">
+                            <span>Import Board File</span>
+                        </button>
+                        <input type="file" id="shared-board-file-input" accept=".json,.wb.json" style="display: none;">
+                    </div>
+                </div>
+
                 <!-- Share mode tabs: Can Edit vs View Only -->
                 <div class="collab-tabs">
                     <button type="button" id="tab-share-edit" class="collab-tab-btn active">✏️ Can Edit</button>
