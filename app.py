@@ -27,7 +27,7 @@ from reportlab.pdfgen import canvas as pdf_canvas
 import db
 
 # Initialize FastAPI application
-app = FastAPI(title="Whiteboard App", version="0.3.0")
+app = FastAPI(title="Whiteboard App", version="0.3.1")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STICKERS_DIR = os.path.join(BASE_DIR, "stickers")

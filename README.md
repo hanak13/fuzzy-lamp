@@ -1,6 +1,6 @@
-# ✏️ Whiteboard `v0.3.0`
+# ✏️ Whiteboard `v0.3.1`
 
-[![Version](https://img.shields.io/badge/version-v0.3.0-blue.svg)](README.md)
+[![Version](https://img.shields.io/badge/version-v0.3.1-blue.svg)](README.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com)
 [![Fabric.js](https://img.shields.io/badge/Fabric.js-5.3-orange.svg)](http://fabricjs.com)
@@ -15,7 +15,21 @@
 
 ---
 
-## 🚀 What's New in v0.3.0
+## 🚀 What's New in v0.3.1
+
+- 👑 **Master's Screen Frame & Return-to-Master View**: Guests can explore the board freely while seeing a live dashed boundary of the Master's screen, and click **Master's View** / **Reset** at any time to glide right back to what the Master is presenting.
+- 🕒 **Board Version History**: Save named snapshots from the **History** modal and restore any earlier board state safely (automatically creates a backup snapshot before restoring).
+- 🔴 **Laser Pointer & Presentation Timer**: Non-destructive fading red laser pointer overlay (`Esc` to exit) and a built-in Start/Pause/Reset timer for slide presentations.
+- 🗺️ **Infinite-Canvas Minimap**: Toggleable corner overview showing all objects and your current viewport, with click/drag-to-pan navigation.
+- 🖼️ **Selected-Area & Transparent PNG Export**: Export only your current selection or render a crisp transparent-background PNG directly from the Download menu.
+- ✨ **Opt-in Smart Shape Recognition**: Toggle **Smart Shape** in Pen mode to automatically snap rough freehand lines, circles, ellipses, and rectangles into clean shapes.
+- 🧩 **Community Shape Packs Plugin API**: Import `.json` shape packs via `+ Pack` in the Shapes Library or register packs programmatically via `window.WhiteboardApp.registerShapePack()`.
+- ✋ **Long-Press Drag to Duplicate**: Hold 450ms on any object (mouse or touch) and drag to duplicate it in place.
+- 🧱 **Modular CSS Architecture**: Split the 5,443-line stylesheet into 25 topic-scoped CSS files loaded via a clean `@import` manifest.
+
+---
+
+## 🚀 What's New in v0.3.0 (Archive)
 
 - 📡 **Offline LAN Real-Time Collaboration**: Multi-user board sharing over local Wi-Fi / LAN with FastAPI WebSockets. Zero cloud or CDN dependencies.
 - 👑 **Master & Guest Roles**: The person who starts/creates the board becomes Master. All joiners default to View-Only Guests until granted edit access by Master.
