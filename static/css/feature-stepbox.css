@@ -1,0 +1,464 @@
+/* ==========================================================================
+   Phase 8: Step Box Floating Controls Bar
+   ========================================================================== */
+.stepbox-floating-controls {
+    position: fixed;
+    z-index: 105;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.14), 0 1px 3px rgba(15, 23, 42, 0.08);
+    pointer-events: auto;
+    user-select: none;
+    font-family: inherit;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.stepbox-ctrl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    height: 28px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.stepbox-ctrl-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.stepbox-ctrl-btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+}
+
+.stepbox-badge-label {
+    padding: 3px 9px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    min-width: 68px;
+    text-align: center;
+    letter-spacing: -0.2px;
+}
+
+.stepbox-divider {
+    width: 1px;
+    height: 18px;
+    background: #e2e8f0;
+    margin: 0 2px;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-add {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 8px;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-add:hover:not(:disabled) {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-delete {
+    color: #ef4444;
+    padding: 4px 7px;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-delete:hover:not(:disabled) {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-save {
+    color: #059669;
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-save:hover:not(:disabled) {
+    background: #10b981;
+    color: #ffffff;
+    border-color: #10b981;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-save.saved-pulse {
+    background: #059669 !important;
+    color: #ffffff !important;
+    border-color: #059669 !important;
+    transform: scale(1.05);
+}
+
+.stepbox-ctrl-btn.stepbox-btn-play {
+    color: #7c3aed;
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-play:hover:not(:disabled) {
+    background: #7c3aed;
+    color: #ffffff;
+    border-color: #7c3aed;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-play.is-playing {
+    background: #8b5cf6 !important;
+    color: #ffffff !important;
+    border-color: #7c3aed !important;
+    animation: stepboxPulse 1.5s infinite;
+}
+
+@keyframes stepboxPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(139, 92, 246, 0); }
+}
+
+.stepbox-ctrl-btn.stepbox-btn-manage {
+    color: #475569;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-manage:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-pptx {
+    color: #d97706;
+    background: #fffbeb;
+    border-color: #fde68a;
+    font-weight: 700;
+}
+
+.stepbox-ctrl-btn.stepbox-btn-pptx:hover:not(:disabled) {
+    background: #d97706;
+    color: #ffffff;
+    border-color: #d97706;
+}
+
+/* Step Box Manager Modal */
+.stepbox-manager-card {
+    width: 680px;
+    max-width: 95vw;
+}
+
+.stepbox-manager-body {
+    padding: 16px 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.stepbox-manager-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    gap: 10px;
+}
+
+.stepbox-manager-toolbar-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stepbox-badge-active {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #bfdbfe;
+}
+
+.stepbox-manager-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-export-pptx-action {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    font-weight: 600;
+}
+
+.btn-export-pptx-action:hover {
+    background: #d97706;
+    color: #ffffff;
+    border-color: #d97706;
+}
+
+.stepbox-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stepbox-step-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    gap: 10px;
+}
+
+.stepbox-step-card:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+.stepbox-step-card.active {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.stepbox-step-card-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.stepbox-step-num {
+    font-size: 12px;
+    font-weight: 800;
+    color: #475569;
+    background: #e2e8f0;
+    border-radius: 6px;
+    padding: 4px 8px;
+    min-width: 32px;
+    text-align: center;
+}
+
+.stepbox-step-card.active .stepbox-step-num {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.stepbox-step-input {
+    flex: 1;
+    max-width: 260px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    transition: border-color 0.15s ease;
+}
+
+.stepbox-step-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.stepbox-step-meta {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.stepbox-step-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stepbox-action-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.stepbox-action-icon-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.stepbox-action-icon-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.stepbox-action-icon-btn.btn-step-jump {
+    width: auto;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+    gap: 4px;
+    color: #2563eb;
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+
+.stepbox-action-icon-btn.btn-step-jump:hover:not(:disabled) {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+.stepbox-action-icon-btn.btn-step-delete {
+    color: #ef4444;
+}
+
+.stepbox-action-icon-btn.btn-step-delete:hover:not(:disabled) {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* Dark Mode Overrides for Step Box & Modal */
+body.dark-mode .stepbox-floating-controls {
+    background: rgba(30, 41, 59, 0.96);
+    border-color: #334155;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .stepbox-ctrl-btn {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+
+body.dark-mode .stepbox-ctrl-btn:hover:not(:disabled) {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+body.dark-mode .stepbox-badge-label {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-mode .stepbox-divider {
+    background: #334155;
+}
+
+body.dark-mode .stepbox-ctrl-btn.stepbox-btn-save {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+
+body.dark-mode .stepbox-ctrl-btn.stepbox-btn-save:hover:not(:disabled) {
+    background: #059669;
+    color: #ffffff;
+}
+
+body.dark-mode .stepbox-ctrl-btn.stepbox-btn-play {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.4);
+    color: #a78bfa;
+}
+
+body.dark-mode .stepbox-ctrl-btn.stepbox-btn-play:hover:not(:disabled) {
+    background: #7c3aed;
+    color: #ffffff;
+}
+
+body.dark-mode .stepbox-ctrl-btn.stepbox-btn-pptx {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+}
+
+body.dark-mode .stepbox-ctrl-btn.stepbox-btn-pptx:hover:not(:disabled) {
+    background: #d97706;
+    color: #ffffff;
+}
+
+body.dark-mode .stepbox-step-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark-mode .stepbox-step-card:hover {
+    background: #243248;
+    border-color: #475569;
+}
+
+body.dark-mode .stepbox-step-card.active {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+}
+
+body.dark-mode .stepbox-step-num {
+    background: #334155;
+    color: #cbd5e1;
+}
+
+body.dark-mode .stepbox-step-input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+}
+
+body.dark-mode .stepbox-action-icon-btn {
+    background: #0f172a;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+
+body.dark-mode .stepbox-action-icon-btn:hover:not(:disabled) {
+    background: #1e293b;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+body.dark-mode .stepbox-manager-toolbar {
+    border-color: #334155;
+}
+

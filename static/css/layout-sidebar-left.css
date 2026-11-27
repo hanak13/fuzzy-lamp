@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Left Navigation Sidebar Dock & Flyout Drawer
+   ========================================================================== */
+
+.sidebar-dock {
+    position: fixed;
+    top: 72px;
+    left: 14px;
+    z-index: 96;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 14px;
+    box-shadow: var(--toolbar-shadow);
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.sidebar-btn:hover {
+    background-color: var(--btn-hover);
+    color: var(--text-primary);
+}
+
+.sidebar-btn.active {
+    background-color: var(--active-bg);
+    border-color: #bfdbfe;
+    color: var(--primary-color);
+}
+
+.sidebar-btn-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+/* Sidebar Flyout Drawer */
+.sidebar-drawer {
+    position: fixed;
+    top: 72px;
+    left: 74px; /* Placed immediately beside the sidebar dock */
+    width: 340px;
+    max-height: calc(100vh - 100px);
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 14px;
+    box-shadow: var(--toolbar-shadow);
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.sidebar-drawer.open-floating {
+    left: 20px !important;
+    z-index: 10005 !important;
+}
+
+.sidebar-drawer.hidden {
+    transform: translateX(-30px);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.drawer-panel-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.drawer-placeholder-box {
+    padding: 32px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.placeholder-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2563eb;
+    background: #dbeafe;
+    border-radius: 12px;
+}
+
+.placeholder-icon {
+    font-size: 32px;
+    margin-top: 4px;
+}
+
+.drawer-placeholder-box h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.drawer-placeholder-box p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+

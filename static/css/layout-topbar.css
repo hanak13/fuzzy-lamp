@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Top Bar Container (Fixed Logo on Left & Centered Toolbar)
+   ========================================================================== */
+
+.top-bar-container {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.app-brand-fixed {
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 12px;
+    box-shadow: var(--toolbar-shadow);
+    user-select: none;
+    pointer-events: auto;
+    flex-shrink: 0;
+}
+
+.brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.brand-link:hover {
+    opacity: 0.85;
+}
+
+.brand-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--toolbar-border);
+    margin: 0 2px;
+}
+
+.btn-all-boards-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary-color, #4f46e5);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    transition: all 0.15s ease;
+}
+
+.btn-all-boards-link:hover {
+    background: var(--primary-color, #4f46e5);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.brand-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.brand-name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+}
+
+.top-bar-right {
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    pointer-events: auto;
+    flex-shrink: 0;
+}
+
+.top-bar-action-btn {
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 13px;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 10px;
+    box-shadow: var(--toolbar-shadow);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s ease;
+}
+
+.top-bar-action-btn:hover {
+    background: #ffffff;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.top-bar-action-btn:active {
+    transform: translateY(0);
+}
+
+.top-bar-action-btn.btn-primary-action {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+}
+
+.top-bar-action-btn.btn-primary-action:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+.download-menu-container {
+    position: relative;
+    display: inline-block;
+}
+

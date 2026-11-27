@@ -1,0 +1,43 @@
+/* ==========================================================================
+   Whiteboard Web App Stylesheet - Phase 1
+   Clean, modern, offline styling for canvas, toolbar, and zoom controls.
+   ========================================================================== */
+
+:root {
+    --bg-color: #f8fafc;
+    --grid-line-color: #e2e8f0;
+    --toolbar-bg: rgba(255, 255, 255, 0.95);
+    --toolbar-border: #e2e8f0;
+    --toolbar-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --active-bg: #eff6ff;
+    --btn-hover: #f1f5f9;
+    --danger-color: #ef4444;
+    --danger-hover: #dc2626;
+    --border-radius: 8px;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+input, textarea, select, [contenteditable="true"], [contenteditable] {
+    user-select: auto;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+}
+

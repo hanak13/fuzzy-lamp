@@ -1,0 +1,108 @@
+/* ==========================================================================
+   Sticky Notes Drawer Panel
+   ========================================================================== */
+.notes-panel-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.notes-panel-tip {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.45;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.drawer-note-card {
+    border-radius: 8px;
+    padding: 14px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.drawer-note-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.drawer-note-card:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.drawer-note-card.note-yellow {
+    background-color: #fef08a;
+    border-color: #fde047;
+}
+
+.drawer-note-card.note-pink {
+    background-color: #fbcfe8;
+    border-color: #f9a8d4;
+}
+
+.drawer-note-card.note-green {
+    background-color: #bbf7d0;
+    border-color: #86efac;
+}
+
+.drawer-note-card.note-blue {
+    background-color: #bfdbfe;
+    border-color: #93c5fd;
+}
+
+.note-card-inner {
+    display: flex;
+    flex-direction: column;
+}
+
+.note-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.note-card-sub {
+    font-size: 10px;
+    color: #64748b;
+    font-family: monospace;
+}
+
+.drawer-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.drawer-action-btn:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.drawer-action-btn:active {
+    transform: scale(0.98);
+}
+

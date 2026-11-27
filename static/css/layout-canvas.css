@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Canvas Container & Grid Background
+   ========================================================================== */
+
+#canvas-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    /* Grid background pattern */
+    background-color: var(--board-bg-color, #f8fafc);
+    background-image: 
+        linear-gradient(to right, var(--grid-line-color, #e2e8f0) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line-color, #e2e8f0) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: 0px 0px;
+    transition: background-color 0.2s ease;
+}
+
+/* Fabric canvas elements */
+.canvas-container {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+}
+
+/* ==========================================================================
+   Zoom Widget (Bottom Right)
+   ========================================================================== */
+
+#zoom-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--toolbar-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--toolbar-border);
+    border-radius: 30px;
+    box-shadow: var(--toolbar-shadow);
+}
+
+.zoom-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.zoom-btn:hover {
+    background-color: var(--btn-hover);
+}
+
+.zoom-btn.text-btn {
+    width: auto;
+    border-radius: 12px;
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.zoom-btn.text-btn:hover {
+    color: var(--text-primary);
+}
+
+#zoom-percentage {
+    min-width: 48px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+#zoom-percentage:hover {
+    background-color: var(--btn-hover);
+}
+

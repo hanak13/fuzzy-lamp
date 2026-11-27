@@ -1,0 +1,252 @@
+/* Frame Mode Dropdown & Styling */
+.frame-mode-container {
+    position: relative;
+    display: inline-block;
+}
+
+.frame-dropdown-menu {
+    position: absolute;
+    top: 42px;
+    right: 0;
+    min-width: 250px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(16px);
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+    padding: 6px;
+    z-index: 120;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: fadeInDown 0.15s ease-out;
+}
+
+.frame-dropdown-menu.hidden {
+    display: none !important;
+}
+
+.frame-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    color: #334155;
+    transition: all 0.15s ease;
+}
+
+.frame-menu-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.frame-menu-item.active {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.frame-item-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 24px;
+    padding: 0 6px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.frame-menu-item.active .frame-item-badge {
+    background: #bfdbfe;
+    color: #1e40af;
+}
+
+.frame-menu-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 4px 6px;
+}
+
+/* Slide Frame Floating Banner */
+.slide-frame-banner {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 95;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: calc(100vw - 24px);
+    padding: 6px 14px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    animation: fadeInDown 0.2s ease-out;
+    pointer-events: auto;
+}
+
+.slide-frame-banner.hidden {
+    display: none !important;
+}
+
+.slide-banner-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.slide-banner-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.slide-banner-btn-exit {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.slide-banner-btn-exit:hover {
+    background: rgba(239, 68, 68, 0.45);
+    color: #ffffff;
+}
+
+.slide-banner-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 0 4px;
+}
+
+.slide-counter-badge {
+    padding: 3px 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    letter-spacing: -0.2px;
+}
+
+.slide-banner-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.slide-banner-btn-add {
+    background: rgba(59, 130, 246, 0.4);
+    border-color: rgba(96, 165, 250, 0.6);
+    color: #ffffff;
+}
+
+.slide-banner-btn-add:hover {
+    background: rgba(59, 130, 246, 0.65);
+    border-color: #93c5fd;
+}
+
+.slide-banner-btn-del {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(248, 113, 113, 0.4);
+    color: #fca5a5;
+    padding: 3px 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.slide-banner-btn-del:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.6);
+    color: #ffffff;
+}
+
+.slide-banner-btn:disabled,
+.slide-banner-btn-del:disabled {
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
+    background: rgba(148, 163, 184, 0.12) !important;
+    border-color: rgba(148, 163, 184, 0.2) !important;
+    color: #94a3b8 !important;
+}
+
+/* Slide Frame Workspace styling when slide mode is active */
+body.slide-mode-active #canvas-container {
+    background-color: #cbd5e1;
+}
+
+/* Slide Page Fullscreen (Theater View - Covers whole Chrome page) */
+body.slide-page-fullscreen .top-bar-container,
+body.slide-page-fullscreen #left-sidebar,
+body.slide-page-fullscreen .sidebar-dock,
+body.slide-page-fullscreen #shapes-panel:not(.open-in-slide),
+body.slide-page-fullscreen .sidebar-drawer:not(.open-in-slide),
+body.slide-page-fullscreen #right-boards-sidebar,
+body.slide-page-fullscreen .right-boards-sidebar,
+body.slide-page-fullscreen #zoom-widget,
+body.slide-page-fullscreen .zoom-control,
+body.slide-page-fullscreen #stepbox-floating-bar,
+body.slide-page-fullscreen .stepbox-floating-bar {
+    display: none !important;
+}
+
+body.slide-page-fullscreen #shapes-panel.open-in-slide,
+body.slide-page-fullscreen .sidebar-drawer.open-in-slide {
+    display: flex !important;
+    position: fixed !important;
+    top: 75px !important;
+    left: 20px !important;
+    z-index: 10005 !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+body.slide-page-fullscreen #canvas-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 10 !important;
+    background-color: #020617 !important; /* cinematic deep black backdrop */
+}
+
+body.slide-page-fullscreen .slide-frame-banner {
+    top: 14px;
+    z-index: 10001 !important;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
