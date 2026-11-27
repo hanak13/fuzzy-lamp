@@ -369,8 +369,8 @@
                 </div>
             </div>
 
-            <!-- Teacher's Screen Reset Button (Visible to guests / students) -->
-            <button type="button" id="btn-return-teacher-view" class="top-bar-action-btn btn-return-teacher hidden" title="Return to Teacher's Screen">
+            <!-- Master's Screen Reset Button (Visible to guests) -->
+            <button type="button" id="btn-return-teacher-view" class="top-bar-action-btn btn-return-teacher hidden" title="Return to Master's Screen">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <circle cx="12" cy="12" r="3"/>
@@ -379,7 +379,7 @@
                     <line x1="2" y1="12" x2="6" y2="12"/>
                     <line x1="18" y1="12" x2="22" y2="12"/>
                 </svg>
-                <span class="btn-text">Teacher's View</span>
+                <span class="btn-text">Master's View</span>
             </button>
 
             <!-- Fullscreen Toggle Button -->
@@ -1059,20 +1059,20 @@
     <main id="canvas-container">
         <canvas id="whiteboard-canvas"></canvas>
         <div id="collab-cursors-container" class="collab-cursors-container">
-            <!-- Teacher / Master Screen Boundary Frame (Visible to Guests) -->
+            <!-- Master Screen Boundary Frame (Visible to Guests) -->
             <div id="teacher-screen-frame" class="teacher-screen-frame hidden">
                 <div class="teacher-screen-badge">
                     <span class="teacher-badge-icon">👑</span>
-                    <span id="teacher-screen-badge-name">Teacher's Screen</span>
-                    <button type="button" id="btn-frame-reset-teacher" class="teacher-frame-reset-btn" title="Snap to Teacher's View">Snap to View</button>
+                    <span id="teacher-screen-badge-name">Master's Screen</span>
+                    <button type="button" id="btn-frame-reset-teacher" class="teacher-frame-reset-btn" title="Snap to Master's View">Snap to View</button>
                 </div>
             </div>
         </div>
-        <!-- Floating Teacher Screen Indicator / Reset Pill for Students -->
+        <!-- Floating Master Screen Indicator / Reset Pill for Guests -->
         <div id="teacher-view-floating-indicator" class="teacher-view-pill hidden">
-            <button type="button" id="btn-floating-return-teacher" class="btn-floating-return-teacher" title="Return to Teacher's Screen">
+            <button type="button" id="btn-floating-return-teacher" class="btn-floating-return-teacher" title="Return to Master's Screen">
                 <span class="pill-icon">👑</span>
-                <span class="pill-title">Teacher's Screen</span>
+                <span class="pill-title">Master's Screen</span>
                 <span class="pill-action">Reset</span>
             </button>
         </div>

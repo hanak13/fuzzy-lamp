@@ -805,7 +805,7 @@
                 screenWidth: Math.round(w),
                 screenHeight: Math.round(h),
                 zoom: parseFloat(zoom.toFixed(4)),
-                master_name: currentUser.name || 'Teacher'
+                master_name: currentUser.name || 'Master'
             });
         },
 
@@ -834,10 +834,10 @@
             frameEl.style.width = `${Math.round(frameW)}px`;
             frameEl.style.height = `${Math.round(frameH)}px`;
 
-            // Update badge label with Teacher's name
+            // Update badge label with Master's name
             const nameEl = document.getElementById('teacher-screen-badge-name');
             if (nameEl) {
-                nameEl.textContent = `${masterViewport.master_name || 'Teacher'}'s Screen`;
+                nameEl.textContent = `${masterViewport.master_name || 'Master'}'s Screen`;
             }
 
             frameEl.classList.remove('hidden');
@@ -877,7 +877,7 @@
         resetViewToTeacher(smooth = true) {
             if (!masterViewport) {
                 if (typeof window.showToast === 'function') {
-                    window.showToast("Teacher's screen is not active yet", 'warning');
+                    window.showToast("Master's screen is not active yet", 'warning');
                 }
                 return;
             }
@@ -934,7 +934,7 @@
                         requestAnimationFrame(animateFrame);
                     } else {
                         if (typeof window.showToast === 'function') {
-                            window.showToast(`Centered on ${masterViewport.master_name || 'Teacher'}'s screen`);
+                            window.showToast(`Centered on ${masterViewport.master_name || 'Master'}'s screen`);
                         }
                     }
                 };
