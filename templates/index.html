@@ -161,6 +161,7 @@
                     <button type="button" id="btn-stroke-size-inc" class="size-step-btn" title="Increase Stroke Size (])">+</button>
                     <input type="range" id="slider-stroke-size" min="1" max="64" value="4" step="1" class="size-range-slider" title="Drag to adjust writing size">
                 </div>
+                <button type="button" id="btn-smart-shape" class="prop-pill" title="Smart Shape Recognition: Snap rough lines, circles, and rectangles into clean shapes" style="margin-left: 6px;">✨ Smart Shape</button>
             </div>
 
             <!-- Eraser Mode & Size Controls -->
@@ -605,13 +606,16 @@
                     </svg>
                     <span>Shapes Library</span>
                 </div>
-                <button id="btn-close-shapes" class="shapes-panel-close btn-close-drawer" title="Close drawer">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <button type="button" id="btn-import-shape-pack" class="prop-pill" title="Import Community Shape Pack (.json)" style="font-size: 11px; padding: 3px 8px;">+ Pack</button>
+                    <input type="file" id="shape-pack-file-input" accept=".json" style="display: none;">
+                    <button id="btn-close-shapes" class="shapes-panel-close btn-close-drawer" title="Close drawer">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
 
             <div class="shapes-search-wrapper">
                 <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

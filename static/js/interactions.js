@@ -275,12 +275,135 @@
                     canvas.renderAll();
                     if (typeof window.saveState === 'function') window.saveState();
                 } else if (currentMode === 'pen') {
+                    if (smartShapeEnabled && recognizeAndSnapShape(path, canvas)) {
+                        if (typeof window.saveState === 'function') window.saveState();
+                        return;
+                    }
                     path.set({
                         selectable: currentMode === 'select'
                     });
                     if (typeof window.saveState === 'function') window.saveState();
                 }
             });
+
+            // Smart Shape Recognition (Opt-in toggle)
+            let smartShapeEnabled = false;
+            const btnSmartShape = document.getElementById('btn-smart-shape');
+            if (btnSmartShape) {
+                btnSmartShape.addEventListener('click', () => {
+                    smartShapeEnabled = !smartShapeEnabled;
+                    btnSmartShape.classList.toggle('active', smartShapeEnabled);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(smartShapeEnabled ? 'Smart Shape Recognition ON' : 'Smart Shape Recognition OFF');
+                    }
+                });
+            }
+
+            function recognizeAndSnapShape(pathObj, targetCanvas) {
+                if (!pathObj || !Array.isArray(pathObj.path) || pathObj.path.length < 3) return false;
+                const pts = [];
+                pathObj.path.forEach(cmd => {
+                    if (cmd.length >= 3) {
+                        pts.push({ x: cmd[cmd.length - 2], y: cmd[cmd.length - 1] });
+                    }
+                });
+                if (pts.length < 3) return false;
+
+                const offsetX = pathObj.left - pathObj.pathOffset.x;
+                const offsetY = pathObj.top - pathObj.pathOffset.y;
+                const worldPts = pts.map(p => ({ x: p.x + offsetX, y: p.y + offsetY }));
+
+                const br = pathObj.getBoundingRect(true, true);
+                const w = br.width;
+                const h = br.height;
+                const diag = Math.hypot(w, h);
+                if (diag < 24) return false;
+
+                const first = worldPts[0];
+                const last = worldPts[worldPts.length - 1];
+                const endDist = Math.hypot(last.x - first.x, last.y - first.y);
+                const stroke = pathObj.stroke || '#1e293b';
+                const strokeWidth = pathObj.strokeWidth || 4;
+
+                // 1. Straight Line detection
+                if (endDist > 28 && endDist > diag * 0.72) {
+                    const dx = last.x - first.x;
+                    const dy = last.y - first.y;
+                    let maxDev = 0;
+                    for (let i = 1; i < worldPts.length - 1; i++) {
+                        const p = worldPts[i];
+                        const dist = Math.abs(dy * p.x - dx * p.y + last.x * first.y - last.y * first.x) / endDist;
+                        if (dist > maxDev) maxDev = dist;
+                    }
+                    if (maxDev < endDist * 0.12) {
+                        const line = new fabric.Line([first.x, first.y, last.x, last.y], {
+                            stroke, strokeWidth, strokeLineCap: 'round', selectable: false
+                        });
+                        targetCanvas.remove(pathObj);
+                        targetCanvas.add(line);
+                        targetCanvas.requestRenderAll();
+                        return true;
+                    }
+                }
+
+                // Closed-ish loop check for Circle / Ellipse / Rectangle
+                if (endDist > diag * 0.4 || w < 20 || h < 20) return false;
+
+                const cx = br.left + w / 2;
+                const cy = br.top + h / 2;
+                const rx = w / 2;
+                const ry = h / 2;
+
+                // 2. Circle / Ellipse check via normalized ellipse distance
+                let ellipErrSum = 0;
+                let boxEdgeHits = 0;
+                const edgeTol = Math.max(8, Math.min(w, h) * 0.18);
+                for (const p of worldPts) {
+                    const normR = Math.hypot((p.x - cx) / rx, (p.y - cy) / ry);
+                    ellipErrSum += Math.abs(normR - 1);
+                    const nearEdge =
+                        Math.abs(p.x - br.left) < edgeTol ||
+                        Math.abs(p.x - (br.left + w)) < edgeTol ||
+                        Math.abs(p.y - br.top) < edgeTol ||
+                        Math.abs(p.y - (br.top + h)) < edgeTol;
+                    if (nearEdge) boxEdgeHits++;
+                }
+                const meanEllipErr = ellipErrSum / worldPts.length;
+                const boxRatio = boxEdgeHits / worldPts.length;
+
+                if (meanEllipErr < 0.18 && meanEllipErr <= (1 - boxRatio) + 0.05) {
+                    const aspect = w / h;
+                    const shape = (aspect >= 0.78 && aspect <= 1.28)
+                        ? new fabric.Circle({
+                            left: cx, top: cy, radius: (rx + ry) / 2,
+                            originX: 'center', originY: 'center',
+                            fill: 'transparent', stroke, strokeWidth, selectable: false
+                        })
+                        : new fabric.Ellipse({
+                            left: cx, top: cy, rx, ry,
+                            originX: 'center', originY: 'center',
+                            fill: 'transparent', stroke, strokeWidth, selectable: false
+                        });
+                    targetCanvas.remove(pathObj);
+                    targetCanvas.add(shape);
+                    targetCanvas.requestRenderAll();
+                    return true;
+                }
+
+                // 3. Rectangle check
+                if (boxRatio >= 0.72) {
+                    const rect = new fabric.Rect({
+                        left: br.left, top: br.top, width: w, height: h,
+                        fill: 'transparent', stroke, strokeWidth, rx: 4, ry: 4, selectable: false
+                    });
+                    targetCanvas.remove(pathObj);
+                    targetCanvas.add(rect);
+                    targetCanvas.requestRenderAll();
+                    return true;
+                }
+
+                return false;
+            }
 
             // Long-press drag duplication state
             let longPressTimer = null;

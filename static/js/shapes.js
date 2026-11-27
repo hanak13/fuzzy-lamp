@@ -176,9 +176,111 @@
         refreshAllShapes();
     }
 
+    const SHAPE_PACKS_STORAGE_KEY = 'whiteboard_shape_packs_v1';
+
+    function getInstalledShapePacks() {
+        try {
+            const raw = localStorage.getItem(SHAPE_PACKS_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function normalizePackShape(shape, pack) {
+        const viewBox = shape.viewBox || '0 0 100 100';
+        const svgPath = shape.path || '';
+        const defaultW = shape.defaultWidth || 100;
+        const defaultH = shape.defaultHeight || 100;
+        const category = shape.category || pack.name || 'Plugins';
+        return {
+            id: shape.id || `${pack.id}_${Math.random().toString(36).slice(2, 8)}`,
+            name: shape.name || 'Custom Shape',
+            category,
+            section: shape.section || pack.name || null,
+            tags: Array.isArray(shape.tags) ? shape.tags : [pack.name || 'plugin'],
+            isBuiltin: false,
+            packId: pack.id,
+            viewBox,
+            svgIcon: shape.svgIcon || `<path d="${svgPath}" fill="none" stroke="currentColor" stroke-width="6"/>`,
+            path: svgPath,
+            defaultWidth: defaultW,
+            defaultHeight: defaultH,
+            create: (fill, stroke, strokeWidth) => {
+                const pathObj = new fabric.Path(svgPath, {
+                    fill,
+                    stroke,
+                    strokeWidth,
+                    originX: 'center',
+                    originY: 'center'
+                });
+                if (defaultW && pathObj.width) {
+                    pathObj.scale(defaultW / pathObj.width);
+                }
+                return pathObj;
+            }
+        };
+    }
+
+    function ensureCategoryChip(categoryName) {
+        const container = document.getElementById('shapes-categories');
+        if (!container || !categoryName) return;
+        const exists = Array.from(container.querySelectorAll('.category-chip')).some(
+            c => (c.dataset.category || '').toLowerCase() === categoryName.toLowerCase()
+        );
+        if (!exists) {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'category-chip';
+            chip.dataset.category = categoryName;
+            chip.textContent = `🧩 ${categoryName}`;
+            container.appendChild(chip);
+        }
+    }
+
+    function registerShapePack(pack, persist = true) {
+        if (!pack || !Array.isArray(pack.shapes)) {
+            throw new Error('Invalid shape pack: expected { id, name, shapes: [...] }');
+        }
+        const cleanPack = {
+            id: String(pack.id || ('pack_' + Date.now())),
+            name: String(pack.name || 'Community Pack'),
+            author: String(pack.author || ''),
+            version: String(pack.version || '1.0.0'),
+            shapes: pack.shapes.filter(s => s && typeof s.path === 'string' && s.path.trim())
+        };
+        if (cleanPack.shapes.length === 0) {
+            throw new Error('Shape pack contains no valid SVG path shapes');
+        }
+        if (persist) {
+            const packs = getInstalledShapePacks().filter(p => p.id !== cleanPack.id);
+            packs.push(cleanPack);
+            localStorage.setItem(SHAPE_PACKS_STORAGE_KEY, JSON.stringify(packs));
+        }
+        cleanPack.shapes.forEach(s => ensureCategoryChip(s.category || cleanPack.name));
+        refreshAllShapes();
+        return cleanPack;
+    }
+
+    function uninstallShapePack(packId) {
+        const packs = getInstalledShapePacks().filter(p => p.id !== packId);
+        localStorage.setItem(SHAPE_PACKS_STORAGE_KEY, JSON.stringify(packs));
+        refreshAllShapes();
+    }
+
     function refreshAllShapes() {
         const userShapes = getUserCustomShapes();
-        allShapes = [...BUILTIN_SHAPES, ...staticJsonShapes, ...userShapes];
+        const packShapes = [];
+        getInstalledShapePacks().forEach(pack => {
+            if (Array.isArray(pack.shapes)) {
+                pack.shapes.forEach(s => {
+                    ensureCategoryChip(s.category || pack.name);
+                    packShapes.push(normalizePackShape(s, pack));
+                });
+            }
+        });
+        allShapes = [...BUILTIN_SHAPES, ...staticJsonShapes, ...packShapes, ...userShapes];
         renderShapesList();
     }
 
@@ -655,14 +757,16 @@
         const templatesSearch = document.getElementById('templates-search');
         const btnClearTemplatesSearch = document.getElementById('btn-clear-templates-search');
 
-        categoryChips.forEach(chip => {
-            chip.addEventListener('click', () => {
-                categoryChips.forEach(c => c.classList.remove('active'));
+        if (shapesCategoriesEl) {
+            shapesCategoriesEl.addEventListener('click', (e) => {
+                const chip = e.target.closest('.category-chip');
+                if (!chip) return;
+                shapesCategoriesEl.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
                 chip.classList.add('active');
                 activeCategory = chip.dataset.category || 'all';
                 renderShapesList();
             });
-        });
+        }
 
         fcSubPills.forEach(pill => {
             pill.addEventListener('click', () => {
@@ -819,10 +923,45 @@
         renderTemplatesList,
         loadTemplateOntoCanvas,
         saveActiveObjectAsCustomShape,
-        addBuiltinShape
+        addBuiltinShape,
+        registerShapePack,
+        uninstallShapePack,
+        getInstalledShapePacks
     };
 
     window.WhiteboardApp.shapes = ShapesModule;
+    window.WhiteboardApp.registerShapePack = registerShapePack;
+    window.WhiteboardApp.uninstallShapePack = uninstallShapePack;
+
+    // Wire Community Shape Pack JSON import button
+    const btnImportPack = document.getElementById('btn-import-shape-pack');
+    const packFileInput = document.getElementById('shape-pack-file-input');
+    if (btnImportPack && packFileInput) {
+        btnImportPack.addEventListener('click', () => {
+            packFileInput.value = '';
+            packFileInput.click();
+        });
+        packFileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    const installed = registerShapePack(parsed, true);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(`Loaded "${installed.name}" (${installed.shapes.length} shapes)`);
+                    }
+                } catch (err) {
+                    console.error('Shape pack import failed:', err);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(err.message || 'Invalid shape pack JSON');
+                    }
+                }
+            };
+            reader.readAsText(file);
+        });
+    }
 
     // Direct global exports for backwards compatibility
     window.generateUid = generateUid;
