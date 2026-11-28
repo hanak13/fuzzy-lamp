@@ -26,7 +26,7 @@
 - ✨ **Opt-in Smart Shape Recognition**: Toggle **Smart Shape** in Pen mode to automatically snap rough freehand lines, circles, ellipses, and rectangles into clean shapes.
 - 🧩 **Community Shape Packs Plugin API**: Import `.json` shape packs via `+ Pack` in the Shapes Library or register packs programmatically via `window.WhiteboardApp.registerShapePack()`.
 - ✋ **Long-Press Drag to Duplicate**: Hold 450ms on any object (mouse or touch) and drag to duplicate it in place.
-- 🧱 **Modular CSS Architecture**: Split the 5,443-line stylesheet into 25 topic-scoped CSS files loaded via a clean `@import` manifest.
+- 🧱 **Modular CSS Architecture**: Split the monolithic stylesheet into 25+ topic-scoped CSS files loaded via a clean `@import` manifest (see [`static/css/README.md`](static/css/README.md)).
 
 ---
 
@@ -296,7 +296,10 @@ fuzzy-lamp/
 ├── .gitignore           # Files excluded from version control
 │
 ├── static/
-│   ├── css/style.css    # All application styles + dark-mode variables
+│   ├── css/
+│   │   ├── style.css    # Rule-free @import manifest (load-order-critical)
+│   │   ├── README.md    # CSS module map & selector-to-file cheatsheet
+│   │   └── *.css        # 25+ topic-scoped stylesheets (base, layout, panels, theme, collab)
 │   ├── js/
 │   │   ├── core.js      # Canvas init, shared state, DOM refs, grid & zoom engine
 │   │   ├── tools.js     # Brushes, highlighter, dual eraser, connector arrows
@@ -328,6 +331,8 @@ fuzzy-lamp/
 └── docs/
     └── USER_GUIDE.md    # Tool-by-tool user documentation
 ```
+
+> 💡 **Stylesheet Guide**: See [`static/css/README.md`](static/css/README.md) for the CSS architecture and selector-to-file cheatsheet.
 
 ---
 
