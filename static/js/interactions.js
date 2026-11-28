@@ -541,7 +541,8 @@
                         strokeWidth: 2,
                         strokeDashArray: [5, 4],
                         selectable: false,
-                        evented: false
+                        evented: false,
+                        isPreviewOverlay: true
                     });
                     canvas.add(window.areaErasePreview);
                     return;
@@ -646,7 +647,8 @@
                         rx: 6,
                         ry: 6,
                         selectable: false,
-                        evented: false
+                        evented: false,
+                        isPreviewOverlay: true
                     });
                     canvas.add(window.stepBoxPreviewRect);
                     return;
@@ -703,7 +705,8 @@
                         strokeWidth: strokeWidth,
                         strokeDashArray: dashPattern || [4, 4],
                         selectable: false,
-                        evented: false
+                        evented: false,
+                        isPreviewOverlay: true
                     });
                     canvas.add(window.connectorPreviewLine);
                     return;
@@ -892,7 +895,8 @@
                             strokeDashArray: [5, 4],
                             selectable: false,
                             evented: false,
-                            objectCaching: false
+                            objectCaching: false,
+                            isPreviewOverlay: true
                         });
                         canvas.add(window.areaErasePreview);
                         canvas.requestRenderAll();

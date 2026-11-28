@@ -1413,26 +1413,26 @@
             // Setup canvas listeners for Granular Object Synchronization
             canvas.on('object:added', (e) => {
                 const obj = e.target;
-                if (!obj || isApplyingRemoteChange) return;
+                if (!obj || obj.isPreviewOverlay || isApplyingRemoteChange) return;
                 ensureObjectId(obj);
                 CollabModule.broadcastObjectAdded(obj);
             });
 
             canvas.on('object:modified', (e) => {
                 const obj = e.target;
-                if (!obj || isApplyingRemoteChange) return;
+                if (!obj || obj.isPreviewOverlay || isApplyingRemoteChange) return;
                 CollabModule.broadcastObjectModified(obj);
             });
 
             canvas.on('text:changed', (e) => {
                 const obj = e.target;
-                if (!obj || isApplyingRemoteChange) return;
+                if (!obj || obj.isPreviewOverlay || isApplyingRemoteChange) return;
                 CollabModule.broadcastObjectModified(obj);
             });
 
             canvas.on('object:removed', (e) => {
                 const obj = e.target;
-                if (!obj || isApplyingRemoteChange) return;
+                if (!obj || obj.isPreviewOverlay || isApplyingRemoteChange) return;
                 CollabModule.broadcastObjectRemoved(obj);
             });
 

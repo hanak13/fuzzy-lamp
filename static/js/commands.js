@@ -76,7 +76,11 @@
             const canvas = CommandsModule.getCanvas();
             if (!canvas) return;
 
-            const currentState = JSON.stringify(canvas.toJSON(EXTRA_PROPS));
+            const jsonObj = canvas.toJSON(EXTRA_PROPS);
+            if (Array.isArray(jsonObj.objects)) {
+                jsonObj.objects = jsonObj.objects.filter(o => !o.isPreviewOverlay);
+            }
+            const currentState = JSON.stringify(jsonObj);
             if (undoStack.length > 0 && undoStack[undoStack.length - 1] === currentState) {
                 return;
             }
@@ -695,6 +699,9 @@
             if (canvas) {
                 canvas.on('object:added', (opt) => {
                     const addedObj = opt.target;
+                    if (addedObj && (addedObj.isPreviewOverlay || addedObj === window.areaErasePreview || addedObj === window.stepBoxPreviewRect || addedObj === window.connectorPreviewLine)) {
+                        return;
+                    }
                     const currentMode = window.WhiteboardApp.currentMode || window.currentMode;
                     const currentFrameRatio = window.WhiteboardApp.currentFrameRatio || window.currentFrameRatio || 'infinite';
 
@@ -709,7 +716,13 @@
                     }
                     CommandsModule.saveStateDebounced(150);
                 });
-                canvas.on('object:removed', () => CommandsModule.saveStateDebounced(150));
+                canvas.on('object:removed', (opt) => {
+                    const removedObj = opt && opt.target;
+                    if (removedObj && (removedObj.isPreviewOverlay || removedObj === window.areaErasePreview || removedObj === window.stepBoxPreviewRect || removedObj === window.connectorPreviewLine)) {
+                        return;
+                    }
+                    CommandsModule.saveStateDebounced(150);
+                });
             }
 
             // Global Keydown Handler

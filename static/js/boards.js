@@ -181,6 +181,7 @@
                 if (Array.isArray(obj.objects)) obj.objects.forEach(fix);
             };
             if (Array.isArray(payload.objects)) {
+                payload.objects = payload.objects.filter(o => o && !o.isPreviewOverlay);
                 payload.objects.forEach(fix);
             }
             return payload;

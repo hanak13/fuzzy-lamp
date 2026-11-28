@@ -24,6 +24,7 @@
     const EXTRA_PROPS = [
         'id',
         'isSmartShape',
+        'isPreviewOverlay',
         'globalCompositeOperation',
         'objectCaching',
         'selectable',
