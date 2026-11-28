@@ -17,7 +17,7 @@
     let historyDebounceTimer = null;
 
     const EXTRA_PROPS = [
-        'id', 'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
+        'id', 'isSmartShape', 'shapeUid', 'connectedLines', 'isConnector', 'isArrowHead',
         'isStepBox', 'stepBoxId', 'stepBoxName', 'stepBoxSteps', 'stepBoxCurrentStep', 'stepBoxOwnerId',
         'isStickyNote', 'stickyColor', 'isSticker', 'imageName',
         'isIcon', 'iconName', 'iconCategory', 'iconSvg'

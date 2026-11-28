@@ -283,11 +283,6 @@
             if (stepBoxes.length > 0 && typeof window.updateStepBoxFloatingControls === 'function') {
                 window.updateStepBoxFloatingControls(stepBoxes[stepBoxes.length - 1]);
             }
-
-            // Reset undo/redo history to clean baseline state for loaded board
-            if (typeof window.resetHistoryWithState === 'function') {
-                window.resetHistoryWithState();
-            }
         },
 
         hexToRgb(hex) {
@@ -594,7 +589,7 @@
                     canvas.renderAll();
                     isBoardLoading = false;
                     isBoardDirty = false;
-                    if (typeof window.saveState === 'function') window.saveState();
+                    if (typeof window.resetHistoryWithState === 'function') window.resetHistoryWithState();
                     BoardsModule.updateAutosaveIndicator('saved');
                     if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
                     if (typeof window.renderObjectsList === 'function') window.renderObjectsList();
@@ -1034,7 +1029,7 @@
                             canvas.renderAll();
                             isBoardLoading = false;
                             isBoardDirty = false;
-                            if (typeof window.saveState === 'function') window.saveState();
+                            if (typeof window.resetHistoryWithState === 'function') window.resetHistoryWithState();
                             isBoardDirty = false;
                             BoardsModule.updateAutosaveIndicator('saved');
                             if (typeof window.updateObjectsCountBadges === 'function') window.updateObjectsCountBadges();
