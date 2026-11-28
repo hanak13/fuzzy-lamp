@@ -23,6 +23,7 @@
     // Extra properties to serialize in Fabric JSON history and LAN sync
     const EXTRA_PROPS = [
         'id',
+        'isSmartShape',
         'globalCompositeOperation',
         'objectCaching',
         'selectable',

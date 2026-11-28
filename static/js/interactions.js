@@ -129,10 +129,11 @@
                 if (obj.isStickyNote || obj.isShapeGroup || obj.type === 'textbox' || obj.type === 'i-text') continue;
                 if (obj === window.stepBoxPreviewRect || obj === window.connectorPreviewLine || obj === window.areaErasePreview) continue;
 
-                // Only target paths (pen, highlighter) and connector / free lines
+                // Target paths (pen, highlighter), connector / free lines, and Smart Shapes
                 const isPath = obj.type === 'path';
                 const isLine = obj.isConnector || obj.isFreeLine || obj.type === 'line';
-                if (!isPath && !isLine) continue;
+                const isSmart = Boolean(obj.isSmartShape);
+                if (!isPath && !isLine && !isSmart) continue;
 
                 // Broad-phase AABB test
                 const bound = obj.getBoundingRect ? obj.getBoundingRect(true, true) : null;
@@ -181,6 +182,41 @@
                     }
                     if (InteractionsModule.distBetweenSegmentsSquared(p1, p2, pA, pB) <= maxDistSq) {
                         hit = true;
+                    }
+                } else if (isSmart && bound) {
+                    const bLeft = bound.left;
+                    const bTop = bound.top;
+                    const bRight = bound.left + bound.width;
+                    const bBottom = bound.top + bound.height;
+                    if (obj.type === 'circle' || obj.type === 'ellipse') {
+                        const cx = (bLeft + bRight) / 2;
+                        const cy = (bTop + bBottom) / 2;
+                        const rx = Math.max(1, bound.width / 2);
+                        const ry = Math.max(1, bound.height / 2);
+                        const steps = 32;
+                        let prevPt = { x: cx + rx, y: cy };
+                        for (let s = 1; s <= steps; s++) {
+                            const angle = (s / steps) * Math.PI * 2;
+                            const nextPt = { x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle) };
+                            if (InteractionsModule.distBetweenSegmentsSquared(p1, p2, prevPt, nextPt) <= maxDistSq) {
+                                hit = true;
+                                break;
+                            }
+                            prevPt = nextPt;
+                        }
+                    } else {
+                        const corners = [
+                            { x: bLeft, y: bTop },
+                            { x: bRight, y: bTop },
+                            { x: bRight, y: bBottom },
+                            { x: bLeft, y: bBottom }
+                        ];
+                        for (let c = 0; c < 4; c++) {
+                            if (InteractionsModule.distBetweenSegmentsSquared(p1, p2, corners[c], corners[(c + 1) % 4]) <= maxDistSq) {
+                                hit = true;
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -337,7 +373,7 @@
                     }
                     if (maxDev < endDist * 0.12) {
                         const line = new fabric.Line([first.x, first.y, last.x, last.y], {
-                            stroke, strokeWidth, strokeLineCap: 'round', selectable: false
+                            stroke, strokeWidth, strokeLineCap: 'round', selectable: false, isSmartShape: true
                         });
                         targetCanvas.remove(pathObj);
                         targetCanvas.add(line);
@@ -377,12 +413,12 @@
                         ? new fabric.Circle({
                             left: cx, top: cy, radius: (rx + ry) / 2,
                             originX: 'center', originY: 'center',
-                            fill: 'transparent', stroke, strokeWidth, selectable: false
+                            fill: 'transparent', stroke, strokeWidth, selectable: false, isSmartShape: true
                         })
                         : new fabric.Ellipse({
                             left: cx, top: cy, rx, ry,
                             originX: 'center', originY: 'center',
-                            fill: 'transparent', stroke, strokeWidth, selectable: false
+                            fill: 'transparent', stroke, strokeWidth, selectable: false, isSmartShape: true
                         });
                     targetCanvas.remove(pathObj);
                     targetCanvas.add(shape);
@@ -394,7 +430,7 @@
                 if (boxRatio >= 0.72) {
                     const rect = new fabric.Rect({
                         left: br.left, top: br.top, width: w, height: h,
-                        fill: 'transparent', stroke, strokeWidth, rx: 4, ry: 4, selectable: false
+                        fill: 'transparent', stroke, strokeWidth, rx: 4, ry: 4, selectable: false, isSmartShape: true
                     });
                     targetCanvas.remove(pathObj);
                     targetCanvas.add(rect);
